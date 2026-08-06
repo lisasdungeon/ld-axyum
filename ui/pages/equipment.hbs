@@ -1,106 +1,108 @@
-{{!-- LD Axyum - Equipment Selection Page (Horizontal Layout) --}}
-<div class="axyum-page equipment-page">
-  <h2 class="axyum-page-title"><i class="fas fa-shield-alt"></i> Starting Equipment</h2>
-  <p class="axyum-page-description">
-    Select your character's starting gear. Level 1 characters can choose up to {{maxStartingItems}} items.
-  </p>
-
-  {{!-- Equipment Layout: Sidebar + Grid --}}
-  <div class="equipment-layout">
-    
-    {{!-- Left Sidebar: Filters & Info --}}
-    <aside class="equipment-sidebar">
-      
-      {{!-- Class Info Panel --}}
+<div class="axyum-page axyum-catalog-page equipment-page">
+  <header class="page-intro">
+    <p class="page-kicker">Starting equipment</p>
+    <h2 class="axyum-page-title">Choose your class package</h2>
+    <p class="axyum-page-description">
       {{#if character.class.name}}
-      <div class="equipment-class-info">
-        <h4><i class="fas fa-scroll"></i> {{character.class.name}}</h4>
-        <p class="class-tip">Select equipment matching your class proficiencies for best effectiveness.</p>
-      </div>
+        Pick the starting gear package for <strong>{{character.class.name}}</strong>. Items show name, quantity, and type.
+      {{else}}
+        Select a class first to load starting equipment packages.
       {{/if}}
-      
-      {{!-- Filter Buttons --}}
-      <div class="equipment-filters">
-        <h4><i class="fas fa-filter"></i> Filter By Type</h4>
-        <div class="filter-buttons">
-          <button type="button" class="filter-btn {{#unless equipmentFilter}}active{{/unless}}" data-action="filterEquipment" data-filter="">
-            <i class="fas fa-th"></i> All
-          </button>
-          <button type="button" class="filter-btn {{#if (eq equipmentFilter 'weapon')}}active{{/if}}" data-action="filterEquipment" data-filter="weapon">
-            <i class="fas fa-sword"></i> Weapons
-          </button>
-          <button type="button" class="filter-btn {{#if (eq equipmentFilter 'equipment')}}active{{/if}}" data-action="filterEquipment" data-filter="equipment">
-            <i class="fas fa-shield-alt"></i> Armor
-          </button>
-          <button type="button" class="filter-btn {{#if (eq equipmentFilter 'gear')}}active{{/if}}" data-action="filterEquipment" data-filter="gear">
-            <i class="fas fa-backpack"></i> Gear
-          </button>
-          <button type="button" class="filter-btn {{#if (eq equipmentFilter 'tool')}}active{{/if}}" data-action="filterEquipment" data-filter="tool">
-            <i class="fas fa-hammer"></i> Tools
-          </button>
-        </div>
-      </div>
+    </p>
+  </header>
 
-      {{!-- Selection Summary --}}
-      <div class="equipment-summary">
-        <h4><i class="fas fa-shopping-bag"></i> Your Pack</h4>
-        <div class="selection-count {{#if (gt selectedEquipmentCount maxStartingItems)}}over-limit{{/if}}">
-          <span class="count-number">{{selectedEquipmentCount}}</span>
-          <span class="count-label">/ {{maxStartingItems}} items</span>
-        </div>
-        <div class="selection-bar">
-          <div class="selection-fill" style="width: {{selectionPercent}}%;"></div>
-        </div>
-        {{#if (gt selectedEquipmentCount maxStartingItems)}}
-        <p class="over-limit-warning"><i class="fas fa-exclamation-triangle"></i> Over item limit!</p>
-        {{/if}}
+  {{#if startingEquipment.packages.length}}
+    <div class="axyum-catalog-toolbar">
+      <div class="tally-chip">
+        <span class="tally-label">Packages</span>
+        <span class="tally-value">{{startingEquipment.packages.length}}</span>
       </div>
+      {{#if characterData.startingPackageId}}
+        <span class="axyum-meta-chip axyum-meta-chip--accent">Package selected</span>
+      {{else}}
+        <span class="muted">Select one package below</span>
+      {{/if}}
+    </div>
 
-      {{!-- Quick Tips --}}
-      <div class="equipment-tips">
-        <h4><i class="fas fa-lightbulb"></i> Tips</h4>
-        <ul>
-          <li>Pick one primary weapon</li>
-          <li>Choose armor you're proficient with</li>
-          <li>Pack essentials: rope, torch, rations</li>
-        </ul>
-      </div>
-      
-    </aside>
-
-    {{!-- Main Content: Equipment Grid --}}
-    <main class="equipment-main">
-      <div class="equipment-grid">
-        {{#if equipment}}
-          {{#each equipment}}
-            <button type="button" class="equipment-card {{#if (includes ../character.selectedEquipmentIds this.id)}}selected{{/if}}" 
-                    data-action="toggleEquipment"
-                    data-item-id="{{this.id}}">
-              <div class="card-icon">
-                {{#if (eq this.type 'weapon')}}<i class="fas fa-sword"></i>
-                {{else if (eq this.type 'equipment')}}<i class="fas fa-shield-alt"></i>
-                {{else if (eq this.type 'tool')}}<i class="fas fa-hammer"></i>
-                {{else if (eq this.type 'consumable')}}<i class="fas fa-flask"></i>
-                {{else}}<i class="fas fa-box"></i>{{/if}}
+    <div class="axyum-package-grid">
+      {{#each startingEquipment.packages}}
+        <div class="axyum-package-card {{#if (eq this.id ../characterData.startingPackageId)}}is-selected{{/if}}">
+          <button type="button"
+                  class="axyum-package-select"
+                  data-action="selectStartingPackage"
+                  data-package-id="{{this.id}}">
+            <span class="axyum-package-label">{{this.label}}</span>
+            {{#if (eq this.id ../characterData.startingPackageId)}}
+              <span class="axyum-meta-chip axyum-meta-chip--rec">Selected</span>
+            {{/if}}
+          </button>
+          <ul class="axyum-package-items">
+            {{#each this.items}}
+              <li>
+                <strong>{{this.name}}</strong>
+                {{#if (gt this.count 1)}} ×{{this.count}}{{/if}}
+                <span class="muted"> — {{this.type}}{{#if this.price}} · {{this.price}} gp{{/if}}</span>
+                {{#if this.description}}
+                  <div class="axyum-item-blurb">{{this.description}}</div>
+                {{/if}}
+              </li>
+            {{/each}}
+          </ul>
+          {{#if this.choices.length}}
+            {{#if (eq this.id ../characterData.startingPackageId)}}
+              <div class="axyum-package-choices">
+                {{#each this.choices}}
+                  <div class="axyum-choice-block">
+                    <span class="page-kicker">{{this.label}}</span>
+                    <div class="axyum-chip-row">
+                      {{#each this.options}}
+                        <button type="button"
+                                class="axyum-chip {{#if this.isChosen}}is-active{{/if}}"
+                                data-action="selectPackageChoice"
+                                data-package-id="{{this.packageId}}"
+                                data-choice-id="{{this.choiceId}}"
+                                data-option-id="{{this.id}}">
+                          {{this.name}}{{#if (gt this.count 1)}} ×{{this.count}}{{/if}}
+                        </button>
+                      {{/each}}
+                    </div>
+                  </div>
+                {{/each}}
               </div>
-              <div class="card-content">
-                <span class="item-name">{{this.name}}</span>
-                <span class="item-meta">
-                  <span class="item-type">{{this.type}}</span>
-                  {{#if this.price}}<span class="item-price">{{this.price}} gp</span>{{/if}}
-                </span>
-              </div>
-              <div class="card-check"><i class="fas fa-check"></i></div>
-            </button>
-          {{/each}}
-        {{else}}
-          <div class="empty-equipment">
-            <i class="fas fa-box-open"></i>
-            <p>No equipment available. Check compendium settings.</p>
+            {{/if}}
+          {{/if}}
+        </div>
+      {{/each}}
+    </div>
+
+    {{#if selectedPackageItems.length}}
+      <div class="axyum-selection-bar">
+        <div class="axyum-selection-bar-copy">
+          <span class="page-kicker">In your pack</span>
+          <strong class="axyum-selection-bar-name">{{selectedPackageItems.length}} items</strong>
+        </div>
+      </div>
+      <div class="axyum-catalog-list">
+        {{#each selectedPackageItems}}
+          <div class="axyum-catalog-row axyum-catalog-row--simple is-selected">
+            <span class="axyum-catalog-name">{{this.name}}{{#if (gt this.count 1)}} ×{{this.count}}{{/if}}</span>
+            <span class="axyum-catalog-meta">
+              <span class="axyum-meta-chip">{{this.type}}</span>
+              {{#if this.price}}<span class="axyum-meta-chip">{{this.price}} gp</span>{{/if}}
+            </span>
+            <span class="axyum-catalog-source is-official">{{#if this.description}}{{this.description}}{{else}}Starting gear{{/if}}</span>
           </div>
-        {{/if}}
+        {{/each}}
       </div>
-    </main>
-    
-  </div>
+    {{/if}}
+  {{else}}
+    <div class="empty-state">
+      {{#if character.class.name}}
+        <p>No starting equipment package found for {{character.class.name}}.</p>
+        <p class="muted">Enable the Player’s Handbook (or SRD) class packs in Configure Compendia, then re-select the class.</p>
+      {{else}}
+        <p>Select a class on the Class page first.</p>
+      {{/if}}
+    </div>
+  {{/if}}
 </div>

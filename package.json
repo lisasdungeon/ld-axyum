@@ -1,21 +1,21 @@
 {
-    "name": "ld-axyum",
-    "version": "1.0.1",
-    "description": "LD Axyum character creator and manager for Foundry VTT",
-    "type": "module",
-    "author": "Lisa's Dungeon",
-    "contributors": [
-        {
-            "name": "Lisa's Dungeon",
-            "url": "https://github.com/lisasdungeon"
-        }
-    ],
-    "license": "Proprietary",
-    "scripts": {
-        "test": "node --test 'tests/**/*.test.mjs'"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/lisasdungeon/ld-axyum"
+  "name": "ld-axyum",
+  "version": "1.0.1",
+  "description": "LD Axyum character creator and manager for Foundry VTT",
+  "type": "module",
+  "author": "Lisa's Dungeon",
+  "contributors": [
+    {
+      "name": "Lisa's Dungeon",
+      "url": "https://github.com/lisasdungeon"
     }
+  ],
+  "license": "Proprietary",
+  "scripts": {
+    "test": "node --test 'tests/**/*.test.mjs'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lisasdungeon/ld-axyum"
+  }
 }

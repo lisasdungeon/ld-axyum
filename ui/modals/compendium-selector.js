@@ -3,7 +3,20 @@
  * Migrated to ApplicationV2 (Foundry v13+)
  */
 
+import { logger } from '../../core/logger.js';
+
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
+const NON_ITEM_DOCUMENT_TYPES = new Set(['Actor', 'JournalEntry', 'RollTable', 'Macro', 'Playlist', 'Scene', 'Adventure', 'Cards']);
+
+function packDocumentName(pack) {
+  return pack?.documentName || pack?.metadata?.documentName || pack?.metadata?.type || '';
+}
+
+/** Only exclude packs we can positively identify as non-Item — never exclude on an unrecognized/empty value. */
+function isKnownNonItemPack(pack) {
+  return NON_ITEM_DOCUMENT_TYPES.has(packDocumentName(pack));
+}
 
 export class CompendiumSelector extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
@@ -39,19 +52,27 @@ export class CompendiumSelector extends HandlebarsApplicationMixin(ApplicationV2
     let enabledCompendia = {};
     try {
       enabledCompendia = game.settings.get('ld-axyum', 'enabledCompendia') || {};
-    } catch (e) { /* settings not registered yet */ }
+    } catch (e) {
+      logger.warn('enabledCompendia setting unavailable', e);
+    }
 
+    const hasExplicitSelection = Object.values(enabledCompendia).some(Boolean);
     const packs = game.packs?.values?.() ? Array.from(game.packs.values()) : [];
 
     for (const pack of packs) {
+      if (isKnownNonItemPack(pack)) continue;
+      const docName = packDocumentName(pack);
+
       const packInfo = {
         id: pack.collection,
         name: pack.title,
-        package: pack.metadata.packageName,
-        type: pack.metadata.type,
-        enabled: enabledCompendia[pack.collection] || false,
-        icon: this._getIconForType(pack.metadata.type),
-        isHomebrew: pack.metadata.packageName !== 'dnd5e' && pack.metadata.packageName !== 'world'
+        package: pack.metadata?.packageName || '',
+        type: docName || 'Item',
+        enabled: hasExplicitSelection
+          ? !!enabledCompendia[pack.collection]
+          : true,
+        icon: this._getIconForType(docName || 'Item'),
+        isHomebrew: pack.metadata?.packageName !== 'dnd5e' && pack.metadata?.packageName !== 'world'
       };
 
       const packTypes = (pack.metadata?.flags?.dnd5e?.types || []).map(t => String(t).toLowerCase());
@@ -66,24 +87,25 @@ export class CompendiumSelector extends HandlebarsApplicationMixin(ApplicationV2
 
       if (packTypes.length > 0) {
         if (packTypes.includes('class')) addToCategory('classes');
-        if (packTypes.includes('race')) addToCategory('races');
+        if (packTypes.includes('race') || packTypes.includes('species')) addToCategory('races');
         if (packTypes.includes('background')) addToCategory('backgrounds');
         if (packTypes.includes('spell')) addToCategory('spells');
-        if (packTypes.includes('equipment') || packTypes.includes('item')) addToCategory('equipment');
+        if (packTypes.includes('equipment') || packTypes.includes('item') || packTypes.includes('weapon')) addToCategory('equipment');
         if (packTypes.includes('feat')) addToCategory('feats');
       }
 
       if (!Object.values(categorized).some(Boolean)) {
-        const searchText = `${pack.collection} ${pack.title} ${pack.metadata.packageName}`.toLowerCase();
+        const searchText = `${pack.collection} ${pack.title} ${pack.metadata?.packageName || ''}`.toLowerCase();
         if (searchText.includes('class')) addToCategory('classes');
         if (searchText.includes('race') || searchText.includes('species') || searchText.includes('origin') || searchText.includes('ancestry') || searchText.includes('lineage')) addToCategory('races');
         if (searchText.includes('background')) addToCategory('backgrounds');
         if (searchText.includes('spell') || searchText.includes('magic')) addToCategory('spells');
         if (searchText.includes('equipment') || searchText.includes('item') || searchText.includes('weapon') || searchText.includes('armor') || searchText.includes('gear') || searchText.includes('treasure')) addToCategory('equipment');
-        if (searchText.includes('feat') || searchText.includes('ability') || searchText.includes('talent')) addToCategory('feats');
+        if (searchText.includes('feat') || searchText.includes('talent')) addToCategory('feats');
       }
 
       if (!Object.values(categorized).some(Boolean)) {
+        // Uncategorized Item packs still matter — put in other so they can be enabled
         compendia.other.push(packInfo);
       }
     }
@@ -106,19 +128,18 @@ export class CompendiumSelector extends HandlebarsApplicationMixin(ApplicationV2
 
   _getIconForType(type) {
     const icons = {
-      'Item': 'fa-solid fa-suitcase',
-      'Actor': 'fa-solid fa-users',
-      'JournalEntry': 'fa-solid fa-book',
-      'RollTable': 'fa-solid fa-th-list',
-      'Macro': 'fa-solid fa-code',
-      'Playlist': 'fa-solid fa-music',
-      'Scene': 'fa-solid fa-map'
+      Item: 'fa-solid fa-suitcase',
+      Actor: 'fa-solid fa-users',
+      JournalEntry: 'fa-solid fa-book',
+      RollTable: 'fa-solid fa-th-list',
+      Macro: 'fa-solid fa-code',
+      Playlist: 'fa-solid fa-music',
+      Scene: 'fa-solid fa-map'
     };
     return icons[type] || 'fa-solid fa-folder';
   }
 
   _onRender(context, options) {
-    // Activate first tab
     this.element.querySelectorAll('.tabs .item').forEach((tab, index) => {
       tab.classList.toggle('active', index === 0);
     });
@@ -138,15 +159,20 @@ export class CompendiumSelector extends HandlebarsApplicationMixin(ApplicationV2
 
   _onSelectAll(event) {
     const tab = event.currentTarget.dataset.tab;
-    this.element.querySelectorAll(`.tab-content[data-tab="${tab}"] input[type="checkbox"]`).forEach(cb => cb.checked = true);
+    this.element.querySelectorAll(`.tab-content[data-tab="${tab}"] input[type="checkbox"]`).forEach(cb => { cb.checked = true; });
   }
 
   _onDeselectAll(event) {
     const tab = event.currentTarget.dataset.tab;
-    this.element.querySelectorAll(`.tab-content[data-tab="${tab}"] input[type="checkbox"]`).forEach(cb => cb.checked = false);
+    this.element.querySelectorAll(`.tab-content[data-tab="${tab}"] input[type="checkbox"]`).forEach(cb => { cb.checked = false; });
   }
 
   async _onSave(event) {
+    if (!game.user?.isGM) {
+      ui.notifications.warn('Only the GM can change world compendium settings.');
+      return;
+    }
+
     const enabledCompendia = {};
     this.element.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
       const packId = cb.dataset.packId;
@@ -157,18 +183,11 @@ export class CompendiumSelector extends HandlebarsApplicationMixin(ApplicationV2
     ui.notifications.info('Compendium settings saved! Reloading content...');
 
     if (game.ldAxyum?.compendiumLoader) {
-      game.ldAxyum.compendiumLoader.cache = {
-        classes: null, races: null, backgrounds: null,
-        spells: null, equipment: null, features: null, feats: null
-      };
-
       game.ldAxyum.AxyumApp?.invalidateContentCache?.();
-
-      await game.ldAxyum.compendiumLoader.loadAllContent().catch(err => {
-        console.warn('LD Axyum | Failed to reload compendia:', err);
+      await game.ldAxyum.compendiumLoader.clearCache().catch(err => {
+        logger.warn('Failed to reload compendia:', err);
         ui.notifications.warn('Failed to reload some compendia. Check console for details.');
       });
-
       ui.notifications.success('Compendia reloaded! Your next character will use these sources.');
     }
 

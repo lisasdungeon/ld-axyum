@@ -1,9 +1,9 @@
 /* ========================================
-   LD Axyum - Wizard Styles (Post-Apocalyptic)
+   LD Axyum - Wizard Styles
    ======================================== */
 
 /* ========================================
-   POST-APOCALYPTIC LAYOUT (2-Column + Top Nav)
+   MAIN LAYOUT (2-Column + Top Nav)
    ======================================== */
 
 /* Main Form Container */
@@ -51,8 +51,8 @@
 /* --- Form Elements --- */
 .axyum-form select,
 .ld-axyum-window select {
-  background: rgba(60, 50, 40, 0.95) !important;
-  color: #d4c4a8 !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  color: var(--axyum-text-light) !important;
   border: 1px solid var(--axyum-border);
   border-radius: 2px;
   padding: 0.5rem;
@@ -62,8 +62,8 @@
 
 .axyum-form select option,
 .ld-axyum-window select option {
-  background: rgba(60, 50, 40, 0.98) !important;
-  color: #d4c4a8 !important;
+  background: rgba(15, 23, 42, 0.98) !important;
+  color: var(--axyum-text-light) !important;
 }
 
 .axyum-form input[type="text"],
@@ -72,8 +72,8 @@
 .ld-axyum-window input[type="text"],
 .ld-axyum-window input[type="number"],
 .ld-axyum-window textarea {
-  background: rgba(43, 35, 25, 0.8) !important;
-  color: #d4c4a8 !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+  color: var(--axyum-text-light) !important;
   border: 1px solid var(--axyum-border);
   border-radius: 2px;
   padding: 0.5rem;
@@ -86,8 +86,8 @@
 .ld-axyum-window textarea,
 form.axyum-form input,
 form.axyum-form textarea {
-  background: rgba(43, 35, 25, 0.9) !important;
-  color: #d4c4a8 !important;
+  background: rgba(15, 23, 42, 0.9) !important;
+  color: var(--axyum-text-light) !important;
 }
 
 .axyum-form input:focus,
@@ -116,6 +116,13 @@ form.axyum-form textarea {
   display: flex;
   align-items: center;
   margin-right: 2rem;
+}
+
+.brand-icon {
+  font-size: 2rem;
+  color: var(--axyum-accent);
+  margin-right: 0.5rem;
+  text-shadow: 0 0 10px var(--axyum-accent-glow);
 }
 
 .brand-text {
@@ -161,9 +168,9 @@ form.axyum-form textarea {
 }
 
 .step-item.active {
-  background: linear-gradient(180deg, transparent, rgba(255, 0, 255, 0.1));
+  background: linear-gradient(180deg, transparent, rgba(125, 211, 252, 0.12));
   border-bottom-color: var(--axyum-primary);
-  color: var(--axyum-primary);
+  color: var(--axyum-accent);
   text-shadow: 0 0 8px var(--axyum-primary-glow);
 }
 
@@ -226,7 +233,7 @@ form.axyum-form textarea {
   flex: 1 1 auto !important;
   display: flex !important;
   flex-direction: column !important;
-  background: radial-gradient(circle at center, rgba(40, 0, 80, 0.2) 0%, var(--axyum-bg-dark) 100%);
+  background: radial-gradient(circle at center, rgba(51, 65, 85, 0.35) 0%, var(--axyum-bg-dark) 100%);
   position: relative;
   overflow: hidden !important;
   height: 100% !important;
@@ -333,16 +340,16 @@ form.axyum-form textarea {
 }
 
 .axyum-btn-primary {
-  background: rgba(0, 243, 255, 0.1);
-  border: 1px solid var(--axyum-primary);
-  color: var(--axyum-primary);
-  box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
+  background: rgba(125, 211, 252, 0.12);
+  border: 1px solid var(--axyum-accent);
+  color: var(--axyum-accent);
+  box-shadow: 0 0 10px rgba(125, 211, 252, 0.12);
 }
 
 .axyum-btn-primary:hover {
-  background: var(--axyum-primary);
-  color: #000;
-  box-shadow: 0 0 20px var(--axyum-primary-glow);
+  background: var(--axyum-accent);
+  color: var(--axyum-bg-dark);
+  box-shadow: 0 0 20px var(--axyum-accent-glow);
 }
 
 .axyum-btn-secondary {
@@ -358,15 +365,15 @@ form.axyum-form textarea {
 }
 
 .axyum-btn-success {
-  background: rgba(125, 211, 252, 0.1);
+  background: rgba(74, 222, 128, 0.12);
   border: 1px solid var(--axyum-success);
   color: var(--axyum-success);
 }
 
 .axyum-btn-success:hover {
   background: var(--axyum-success);
-  color: #000;
-  box-shadow: 0 0 20px rgba(125, 211, 252, 0.6);
+  color: var(--axyum-bg-dark);
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.6);
 }
 
 /* --- Right Sidebar: Preview --- */
@@ -398,7 +405,7 @@ form.axyum-form textarea {
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
-  color: var(--axyum-primary);
+  color: var(--axyum-accent);
   text-transform: uppercase;
   letter-spacing: 2px;
   display: flex;
@@ -444,3 +451,27 @@ form.axyum-form textarea {
   grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
 }
+
+.preview-content .combat-circles {
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.preview-content .psychedelic-centerpiece {
+  grid-column: 1 / -1;
+}
+
+.preview-content .combat-stats-row {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.preview-content .panel-title {
+  font-size: 0.8rem;
+}
+
+.preview-content .psychedelic-panel {
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+

@@ -1,129 +1,182 @@
-{{!-- LD Axyum - Interactive Ability Scores with Drag & Drop --}}
+{{!-- LD Axyum - Ability Scores (1 reroll max, real Point Buy) --}}
 <div class="axyum-page ability-scores-page">
-  <h2 class="axyum-page-title">Ability Scores</h2>
-  <p class="axyum-page-description">
-    Roll for each ability individually and see the dice animation, or use standard array/point buy methods.
-  </p>
+  <header class="page-intro">
+    <p class="page-kicker">Ability scores</p>
+    <h2 class="axyum-page-title">Roll or assign your six scores</h2>
+    <p class="axyum-page-description">
+      Standard Array, Point Buy, or 4d6-drop-lowest. Rolling allows <strong>one full reroll</strong> — then you keep the results.
+    </p>
+  </header>
+
+  <div class="axyum-catalog-toolbar">
+    <div class="tally-chip">
+      <span class="tally-label">Rerolls</span>
+      <span class="tally-value">{{rerollStatus.rerollsUsed}} / 1</span>
+    </div>
+    {{#if rerollStatus.hasRerolled}}
+      <span class="muted">Reroll spent — assign these scores.</span>
+    {{else if rerollStatus.hasRolled}}
+      <span class="muted">You may reroll all scores once.</span>
+    {{else}}
+      <span class="muted">No rolls yet.</span>
+    {{/if}}
+  </div>
 
   <div class="ability-method-buttons">
-    <button type="button" class="axyum-btn axyum-btn-primary" data-action="useStandardArray">
-      <i class="fas fa-list-ol"></i> Standard Array (15, 14, 13, 12, 10, 8)
+    <button type="button" class="axyum-btn {{#if (eq character.abilityMethod 'standard')}}axyum-btn-primary is-active{{else}}axyum-btn-secondary{{/if}}" data-action="useStandardArray">
+      <i class="fas fa-list-ol"></i> Standard Array
     </button>
-    <button type="button" class="axyum-btn axyum-btn-secondary" data-action="usePointBuy">
+    <button type="button" class="axyum-btn {{#if (eq character.abilityMethod 'pointbuy')}}axyum-btn-primary is-active{{else}}axyum-btn-secondary{{/if}}" data-action="usePointBuy">
       <i class="fas fa-calculator"></i> Point Buy
     </button>
-    <button type="button" class="axyum-btn axyum-btn-secondary" data-action="rollAllAbilities">
-      <i class="fas fa-dice-d20"></i> Roll All (4d6 drop lowest)
+    <button type="button" class="axyum-btn axyum-btn-secondary"
+            data-action="rollAllAbilities"
+            {{#if rerollStatus.locked}}disabled{{else}}{{#unless canReroll}}{{#if rerollStatus.hasRolled}}disabled{{/if}}{{/unless}}{{/if}}>
+      <i class="fas fa-dice-d20" aria-hidden="true"></i>
+      <span>
+        {{#if rerollStatus.locked}}
+          Reroll Spent
+        {{else if rerollStatus.hasRolled}}
+          {{#if canReroll}}Reroll All (1 left){{else}}Reroll Spent{{/if}}
+        {{else}}
+          Roll All (4d6 drop lowest)
+        {{/if}}
+      </span>
     </button>
     <button type="button" class="axyum-btn axyum-btn-ghost" data-action="resetAbilities">
-      <i class="fas fa-redo"></i> Reset All
+      <i class="fas fa-eraser"></i> Clear Assignments
     </button>
   </div>
 
-  <div class="abilities-interactive-container">
-    
-    {{!-- Roll Pool Area --}}
-    <div class="dice-roll-pool">
-      <h3><i class="fas fa-dice-d20 fa-spin-slow"></i> Roll Your Scores</h3>
-      <p class="roll-instructions">Click each ability to roll 4d6 (drop lowest). Drag results to assign.</p>
-      
-      <div class="roll-slots">
-        {{#each abilities as |ability|}}
-          <div class="roll-slot {{#if (lookup ../rolledScores ability.key)}}has-roll{{/if}}" data-ability="{{ability.key}}">
-            <div class="ability-name-label">{{ability.name}}</div>
-            
-            {{#if (lookup ../rolledScores ability.key)}}
-              {{!-- Show rolled result - draggable --}}
-              <div class="rolled-result draggable-score" 
-                   draggable="true" 
-                   data-score="{{lookup ../rolledScores ability.key}}" 
-                   data-source-ability="{{ability.key}}">
-                <div class="score-value">{{lookup ../rolledScores ability.key}}</div>
-                <div class="dice-breakdown">{{lookup ../diceBreakdowns ability.key}}</div>
-              </div>
-              <button type="button" class="reroll-btn" data-action="rollAbility" data-ability="{{ability.key}}">
-                <i class="fas fa-dice"></i> Re-roll
+  {{#if pointBuy.active}}
+    <div class="point-buy-panel">
+      <div class="point-buy-header">
+        <h3><i class="fas fa-calculator"></i> Point Buy</h3>
+        <div class="point-buy-budget {{#if (eq pointBuy.pointsRemaining 0)}}is-spent{{/if}}">
+          <span class="budget-label">Points remaining</span>
+          <span class="budget-value">{{pointBuy.pointsRemaining}} / {{pointBuy.pointsTotal}}</span>
+        </div>
+      </div>
+      <p class="point-buy-instructions">Every score starts at 8. Raising a score above 13 costs extra — 14 and 15 cost 2 points each step. Scores stay between 8 and 15 before racial bonuses.</p>
+      <div class="point-buy-grid">
+        {{#each pointBuy.rows as |row|}}
+          <div class="point-buy-row">
+            <div class="pb-ability-label">
+              <span class="ability-abbr">{{row.name}}</span>
+              <span class="ability-full">{{row.label}}</span>
+            </div>
+            <div class="pb-stepper">
+              <button type="button" class="pb-btn pb-minus" data-action="decreaseAbilityScore" data-ability="{{row.key}}" {{#unless row.canDecrease}}disabled{{/unless}}>
+                <i class="fas fa-minus"></i>
               </button>
-            {{else}}
-              {{!-- Show roll button --}}
-              <button type="button" class="roll-ability-btn pulse-glow" data-action="rollAbility" data-ability="{{ability.key}}">
-                <i class="fas fa-dice-d6"></i>
-                <span>Roll</span>
+              <span class="pb-score">{{row.score}}</span>
+              <button type="button" class="pb-btn pb-plus" data-action="increaseAbilityScore" data-ability="{{row.key}}" {{#unless row.canIncrease}}disabled{{/unless}}>
+                <i class="fas fa-plus"></i>
               </button>
-              <div class="dice-animation-container" id="dice-anim-{{ability.key}}">
-                <div class="dice-tumble">
-                  <i class="fas fa-dice-d6 die-1"></i>
-                  <i class="fas fa-dice-d6 die-2"></i>
-                  <i class="fas fa-dice-d6 die-3"></i>
-                  <i class="fas fa-dice-d6 die-4"></i>
-                </div>
-              </div>
-            {{/if}}
+            </div>
+            <div class="pb-modifier">{{abilityMod row.score}}</div>
           </div>
         {{/each}}
       </div>
-      
-      {{!-- Rolled Pool for unassigned scores --}}
-      <div class="rolled-pool" id="rolled-pool">
-        <h4><i class="fas fa-hand-holding"></i> Unassigned Scores</h4>
-        <div class="pool-scores">
-          {{#each rolledPool}}
-            <div class="pool-score draggable-score" draggable="true" data-score="{{this.value}}" data-pool-index="{{@index}}">
-              <span class="score-num">{{this.value}}</span>
-              <span class="score-breakdown">{{this.breakdown}}</span>
+    </div>
+  {{else}}
+    <div class="abilities-interactive-container">
+      <div class="dice-roll-pool">
+        <h3><i class="fas fa-dice-d20"></i> Your Scores</h3>
+        <p class="roll-instructions">
+          Roll each ability once to fill the set, or use Roll All. Individual re-rolls are disabled — use Reroll All (once).
+        </p>
+
+        <div class="roll-slots">
+          {{#each abilities as |ability|}}
+            <div class="roll-slot {{#if (lookup ../rolledScores ability.key)}}has-roll{{/if}}" data-ability="{{ability.key}}">
+              <div class="ability-name-label">{{ability.name}}</div>
+
+              {{#if (lookup ../rolledScores ability.key)}}
+                <div class="rolled-result draggable-score"
+                     draggable="true"
+                     data-score="{{lookup ../rolledScores ability.key}}"
+                     data-source-ability="{{ability.key}}">
+                  <div class="score-value">{{lookup ../rolledScores ability.key}}</div>
+                  <div class="dice-breakdown">{{lookup ../diceBreakdowns ability.key}}</div>
+                </div>
+              {{else}}
+                <button type="button" class="roll-ability-btn pulse-glow"
+                        data-action="rollAbility"
+                        data-ability="{{ability.key}}"
+                        {{#if ../rerollStatus.hasRolled}}disabled{{else}}{{#if ../rerollStatus.locked}}disabled{{/if}}{{/if}}>
+                  <i class="fas fa-dice-d6" aria-hidden="true"></i>
+                  <span>{{#if ../rerollStatus.hasRolled}}Use Reroll All{{else}}Roll{{/if}}</span>
+                </button>
+                <div class="dice-animation-container" id="dice-anim-{{ability.key}}">
+                  <div class="dice-tumble">
+                    <i class="fas fa-dice-d6 die-1"></i>
+                    <i class="fas fa-dice-d6 die-2"></i>
+                    <i class="fas fa-dice-d6 die-3"></i>
+                    <i class="fas fa-dice-d6 die-4"></i>
+                  </div>
+                </div>
+              {{/if}}
             </div>
-          {{else}}
-            <p class="empty-pool">Roll abilities above or use a preset method</p>
+          {{/each}}
+        </div>
+
+        <div class="rolled-pool" id="rolled-pool">
+          <h4><i class="fas fa-hand-holding"></i> Unassigned Scores</h4>
+          <div class="pool-scores">
+            {{#each rolledPool}}
+              <div class="pool-score draggable-score" draggable="true" data-score="{{this.value}}" data-pool-index="{{@index}}">
+                <span class="score-num">{{this.value}}</span>
+                <span class="score-breakdown">{{this.breakdown}}</span>
+              </div>
+            {{else}}
+              <p class="empty-pool">Roll above or use a preset method</p>
+            {{/each}}
+          </div>
+        </div>
+      </div>
+
+      <div class="ability-assignment-area">
+        <h3><i class="fas fa-bullseye"></i> Assign</h3>
+        <p class="assignment-instructions">Drag scores onto abilities, or click a zone to pull from the pool.</p>
+
+        <div class="ability-drop-zones">
+          {{#each abilities as |ability|}}
+            <div class="ability-drop-zone {{#if (lookup ../assignedAbilities ability.key)}}filled{{/if}}"
+                 data-ability="{{ability.key}}"
+                 data-action="assignScoreClick">
+              <div class="zone-header">
+                <span class="ability-abbr">{{ability.name}}</span>
+                <span class="ability-full">{{ability.label}}</span>
+              </div>
+              <div class="zone-content">
+                {{#if (lookup ../assignedAbilities ability.key)}}
+                  <div class="assigned-score pop-in draggable-score"
+                       draggable="true"
+                       data-score="{{lookup ../character.abilities ability.key}}"
+                       data-source-ability="{{ability.key}}"
+                       data-from-assigned="true">
+                    <span class="score-big">{{lookup ../character.abilities ability.key}}</span>
+                    <span class="modifier">({{abilityMod (lookup ../character.abilities ability.key)}})</span>
+                  </div>
+                  <button type="button" class="remove-score-btn" data-action="unassignScore" data-ability="{{ability.key}}">
+                    <i class="fas fa-times"></i>
+                  </button>
+                {{else}}
+                  <div class="drop-target">
+                    <i class="fas fa-crosshairs"></i>
+                    <span>Drop Here</span>
+                  </div>
+                {{/if}}
+              </div>
+              <input type="hidden" name="abilities.{{ability.key}}" value="{{lookup ../character.abilities ability.key}}">
+            </div>
           {{/each}}
         </div>
       </div>
     </div>
+  {{/if}}
 
-    {{!-- Assignment Area --}}
-    <div class="ability-assignment-area">
-      <h3><i class="fas fa-bullseye"></i> Assign Your Scores</h3>
-      <p class="assignment-instructions">Drag scores and drop onto abilities, or click to quick-assign.</p>
-      
-      <div class="ability-drop-zones">
-        {{#each abilities as |ability|}}
-          <div class="ability-drop-zone {{#if (lookup ../character.abilities ability.key)}}filled{{/if}}" 
-               data-ability="{{ability.key}}"
-               data-action="assignScoreClick">
-            <div class="zone-header">
-              <span class="ability-abbr">{{ability.name}}</span>
-              <span class="ability-full">{{ability.label}}</span>
-            </div>
-            
-            <div class="zone-content">
-              {{#if (lookup ../character.abilities ability.key)}}
-                <div class="assigned-score pop-in draggable-score" 
-                     draggable="true" 
-                     data-score="{{lookup ../character.abilities ability.key}}" 
-                     data-source-ability="{{ability.key}}"
-                     data-from-assigned="true">
-                  <span class="score-big">{{lookup ../character.abilities ability.key}}</span>
-                  <span class="modifier">({{abilityMod (lookup ../character.abilities ability.key)}})</span>
-                </div>
-                <button type="button" class="remove-score-btn" data-action="unassignScore" data-ability="{{ability.key}}">
-                  <i class="fas fa-times"></i>
-                </button>
-              {{else}}
-                <div class="drop-target">
-                  <i class="fas fa-crosshairs"></i>
-                  <span>Drop Here</span>
-                </div>
-              {{/if}}
-            </div>
-            
-            <input type="hidden" name="abilities.{{ability.key}}" value="{{lookup ../character.abilities ability.key}}">
-          </div>
-        {{/each}}
-      </div>
-    </div>
-
-  </div>
-
-  {{!-- Summary Stats --}}
   <div class="ability-summary">
     <div class="summary-stat">
       <span class="summary-label">Total Score:</span>
@@ -134,5 +187,4 @@
       <span class="summary-value" id="assigned-count">0 / 6</span>
     </div>
   </div>
-
 </div>

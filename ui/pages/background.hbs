@@ -1,46 +1,80 @@
-<div class="axyum-page">
-  <h2 class="axyum-page-title">{{localize "LD_AXYUM.Pages.Background"}}</h2>
-  <p class="axyum-page-description">
-    Choose a background that defines your character's past and provides ability score increases and skill proficiencies.
-  </p>
+<div class="axyum-page axyum-catalog-page">
+  <header class="page-intro">
+    <p class="page-kicker">Origin</p>
+    <h2 class="axyum-page-title">{{localize "LD_AXYUM.Pages.Background"}}</h2>
+    <p class="axyum-page-description">
+      Choose a background for skills, tools, and story hooks.
+    </p>
+  </header>
 
-  <!-- Compendium Filter Buttons -->
-  {{#if backgroundCompendiumFilters}}
-  <div class="compendium-filters">
-    <span class="filter-label"><i class="fas fa-filter"></i> Filter by Source:</span>
-    <div class="filter-buttons">
-      {{#each backgroundCompendiumFilters}}
-        <button class="background-compendium-filter-btn {{#if (eq this.id ../selectedBackgroundCompendiumFilter)}}active{{/if}}" 
-                data-filter="{{this.id}}"
-                type="button">
-          <i class="fas fa-book"></i>
-          <span class="filter-name">{{this.name}}</span>
-          <span class="filter-count">({{this.count}})</span>
-        </button>
-      {{/each}}
+  <div class="axyum-catalog-toolbar">
+    {{#if backgroundCompendiumFilters}}
+    <div class="axyum-catalog-filters" role="group" aria-label="Filter by source">
+      <span class="axyum-toolbar-label"><i class="fas fa-filter" aria-hidden="true"></i> Source</span>
+      <div class="axyum-chip-row">
+        {{#each backgroundCompendiumFilters}}
+          <button type="button"
+                  class="axyum-chip {{#if (eq this.id ../selectedBackgroundCompendiumFilter)}}is-active{{/if}}"
+                  data-action="filterCompendium"
+                  data-filter="{{this.id}}">
+            <span>{{this.name}}</span>
+            <span class="axyum-chip-count">{{this.count}}</span>
+          </button>
+        {{/each}}
+      </div>
     </div>
+    {{/if}}
   </div>
-  {{/if}}
 
-  <div class="axyum-selection-grid">
+  <div class="axyum-info-card-grid" role="listbox" aria-label="Backgrounds">
     {{#each backgrounds}}
-      <button type="button" class="axyum-selection-card {{#if (eq this.id ../character.background.id)}}selected{{/if}}"
-           data-action="selectBackground"
-           data-background-id="{{this.id}}" data-background-name="{{this.name}}" data-pack-name="{{this.packName}}"
-           title="Click to select, Shift+Click to view details">
-        <h3 class="axyum-selection-card-title">{{this.name}}</h3>
-        <p class="axyum-selection-card-desc">{{this.source}}</p>
+      <button type="button"
+              class="axyum-info-card {{#if (eq this.id ../characterData.background.id)}}is-selected{{/if}}"
+              data-action="selectBackground"
+              data-background-id="{{this.id}}"
+              data-background-name="{{this.name}}"
+              data-pack-name="{{this.packName}}"
+              role="option"
+              aria-selected="{{#if (eq this.id ../characterData.background.id)}}true{{else}}false{{/if}}">
+        <header class="axyum-info-card-head">
+          <span class="axyum-info-card-glyph" aria-hidden="true"><i class="fas fa-scroll"></i></span>
+          <span class="axyum-info-card-titles">
+            <span class="axyum-info-card-title">{{this.name}}</span>
+            {{#if this.source}}
+              <span class="axyum-catalog-source {{#if this.isHomebrew}}is-homebrew{{else}}is-official{{/if}}">{{this.source}}</span>
+            {{/if}}
+          </span>
+        </header>
+        <div class="axyum-info-card-chips">
+          <span class="axyum-meta-chip axyum-meta-chip--accent">Skills</span>
+        </div>
+        <dl class="axyum-info-card-facts">
+          <div><dt>Skills</dt><dd>{{this.skillsLabel}}</dd></div>
+        </dl>
+        {{#if this.description}}
+          <p class="axyum-info-card-blurb">{{this.description}}</p>
+        {{else}}
+          <p class="axyum-info-card-blurb muted">{{this.skillsLabel}}</p>
+        {{/if}}
       </button>
     {{else}}
-      <p style="grid-column: 1 / -1; color: #999; text-align: center; padding: 2rem;">
-        {{localize "LD_AXYUM.Messages.LoadingCompendia"}}
-      </p>
+      <div class="empty-state">
+        {{#if isLoading}}
+          <p>{{localize "LD_AXYUM.Messages.LoadingCompendia"}}</p>
+        {{else}}
+          <p>{{localize "LD_AXYUM.Messages.NoCompendiumContent"}}</p>
+          <p class="muted">Enable background Item packs in the GM Hub compendium settings.</p>
+        {{/if}}
+      </div>
     {{/each}}
   </div>
 
   {{#if characterData.background.id}}
-    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--axyum-secondary); border-left: 4px solid var(--axyum-primary); border-radius: 6px;">
-      <p><strong>{{localize "LD_AXYUM.Messages.Selected"}}:</strong> {{characterData.background.name}}</p>
+    <div class="axyum-selection-bar">
+      <div class="axyum-selection-bar-copy">
+        <span class="page-kicker">Selected</span>
+        <strong class="axyum-selection-bar-name">{{characterData.background.name}}</strong>
+      </div>
     </div>
   {{/if}}
 

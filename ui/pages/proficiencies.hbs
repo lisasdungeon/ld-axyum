@@ -1,31 +1,32 @@
-{{!-- LD Axyum - Proficiencies & Languages Selection Page --}}
 <div class="axyum-page proficiencies-page">
-  <h2 class="axyum-page-title"><i class="fas fa-graduation-cap"></i> Proficiencies & Languages</h2>
-  <p class="axyum-page-description">
-    Your class, race, and background grant proficiencies. Select additional languages and any choices granted.
-  </p>
+  <header class="page-intro">
+    <p class="page-kicker">Proficiencies</p>
+    <h2 class="axyum-page-title">Armor, weapons, tools &amp; languages</h2>
+    <p class="axyum-page-description">
+      Grants from your class, race, and background are locked in. Language choices use the remaining slots.
+    </p>
+  </header>
 
   <div class="proficiencies-layout">
-    
-    {{!-- Languages Section --}}
     <section class="prof-section languages-section">
       <div class="prof-header">
         <h3><i class="fas fa-language"></i> Languages</h3>
-        <span class="prof-count">{{selectedLanguageCount}} / {{totalLanguageSlots}} selected</span>
+        <span class="tally-chip prof-count-chip">
+          <span class="tally-label">Selected</span>
+          <span class="tally-value">{{selectedLanguageCount}} / {{totalLanguageSlots}}</span>
+        </span>
       </div>
-      
       <div class="prof-sources">
         {{#if languageGrants.race}}
-        <div class="grant-badge race"><i class="fas fa-dna"></i> {{languageGrants.race.name}}: {{languageGrants.race.languages}}</div>
+          <div class="grant-badge race"><i class="fas fa-dna"></i> {{languageGrants.race.name}}: {{languageGrants.race.languages}}</div>
         {{/if}}
         {{#if languageGrants.background}}
-        <div class="grant-badge background"><i class="fas fa-book"></i> {{languageGrants.background.name}}: +{{languageGrants.background.count}} choice(s)</div>
+          <div class="grant-badge background"><i class="fas fa-book"></i> {{languageGrants.background.name}}: +{{languageGrants.background.count}} choice(s)</div>
         {{/if}}
       </div>
-
       <div class="prof-grid languages-grid">
         {{#each availableLanguages}}
-          <button type="button" class="prof-card {{#if this.granted}}granted{{/if}} {{#if (includes ../character.proficiencies.languages this.id)}}selected{{/if}}"
+          <button type="button" class="prof-card {{#if this.granted}}granted selected{{/if}} {{#if (includes ../character.proficiencies.languages this.id)}}selected{{/if}}"
                   {{#if this.granted}}disabled{{/if}}
                   data-action="toggleLanguage"
                   data-lang-id="{{this.id}}">
@@ -36,79 +37,78 @@
       </div>
     </section>
 
-    {{!-- Armor Proficiencies Section --}}
     <section class="prof-section armor-section">
       <div class="prof-header">
-        <h3><i class="fas fa-shield-alt"></i> Armor Proficiencies</h3>
-        <span class="prof-count">From {{character.class.name}}</span>
+        <h3><i class="fas fa-shield-alt"></i> Armor</h3>
+        <span class="tally-chip">
+          <span class="tally-label">Granted</span>
+          <span class="tally-value">{{armorGrantCount}}</span>
+        </span>
       </div>
-
+      <p class="section-hint">{{#if character.class.name}}From {{character.class.name}}{{else}}Select a class{{/if}}</p>
       <div class="prof-grid armor-grid">
         {{#each armorProficiencies}}
-          <button type="button" class="prof-card {{#if this.granted}}granted{{/if}} {{#if (includes ../character.proficiencies.armor this.id)}}selected{{/if}}"
-                  {{#if this.granted}}disabled{{/if}}
-                  data-action="toggleArmorProf"
-                  data-armor-id="{{this.id}}">
-            <span class="prof-name">{{this.name}}</span>
-            {{#if this.granted}}<span class="prof-source">({{this.source}})</span>{{/if}}
-          </button>
+          {{#if this.granted}}
+            <button type="button" class="prof-card granted selected" disabled>
+              <span class="prof-name">{{this.name}}</span>
+              <span class="prof-source">({{this.source}})</span>
+            </button>
+          {{/if}}
         {{/each}}
       </div>
-
-      {{#unless armorProficiencies}}
-      <p class="no-prof-msg"><i class="fas fa-info-circle"></i> Select a class to see armor proficiencies.</p>
+      {{#unless armorGrantCount}}
+        <p class="no-prof-msg"><i class="fas fa-info-circle"></i> No armor proficiency from this class.</p>
       {{/unless}}
     </section>
 
-    {{!-- Weapon Proficiencies Section --}}
     <section class="prof-section weapons-section">
       <div class="prof-header">
-        <h3><i class="fas fa-sword"></i> Weapon Proficiencies</h3>
-        <span class="prof-count">From {{character.class.name}}</span>
+        <h3><i class="fas fa-sword"></i> Weapons</h3>
+        <span class="tally-chip">
+          <span class="tally-label">Granted</span>
+          <span class="tally-value">{{weaponGrantCount}}</span>
+        </span>
       </div>
-
+      <p class="section-hint">{{#if character.class.name}}From {{character.class.name}}{{else}}Select a class{{/if}}</p>
       <div class="prof-grid weapons-grid">
         {{#each weaponProficiencies}}
-          <button type="button" class="prof-card {{#if this.granted}}granted{{/if}} {{#if (includes ../character.proficiencies.weapons this.id)}}selected{{/if}}"
-                  {{#if this.granted}}disabled{{/if}}
-                  data-action="toggleWeaponProf"
-                  data-weapon-id="{{this.id}}">
-            <span class="prof-name">{{this.name}}</span>
-            {{#if this.granted}}<span class="prof-source">({{this.source}})</span>{{/if}}
-          </button>
+          {{#if this.granted}}
+            <button type="button" class="prof-card granted selected" disabled>
+              <span class="prof-name">{{this.name}}</span>
+              <span class="prof-source">({{this.source}})</span>
+            </button>
+          {{/if}}
         {{/each}}
       </div>
-
-      {{#unless weaponProficiencies}}
-      <p class="no-prof-msg"><i class="fas fa-info-circle"></i> Select a class to see weapon proficiencies.</p>
+      {{#unless weaponGrantCount}}
+        <p class="no-prof-msg"><i class="fas fa-info-circle"></i> No weapon proficiency listed yet.</p>
       {{/unless}}
     </section>
 
-    {{!-- Tool Proficiencies Section --}}
     <section class="prof-section tools-section">
       <div class="prof-header">
-        <h3><i class="fas fa-tools"></i> Tool Proficiencies</h3>
-        {{#if toolGrants.background}}
-        <span class="prof-count">From {{toolGrants.background.name}}</span>
-        {{/if}}
+        <h3><i class="fas fa-tools"></i> Tools</h3>
+        <span class="tally-chip">
+          <span class="tally-label">Granted</span>
+          <span class="tally-value">{{toolGrantCount}}</span>
+        </span>
       </div>
-
+      <p class="section-hint">
+        {{#if toolGrants.background}}From {{toolGrants.background.name}}{{else}}Select a background{{/if}}
+      </p>
       <div class="prof-grid tools-grid">
         {{#each toolProficiencies}}
-          <button type="button" class="prof-card {{#if this.granted}}granted{{/if}} {{#if (includes ../character.proficiencies.tools this.id)}}selected{{/if}}"
-                  {{#if this.granted}}disabled{{/if}}
-                  data-action="toggleToolProf"
-                  data-tool-id="{{this.id}}">
-            <span class="prof-name">{{this.name}}</span>
-            {{#if this.granted}}<span class="prof-source">({{this.source}})</span>{{/if}}
-          </button>
+          {{#if this.granted}}
+            <button type="button" class="prof-card granted selected" disabled>
+              <span class="prof-name">{{this.name}}</span>
+              <span class="prof-source">({{this.source}})</span>
+            </button>
+          {{/if}}
         {{/each}}
       </div>
-
-      {{#unless toolProficiencies}}
-      <p class="no-prof-msg"><i class="fas fa-info-circle"></i> Select a background to see tool proficiencies.</p>
+      {{#unless toolGrantCount}}
+        <p class="no-prof-msg"><i class="fas fa-info-circle"></i> No tool proficiency from this background.</p>
       {{/unless}}
     </section>
-
   </div>
 </div>

@@ -134,7 +134,14 @@ export class HomebrewLoader {
       const pack = game?.packs?.get?.(packName);
       if (!pack) return content;
 
-      const index = await pack.getIndex();
+      const index = await pack.getIndex({
+        fields: [
+          'type', 'system.hitDice', 'system.hp', 'system.spellcasting',
+          'system.level', 'system.school', 'system.requirements',
+          'system.advancement', 'system.traits', 'system.movement',
+          'system.type', 'system.rarity', 'system.weight', 'system.price'
+        ]
+      });
       const source = HomebrewLoader.extractModuleSource(packName);
 
       for (const entry of index) {
@@ -142,7 +149,7 @@ export class HomebrewLoader {
           id: entry._id,
           packName: packName,
           name: entry.name,
-          type: entry.type,
+          type: entry.type === 'species' ? 'race' : entry.type,
           source: source,
           isHomebrew: true
         };
@@ -151,15 +158,16 @@ export class HomebrewLoader {
           case 'class':
             content.classes.push({
               ...item,
-              hitDice: entry.system?.hitDice || 'd8',
+              hitDice: entry.system?.hitDice || entry.system?.hp?.denomination || 'd8',
               spellcasting: entry.system?.spellcasting?.progression || null
             });
             break;
 
+          case 'species':
           case 'race':
             content.races.push({
               ...item,
-              abilityBoosts: entry.system?.ability || null
+              abilityBoosts: entry.system?.advancement || entry.system?.ability || null
             });
             break;
 

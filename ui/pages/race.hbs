@@ -1,77 +1,102 @@
-<div class="axyum-page">
-  <h2 class="axyum-page-title">{{localize "LD_AXYUM.Pages.Race"}}</h2>
-  <p class="axyum-page-description">
-    Choose your character's race. Races provide ability score increases and cultural traits.
-  </p>
+<div class="axyum-page axyum-catalog-page">
+  <header class="page-intro">
+    <p class="page-kicker">Ancestry</p>
+    <h2 class="axyum-page-title">{{localize "LD_AXYUM.Pages.Race"}}</h2>
+    <p class="axyum-page-description">
+      Choose your race or species — size, speed, senses, and traits.
+    </p>
+  </header>
 
-  <!-- Compendium Filter Buttons -->
-  {{#if raceCompendiumFilters}}
-  <div class="compendium-filters">
-    <span class="filter-label"><i class="fas fa-filter"></i> Filter by Source:</span>
-    <div class="filter-buttons">
-      {{#each raceCompendiumFilters}}
-        <button class="race-compendium-filter-btn {{#if (eq this.id ../selectedRaceCompendiumFilter)}}active{{/if}}" 
-                data-action="filterCompendium"
-                data-filter="{{this.id}}"
-                type="button">
-          <i class="fas fa-book"></i>
-          <span class="filter-name">{{this.name}}</span>
-          <span class="filter-count">({{this.count}})</span>
-        </button>
-      {{/each}}
+  <div class="axyum-catalog-toolbar">
+    {{#if raceCompendiumFilters}}
+    <div class="axyum-catalog-filters" role="group" aria-label="Filter by source">
+      <span class="axyum-toolbar-label"><i class="fas fa-filter" aria-hidden="true"></i> Source</span>
+      <div class="axyum-chip-row">
+        {{#each raceCompendiumFilters}}
+          <button type="button"
+                  class="axyum-chip {{#if (eq this.id ../selectedRaceCompendiumFilter)}}is-active{{/if}}"
+                  data-action="filterCompendium"
+                  data-filter="{{this.id}}">
+            <span>{{this.name}}</span>
+            <span class="axyum-chip-count">{{this.count}}</span>
+          </button>
+        {{/each}}
+      </div>
     </div>
-  </div>
-  {{/if}}
+    {{/if}}
 
-  <!-- Homebrew Settings -->
-  <div class="homebrew-settings">
-    <label class="homebrew-toggle">
-      <input type="checkbox" name="showHomebrew" {{#if showHomebrew}}checked{{/if}} />
-      <span class="toggle-switch"></span>
-      <span class="toggle-label">Show Custom Content</span>
+    <label class="axyum-check-row axyum-check-row--compact">
+      <input type="checkbox" name="showHomebrew" data-action="toggleHomebrew" {{#if showHomebrew}}checked{{/if}} />
+      <span class="axyum-check"></span>
+      <span class="axyum-check-text">
+        <strong>Custom content</strong>
+        <small>Include homebrew races</small>
+      </span>
     </label>
-    <span style="font-size: 0.9rem; color: var(--axyum-accent);">Include homebrew races from enabled modules</span>
   </div>
 
-  <div class="axyum-selection-grid">
+  <div class="axyum-info-card-grid" role="listbox" aria-label="Races">
     {{#each races}}
-      {{#if (or ../showHomebrew (not this.isHomebrew))}}
-        <button type="button" class="axyum-selection-card {{#if (eq this.id ../character.race.id)}}selected{{/if}}"
-             data-action="selectRace"
-             data-race-id="{{this.id}}" 
-             data-race-name="{{this.name}}"
-             data-pack-name="{{this.packName}}"
-             title="Click to select, Shift+Click to view details">
-          <h3 class="axyum-selection-card-title">{{this.name}}</h3>
-          <p class="axyum-selection-card-desc">{{this.source}}</p>
-          {{#if this.source}}
-            <span class="source-badge {{#if this.isHomebrew}}homebrew{{else}}official{{/if}}" style="margin-top: 0.25rem;">
-              {{#if this.isHomebrew}}<i class="fas fa-scroll"></i>{{else}}<i class="fas fa-book"></i>{{/if}}{{this.source}}
-            </span>
+      <button type="button"
+              class="axyum-info-card {{#if (eq this.id ../characterData.race.id)}}is-selected{{/if}}"
+              data-action="selectRace"
+              data-race-id="{{this.id}}"
+              data-race-name="{{this.name}}"
+              data-pack-name="{{this.packName}}"
+              role="option"
+              aria-selected="{{#if (eq this.id ../characterData.race.id)}}true{{else}}false{{/if}}">
+        <header class="axyum-info-card-head">
+          <span class="axyum-info-card-glyph" aria-hidden="true">
+            {{#if this.img}}
+              <img class="axyum-info-card-portrait" src="{{this.img}}" alt="">
+            {{else}}
+              <i class="fas fa-dna"></i>
+            {{/if}}
+          </span>
+          <span class="axyum-info-card-titles">
+            <span class="axyum-info-card-title">{{this.name}}</span>
+            {{#if this.source}}
+              <span class="axyum-catalog-source {{#if this.isHomebrew}}is-homebrew{{else}}is-official{{/if}}">{{this.source}}</span>
+            {{/if}}
+          </span>
+        </header>
+        <div class="axyum-info-card-chips">
+          <span class="axyum-meta-chip">{{this.sizeLabel}}</span>
+          <span class="axyum-meta-chip axyum-meta-chip--accent">{{this.speedLabel}}</span>
+          {{#if this.darkvision}}
+            <span class="axyum-meta-chip">{{this.darkvision}}</span>
           {{/if}}
-        </button>
-      {{/if}}
+        </div>
+        {{#if this.description}}
+          <p class="axyum-info-card-blurb">{{this.description}}</p>
+        {{else}}
+          <p class="axyum-info-card-blurb muted">{{this.traitsLabel}}</p>
+        {{/if}}
+      </button>
     {{else}}
-      <p style="grid-column: 1 / -1; color: #999; text-align: center; padding: 2rem;">
-        {{localize "LD_AXYUM.Messages.LoadingCompendia"}}
-      </p>
+      <div class="empty-state">
+        {{#if isLoading}}
+          <p>{{localize "LD_AXYUM.Messages.LoadingCompendia"}}</p>
+        {{else}}
+          <p>{{localize "LD_AXYUM.Messages.NoCompendiumContent"}}</p>
+          <p class="muted">Open the GM Hub and enable Item packs that contain races/species (dnd5e SRD or PHB).</p>
+        {{/if}}
+      </div>
     {{/each}}
   </div>
 
   {{#if characterData.race.id}}
-    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--axyum-secondary); border-left: 4px solid var(--axyum-primary); border-radius: 6px;">
-      <p><strong>{{localize "LD_AXYUM.Messages.Selected"}}:</strong> {{characterData.race.name}}
+    <div class="axyum-selection-bar">
+      <div class="axyum-selection-bar-copy">
+        <span class="page-kicker">Selected</span>
+        <strong class="axyum-selection-bar-name">{{characterData.race.name}}</strong>
         {{#if characterData.race.source}}
-          <span class="source-badge {{#if characterData.race.isHomebrew}}homebrew{{else}}official{{/if}}">
-            {{#if characterData.race.isHomebrew}}<i class="fas fa-scroll"></i>{{else}}<i class="fas fa-book"></i>{{/if}}{{characterData.race.source}}
-          </span>
+          <span class="axyum-catalog-source is-official">{{characterData.race.source}}</span>
         {{/if}}
-      </p>
+      </div>
     </div>
   {{/if}}
 
   <input type="hidden" name="race.id" value="{{characterData.race.id}}">
   <input type="hidden" name="race.name" value="{{characterData.race.name}}">
-  <input type="hidden" name="race.source" value="{{characterData.race.source}}">
-  <input type="hidden" name="race.isHomebrew" value="{{characterData.race.isHomebrew}}">
 </div>

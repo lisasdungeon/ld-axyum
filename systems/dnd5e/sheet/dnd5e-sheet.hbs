@@ -1,204 +1,194 @@
-{{! D&D 5e Character Sheet - Post-Apocalyptic Axyum Theme }}
+{{! D&D 5e Character Sheet - LD Axyum Theme (free-form editable canvas) }}
 <div class="axyum-sheet-container">
-  {{! Header Section }}
-  <div class="sheet-header">
-    <div class="character-identity">
-      <div class="character-name">
-        <input type="text" value="{{actor.name}}" placeholder="Character Name" class="name-input">
-      </div>
-      <div class="character-details">
-        <div class="detail-row">
-          <span class="label">Race:</span>
-          <span class="value">{{features.race}}</span>
-        </div>
-        <div class="detail-row">
-          <span class="label">Class:</span>
-          <span class="value">{{#each features.classes}}{{name}} {{level}}{{#unless @last}}, {{/unless}}{{/each}}</span>
-        </div>
-        <div class="detail-row">
-          <span class="label">Background:</span>
-          <span class="value">{{features.background}}</span>
-        </div>
-        <div class="detail-row">
-          <span class="label">Alignment:</span>
-          <span class="value">{{system.details.alignment}}</span>
-        </div>
-      </div>
-    </div>
 
-    <div class="character-image">
-      <div class="image-placeholder">
-        <i class="fa-solid fa-user"></i>
-        <span>Portrait</span>
-      </div>
+  <div class="axyum-sheet-toolbar">
+    <div class="axyum-page-tabs">
+      {{#each pages}}
+        <button type="button" class="axyum-page-tab {{#if this.active}}active{{/if}}" data-action="switchPage" data-page-id="{{this.id}}">
+          {{this.name}}
+        </button>
+      {{/each}}
+      {{#if ../editMode}}
+        <button type="button" class="axyum-page-tab axyum-page-tab--add" data-action="addPage" title="Add Page">
+          <i class="fas fa-plus"></i>
+        </button>
+      {{/if}}
+    </div>
+    <div class="axyum-toolbar-actions">
+      {{#if editMode}}
+        <button type="button" class="axyum-btn axyum-btn-secondary" data-action="renamePage" data-page-id="{{currentPageId}}">
+          <i class="fas fa-pen"></i> Rename
+        </button>
+        {{#if (gt pages.length 1)}}
+          <button type="button" class="axyum-btn axyum-btn-secondary" data-action="deletePage" data-page-id="{{currentPageId}}">
+            <i class="fas fa-trash"></i> Delete Page
+          </button>
+        {{/if}}
+        <button type="button" class="axyum-btn axyum-btn-secondary" data-action="resetLayout">
+          <i class="fas fa-undo"></i> Reset Layout
+        </button>
+      {{/if}}
+      <button type="button" class="axyum-btn {{#if editMode}}axyum-btn-primary is-active{{else}}axyum-btn-secondary{{/if}}" data-action="toggleEditMode">
+        <i class="fas fa-{{#if editMode}}check{{else}}pen-ruler{{/if}}"></i> {{#if editMode}}Done Editing{{else}}Edit Layout{{/if}}
+      </button>
     </div>
   </div>
 
-  {{! Main Content Grid }}
-  <div class="sheet-grid">
-    {{! Left Column - Abilities & Combat }}
-    <div class="left-column">
-      {{! Ability Scores }}
-      <div class="section-card abilities-section">
-        <h3 class="section-title">
-          <i class="fa-solid fa-dumbbell"></i> Ability Scores
-        </h3>
-        <div class="abilities-grid">
-          {{#each abilities}}
-            <div class="ability-block" data-ability="{{@key}}">
-              <div class="ability-name">{{name}}</div>
-              <div class="ability-score" data-action="editAbility" data-ability="{{@key}}">
-                {{score}}
-              </div>
-              <div class="ability-modifier">{{modifier}}</div>
-              <button class="ability-roll-btn" data-action="rollAbility" data-ability="{{@key}}">
-                <i class="fa-solid fa-dice-d20"></i>
+  {{#if editMode}}
+    <p class="axyum-edit-hint">Drag a widget by its top handle to move it, drag the corner to resize, use the palette icon to recolor it, and the arrows icon to send it to another page.</p>
+  {{/if}}
+
+  <div class="axyum-canvas-viewport">
+    <div class="axyum-canvas {{#if editMode}}is-editing{{/if}}" style="width:{{canvasSize.width}}px; height:{{canvasSize.height}}px;">
+      {{#each widgets}}
+        <div class="axyum-widget widget-type-{{this.type}}" data-widget-id="{{this.id}}"
+             style="left:{{this.x}}px; top:{{this.y}}px; width:{{this.width}}px; height:{{this.height}}px; {{this.colorStyle}}">
+
+          {{#if ../editMode}}
+            <div class="widget-chrome">
+              <div class="widget-drag-handle" title="Drag to move"><i class="fas fa-up-down-left-right"></i></div>
+              <button type="button" class="widget-tool-btn" data-action="setWidgetColor" data-widget-id="{{this.id}}" title="Change color">
+                <i class="fas fa-palette"></i>
               </button>
-              {{#if savingThrow}}
-                <div class="saving-throw" data-action="rollSavingThrow" data-ability="{{@key}}">
-                  Save: {{savingThrow}}
+              <button type="button" class="widget-tool-btn" data-action="movePageMenu" data-widget-id="{{this.id}}" title="Move to page">
+                <i class="fas fa-arrow-right-arrow-left"></i>
+              </button>
+            </div>
+          {{/if}}
+
+          <div class="widget-body">
+            {{#if (eq this.type "header")}}
+              <div class="character-identity">
+                <div class="character-name">
+                  <input type="text" value="{{@root.actor.name}}" placeholder="Character Name" class="name-input" name="name">
+                </div>
+                <div class="character-details">
+                  <div class="detail-row"><span class="label">Race:</span><span class="value">{{@root.features.race}}</span></div>
+                  <div class="detail-row"><span class="label">Class:</span><span class="value">{{#each @root.features.classes}}{{name}} {{level}}{{#unless @last}}, {{/unless}}{{/each}}</span></div>
+                  <div class="detail-row"><span class="label">Background:</span><span class="value">{{@root.features.background}}</span></div>
+                  <div class="detail-row"><span class="label">Alignment:</span><span class="value">{{@root.system.details.alignment}}</span></div>
+                </div>
+              </div>
+              <div class="character-image">
+                {{#if @root.actor.img}}
+                  <img class="character-portrait" src="{{@root.actor.img}}" alt="{{@root.actor.name}}" data-action="showArtwork">
+                {{else}}
+                  <div class="image-placeholder"><i class="fa-solid fa-user"></i><span>Portrait</span></div>
+                {{/if}}
+              </div>
+
+            {{else if (eq this.type "abilities")}}
+              <h3 class="section-title"><i class="fa-solid fa-dumbbell"></i> Ability Scores</h3>
+              <div class="abilities-grid">
+                {{#each @root.abilities}}
+                  <div class="ability-block" data-ability="{{@key}}">
+                    <div class="ability-name">{{name}}</div>
+                    <div class="ability-score" data-action="editAbility" data-ability="{{@key}}">{{score}}</div>
+                    <div class="ability-modifier">{{modifier}}</div>
+                    <button class="ability-roll-btn" data-action="rollAbility" data-ability="{{@key}}"><i class="fa-solid fa-dice-d20"></i></button>
+                    <div class="saving-throw {{#if saveProficient}}is-proficient{{/if}}" data-action="rollSavingThrow" data-ability="{{@key}}">Save: {{savingThrow}}</div>
+                  </div>
+                {{/each}}
+              </div>
+
+            {{else if (eq this.type "combat")}}
+              <h3 class="section-title"><i class="fa-solid fa-shield"></i> Combat</h3>
+              <div class="combat-stats">
+                <div class="stat-row">
+                  <span class="stat-label">Hit Points:</span>
+                  <div class="hp-controls">
+                    <input type="number" value="{{@root.combat.hitPoints.current}}" data-action="editHitPoints" data-type="current" class="hp-input">
+                    <span>/</span>
+                    <input type="number" value="{{@root.combat.hitPoints.max}}" data-action="editHitPoints" data-type="max" class="hp-input">
+                    <span>+</span>
+                    <input type="number" value="{{@root.combat.hitPoints.temp}}" data-action="editHitPoints" data-type="temp" class="hp-input temp">
+                  </div>
+                </div>
+                <div class="stat-row"><span class="stat-label">Armor Class:</span><span class="stat-value">{{@root.combat.armorClass}}</span></div>
+                <div class="stat-row"><span class="stat-label">Initiative:</span><span class="stat-value">{{@root.combat.initiative}}</span></div>
+                <div class="stat-row"><span class="stat-label">Speed:</span><span class="stat-value">{{@root.combat.speed}} ft.</span></div>
+                <div class="stat-row"><span class="stat-label">Proficiency Bonus:</span><span class="stat-value">+{{@root.combat.proficiencyBonus}}</span></div>
+                <div class="stat-row">
+                  <span class="stat-label">Hit Dice:</span>
+                  <span class="stat-value">{{@root.combat.hitDice}}</span>
+                  <button class="roll-btn" data-action="rollHitDie"><i class="fa-solid fa-dice-d6"></i></button>
+                </div>
+              </div>
+
+            {{else if (eq this.type "skills")}}
+              <h3 class="section-title"><i class="fa-solid fa-brain"></i> Skills</h3>
+              <div class="skills-list">
+                {{#each @root.skills}}
+                  <div class="skill-row">
+                    <div class="skill-info"><span class="skill-name">{{name}}</span><span class="skill-ability">({{ability}})</span></div>
+                    <div class="skill-controls">
+                      <span class="proficiency-indicator {{#if expertise}}expertise{{else if proficient}}proficient{{/if}}" data-action="toggleProficiency" data-type="skill" data-key="{{key}}">
+                        <i class="fa-solid {{#if proficient}}fa-circle{{else}}fa-regular fa-circle{{/if}}"></i>
+                      </span>
+                      <span class="skill-modifier">{{modifier}}</span>
+                      <button class="skill-roll-btn" data-action="rollSkill" data-skill="{{key}}"><i class="fa-solid fa-dice-d20"></i></button>
+                    </div>
+                  </div>
+                {{/each}}
+              </div>
+
+            {{else if (eq this.type "equipment")}}
+              <h3 class="section-title"><i class="fa-solid fa-toolbox"></i> Equipment</h3>
+              <div class="equipment-list">
+                {{#each @root.equipment}}
+                  <div class="equipment-item">
+                    <span class="item-name">{{name}}</span>
+                    {{#if (gt quantity 1)}}<span class="item-quantity">×{{quantity}}</span>{{/if}}
+                    {{#if equipped}}<span class="equipped-indicator">E</span>{{/if}}
+                  </div>
+                {{else}}
+                  <div class="empty-equipment"><i class="fa-solid fa-box-open"></i><span>No equipment</span></div>
+                {{/each}}
+              </div>
+
+            {{else if (eq this.type "spells")}}
+              <h3 class="section-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Spells</h3>
+              {{#if @root.spellcasting.slots.length}}
+                <div class="spell-slots-row">
+                  {{#each @root.spellcasting.slots}}<span class="spell-slot-chip">Lv{{this.level}}: {{this.value}}/{{this.max}}</span>{{/each}}
                 </div>
               {{/if}}
-            </div>
-          {{/each}}
-        </div>
-      </div>
-
-      {{! Combat Stats }}
-      <div class="section-card combat-section">
-        <h3 class="section-title">
-          <i class="fa-solid fa-shield"></i> Combat
-        </h3>
-        <div class="combat-stats">
-          <div class="stat-row">
-            <span class="stat-label">Hit Points:</span>
-            <div class="hp-controls">
-              <input type="number" value="{{combat.hitPoints.current}}" data-action="editHitPoints" data-type="current" class="hp-input">
-              <span>/</span>
-              <input type="number" value="{{combat.hitPoints.max}}" data-action="editHitPoints" data-type="max" class="hp-input">
-              <span>+</span>
-              <input type="number" value="{{combat.hitPoints.temp}}" data-action="editHitPoints" data-type="temp" class="hp-input temp">
-            </div>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Armor Class:</span>
-            <span class="stat-value">{{combat.armorClass}}</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Initiative:</span>
-            <span class="stat-value">{{combat.initiative}}</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Speed:</span>
-            <span class="stat-value">{{combat.speed}} ft.</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Hit Dice:</span>
-            <span class="stat-value">{{combat.hitDice}}</span>
-            <button class="roll-btn" data-action="rollHitDie">
-              <i class="fa-solid fa-dice-d6"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {{! Right Column - Skills & Equipment }}
-    <div class="right-column">
-      {{! Skills }}
-      <div class="section-card skills-section">
-        <h3 class="section-title">
-          <i class="fa-solid fa-brain"></i> Skills
-        </h3>
-        <div class="skills-list">
-          {{#each skills}}
-            <div class="skill-row">
-              <div class="skill-info">
-                <span class="skill-name">{{name}}</span>
-                <span class="skill-ability">({{ability}})</span>
-              </div>
-              <div class="skill-controls">
-                {{#if proficient}}
-                  <span class="proficiency-indicator proficient" data-action="toggleProficiency" data-type="skill" data-key="{{key}}">
-                    <i class="fa-solid fa-circle"></i>
-                  </span>
+              <div class="spell-list">
+                {{#each @root.spellcasting.spells}}
+                  <div class="spell-item">
+                    <span class="spell-name">{{name}}</span>
+                    <span class="spell-level">{{#if level}}Lv{{level}}{{else}}Cantrip{{/if}}</span>
+                    <span class="spell-prepared {{#if prepared}}is-prepared{{/if}}" data-action="toggleProficiency" data-type="spellPrepared" data-key="{{id}}">
+                      <i class="fa-solid {{#if prepared}}fa-sun{{else}}fa-regular fa-sun{{/if}}"></i>
+                    </span>
+                  </div>
                 {{else}}
-                  <span class="proficiency-indicator" data-action="toggleProficiency" data-type="skill" data-key="{{key}}">
-                    <i class="fa-regular fa-circle"></i>
-                  </span>
-                {{/if}}
-                <span class="skill-modifier">{{modifier}}</span>
-                <button class="skill-roll-btn" data-action="rollSkill" data-skill="{{key}}">
-                  <i class="fa-solid fa-dice-d20"></i>
-                </button>
+                  <div class="empty-equipment"><i class="fa-solid fa-hat-wizard"></i><span>No spells known</span></div>
+                {{/each}}
               </div>
-            </div>
-          {{/each}}
-        </div>
-      </div>
 
-      {{! Equipment }}
-      <div class="section-card equipment-section">
-        <h3 class="section-title">
-          <i class="fa-solid fa-toolbox"></i> Equipment
-        </h3>
-        <div class="equipment-list">
-          {{#each equipment}}
-            <div class="equipment-item">
-              <span class="item-name">{{name}}</span>
-              {{#if (gt quantity 1)}}
-                <span class="item-quantity">×{{quantity}}</span>
-              {{/if}}
-              {{#if equipped}}
-                <span class="equipped-indicator">E</span>
-              {{/if}}
-            </div>
-          {{else}}
-            <div class="empty-equipment">
-              <i class="fa-solid fa-box-open"></i>
-              <span>No equipment</span>
-            </div>
-          {{/each}}
-        </div>
-      </div>
-    </div>
-  </div>
+            {{else if (eq this.type "features")}}
+              <h3 class="section-title"><i class="fa-solid fa-star"></i> Features & Traits</h3>
+              <div class="features-content">
+                <div class="feature-item"><strong>Race:</strong> {{@root.features.race}}</div>
+                <div class="feature-item"><strong>Background:</strong> {{@root.features.background}}</div>
+                <div class="feature-item"><strong>Classes:</strong> {{#each @root.features.classes}}{{name}} {{level}}{{#unless @last}}, {{/unless}}{{/each}}</div>
+              </div>
 
-  {{! Bottom Section - Features & Biography }}
-  <div class="bottom-section">
-    {{! Features & Traits }}
-    <div class="section-card features-section">
-      <h3 class="section-title">
-        <i class="fa-solid fa-star"></i> Features & Traits
-      </h3>
-      <div class="features-content">
-        <div class="feature-item">
-          <strong>Race:</strong> {{features.race}}
-        </div>
-        <div class="feature-item">
-          <strong>Background:</strong> {{features.background}}
-        </div>
-        <div class="feature-item">
-          <strong>Classes:</strong> {{#each features.classes}}{{name}} {{level}}{{#unless @last}}, {{/unless}}{{/each}}
-        </div>
-      </div>
-    </div>
+            {{else if (eq this.type "biography")}}
+              <h3 class="section-title"><i class="fa-solid fa-book"></i> Biography</h3>
+              <div class="biography-content">
+                <div class="bio-field"><label>Personality:</label><textarea name="system.details.trait">{{@root.biography.personality}}</textarea></div>
+                <div class="bio-field"><label>Backstory:</label><textarea name="system.details.biography.value">{{@root.biography.backstory}}</textarea></div>
+              </div>
+            {{/if}}
+          </div>
 
-    {{! Biography }}
-    <div class="section-card biography-section">
-      <h3 class="section-title">
-        <i class="fa-solid fa-book"></i> Biography
-      </h3>
-      <div class="biography-content">
-        <div class="bio-field">
-          <label>Personality:</label>
-          <textarea>{{biography.personality}}</textarea>
+          {{#if ../editMode}}
+            <div class="widget-resize-handle" title="Drag to resize"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div>
+          {{/if}}
         </div>
-        <div class="bio-field">
-          <label>Backstory:</label>
-          <textarea>{{biography.backstory}}</textarea>
-        </div>
-      </div>
+      {{/each}}
     </div>
   </div>
 </div>

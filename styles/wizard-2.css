@@ -1,26 +1,3 @@
-.preview-content .combat-circles {
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.preview-content .ld-axyum-centerpiece {
-  grid-column: 1 / -1;
-}
-
-.preview-content .combat-stats-row {
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-}
-
-.preview-content .panel-title {
-  font-size: 0.8rem;
-}
-
-.preview-content .ld-axyum-panel {
-  padding: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
 .preview-content .equipment-grid,
 .preview-content .personality-grid,
 .preview-content .physical-grid {
@@ -128,7 +105,7 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--axyum-primary), rgba(138, 43, 226, 0.3));
+  background: linear-gradient(135deg, var(--axyum-primary), rgba(125, 211, 252, 0.3));
   border: 2px solid var(--axyum-accent);
   display: flex;
   align-items: center;
@@ -223,8 +200,8 @@
 }
 
 .ability-hex {
-  background: linear-gradient(180deg, rgba(138, 43, 226, 0.15) 0%, rgba(0, 0, 0, 0.3) 100%);
-  border: 1px solid rgba(138, 43, 226, 0.4);
+  background: linear-gradient(180deg, rgba(125, 211, 252, 0.15) 0%, rgba(0, 0, 0, 0.3) 100%);
+  border: 1px solid rgba(125, 211, 252, 0.4);
   border-radius: 6px;
   padding: 0.4rem 0.25rem;
   text-align: center;
@@ -242,7 +219,7 @@
 
 .hex-abbr {
   font-size: 0.6rem;
-  color: var(--axyum-primary);
+  color: var(--axyum-accent);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;
@@ -297,7 +274,7 @@
 
 .skills-label {
   font-size: 0.7rem;
-  color: var(--axyum-primary);
+  color: var(--axyum-accent);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 0.5rem;
@@ -371,7 +348,7 @@
 
 .stat-label {
   font-size: 0.7rem;
-  color: var(--axyum-primary);
+  color: var(--axyum-accent);
   text-transform: uppercase;
   margin-bottom: 0.2rem;
 }
@@ -383,9 +360,9 @@
   text-shadow: 0 0 10px var(--axyum-primary-glow);
 }
 
-/* --- Card Styles for Content --- */
-.axyum-card-grid,
-.axyum-selection-grid {
+/* --- Card Styles for Content ---
+   Selection grids/cards are owned by styles/axyum-ui.css (catalog redesign). */
+.axyum-card-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
@@ -402,8 +379,8 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: rgba(138, 43, 226, 0.1);
-  border: 1px solid rgba(138, 43, 226, 0.3);
+  background: rgba(125, 211, 252, 0.1);
+  border: 1px solid rgba(125, 211, 252, 0.3);
   border-radius: 8px;
   align-items: center;
 }
@@ -428,7 +405,7 @@
 }
 
 .source-label i {
-  color: var(--axyum-primary);
+  color: var(--axyum-accent);
 }
 
 .source-count {
@@ -442,5 +419,57 @@
   flex-wrap: wrap;
   gap: 0.3rem;
   margin-top: 0.3rem;
+}
+
+.pool-skill {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  background: rgba(125, 211, 252, 0.15);
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  border-radius: 10px;
+  color: var(--axyum-accent);
+}
+
+.skill-total {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--axyum-primary), rgba(125, 211, 252, 0.5));
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.total-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+}
+
+.total-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Skills Grid */
+.axyum-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.axyum-skill-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(20, 10, 40, 0.6);
+  border: 2px solid rgba(125, 211, 252, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 

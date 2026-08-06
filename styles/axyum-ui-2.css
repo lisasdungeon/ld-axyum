@@ -1,0 +1,478 @@
+button.axyum-chip:hover {
+  border-color: var(--axyum-border-strong);
+}
+
+button.axyum-chip.is-active {
+  border-color: var(--axyum-accent);
+  background: rgba(125, 211, 252, 0.18);
+  color: var(--axyum-text-strong);
+}
+
+.axyum-chip-count {
+  color: var(--axyum-text-muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+button.axyum-chip.is-active .axyum-chip-count {
+  color: var(--axyum-accent);
+}
+
+.axyum-check-row--compact {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.axyum-catalog-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.45rem !important;
+  animation: axyum-fade 0.45s ease both 0.06s;
+}
+
+.ld-axyum-window button.axyum-catalog-row,
+button.axyum-catalog-row {
+  all: unset;
+  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0.75rem !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 3.15rem !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0.65rem 0.85rem !important;
+  border: 1px solid var(--axyum-border) !important;
+  border-radius: var(--axyum-radius-sm) !important;
+  background: var(--axyum-bg-card) !important;
+  color: var(--axyum-text) !important;
+  font-family: var(--axyum-font-ui) !important;
+  font-size: 0.95rem !important;
+  line-height: 1.3 !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: visible !important;
+  float: none !important;
+  transform: none !important;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.ld-axyum-window button.axyum-catalog-row:hover,
+button.axyum-catalog-row:hover {
+  border-color: var(--axyum-border-strong) !important;
+  background: var(--axyum-bg-elevated) !important;
+}
+
+.ld-axyum-window button.axyum-catalog-row.is-selected,
+button.axyum-catalog-row.is-selected {
+  border-color: var(--axyum-accent) !important;
+  background: rgba(125, 211, 252, 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.35) !important;
+}
+
+.ld-axyum-window button.axyum-catalog-row > *,
+button.axyum-catalog-row > * {
+  position: static !important;
+  float: none !important;
+  margin: 0 !important;
+}
+
+.axyum-catalog-glyph {
+  flex: 0 0 2.25rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  border-radius: 6px !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid var(--axyum-border) !important;
+  color: var(--axyum-accent) !important;
+  font-size: 0.95rem !important;
+}
+
+button.axyum-catalog-row.is-selected .axyum-catalog-glyph {
+  color: var(--axyum-accent) !important;
+  border-color: var(--axyum-border-strong) !important;
+}
+
+.axyum-catalog-name {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  font-family: var(--axyum-font-display) !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: var(--axyum-text-strong) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+button.axyum-catalog-row--simple .axyum-catalog-name {
+  flex: 1 1 auto !important;
+}
+
+.axyum-catalog-meta {
+  flex: 0 1 auto !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.3rem !important;
+  min-width: 0 !important;
+}
+
+.axyum-meta-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 0.12rem 0.45rem !important;
+  border-radius: 4px !important;
+  border: 1px solid var(--axyum-border) !important;
+  background: rgba(0, 0, 0, 0.22) !important;
+  color: var(--axyum-text-muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+}
+
+.axyum-meta-chip--accent {
+  color: var(--axyum-accent) !important;
+  border-color: rgba(125, 211, 252, 0.45) !important;
+}
+
+.axyum-meta-chip--rec {
+  color: var(--axyum-accent) !important;
+  border-color: rgba(125, 211, 252, 0.55) !important;
+  background: rgba(125, 211, 252, 0.12) !important;
+}
+
+.axyum-catalog-source {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+  color: var(--axyum-text-muted) !important;
+  white-space: nowrap !important;
+}
+
+.axyum-catalog-source.is-official {
+  color: var(--axyum-accent) !important;
+}
+
+.axyum-catalog-source.is-homebrew {
+  color: var(--axyum-accent) !important;
+}
+
+.axyum-catalog-source.is-empty {
+  min-width: 1px;
+}
+
+.axyum-selection-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-top: 1.1rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--axyum-radius);
+  border: 1px solid var(--axyum-border-strong);
+  background:
+    linear-gradient(90deg, rgba(125, 211, 252, 0.14), transparent 55%),
+    var(--axyum-bg-panel);
+  animation: axyum-rise 0.35s ease both;
+}
+
+.axyum-selection-bar-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 0.75rem;
+}
+
+.axyum-selection-bar-name {
+  font-family: var(--axyum-font-display);
+  font-size: 1.2rem;
+  color: var(--axyum-text-strong);
+}
+
+.axyum-level-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--axyum-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.axyum-level-field input[type="number"] {
+  width: 3.5rem;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius-sm);
+  background: var(--axyum-bg-input);
+  color: var(--axyum-text-strong);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Legacy class names still used elsewhere */
+.axyum-selection-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.axyum-selection-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  background: var(--axyum-bg-card);
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius-sm);
+  color: var(--axyum-text);
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  overflow: visible;
+  flex: none;
+  min-width: 0;
+}
+
+.axyum-selection-card:hover {
+  border-color: var(--axyum-border-strong);
+  background: var(--axyum-bg-elevated);
+  transform: none;
+  box-shadow: none;
+}
+
+.axyum-selection-card.selected {
+  border-color: var(--axyum-accent);
+  background: rgba(125, 211, 252, 0.14);
+  box-shadow: none;
+}
+
+.axyum-selection-card-title {
+  margin: 0;
+  font-family: var(--axyum-font-display);
+  font-size: 1.05rem;
+  color: var(--axyum-text-strong);
+  position: static;
+}
+
+.axyum-selection-card-desc {
+  margin: 0;
+  grid-column: 2;
+  font-size: 0.8rem;
+  color: var(--axyum-text-muted);
+  position: static;
+}
+
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--axyum-border);
+  color: var(--axyum-text-muted);
+  position: static;
+}
+
+.source-badge.official {
+  color: var(--axyum-accent);
+  border-color: rgba(125, 211, 252, 0.4);
+}
+
+.source-badge.homebrew {
+  color: var(--axyum-accent);
+  border-color: rgba(125, 211, 252, 0.45);
+}
+
+@keyframes axyum-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes axyum-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 960px) {
+  .axyum-role-studio {
+    grid-template-columns: 1fr;
+  }
+
+  .ld-axyum-window button.axyum-catalog-row:not(.axyum-catalog-row--simple),
+  button.axyum-catalog-row:not(.axyum-catalog-row--simple) {
+    flex-wrap: wrap !important;
+  }
+
+  button.axyum-catalog-row:not(.axyum-catalog-row--simple) .axyum-catalog-meta {
+    order: 3;
+    flex: 1 1 100% !important;
+    padding-left: 3rem;
+  }
+}
+
+.empty-state,
+.selection-banner,
+.non-caster-panel,
+.spell-summary-bar,
+.spell-slots-panel {
+  padding: 1rem 1.1rem;
+  border-radius: var(--axyum-radius);
+  border: 1px solid var(--axyum-border);
+  background: var(--axyum-bg-panel);
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--axyum-text-muted);
+}
+
+.selection-banner {
+  margin-top: 1.25rem;
+  border-left: 3px solid var(--axyum-primary);
+}
+
+/* ---- Tallies ---- */
+.tally-chip,
+.prof-count-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(125, 211, 252, 0.12);
+  border: 1px solid var(--axyum-border);
+}
+
+.tally-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--axyum-text-muted);
+}
+
+.tally-value {
+  font-weight: 700;
+  color: var(--axyum-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.spell-summary-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.spell-tallies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.spell-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.spell-slot-cell {
+  text-align: center;
+  padding: 0.45rem;
+  background: var(--axyum-bg-card);
+  border-radius: var(--axyum-radius-sm);
+  border: 1px solid var(--axyum-border);
+}
+
+.slot-level {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--axyum-text-muted);
+}
+
+.slot-count {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--axyum-accent);
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--axyum-border);
+  padding-bottom: 0.4rem;
+  margin: 1.4rem 0 0.5rem;
+}
+
+.section-heading h3 {
+  margin: 0;
+  font-family: var(--axyum-font-display);
+  color: var(--axyum-text-strong);
+}
+
+.section-tally {
+  font-weight: 700;
+  color: var(--axyum-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.section-hint {
+  margin: 0 0 0.85rem;
+  color: var(--axyum-text-muted);
+  font-size: 0.88rem;
+}
+
+/* ---- Spell cards ---- */
+.axyum-spells-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.55rem;
+}
+
+.axyum-spell-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.7rem 0.75rem;
+  background: var(--axyum-bg-card);
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius-sm);
+  cursor: pointer;
+}
+
+.axyum-spell-card:hover {
+  border-color: var(--axyum-border-strong);
+}
+
+.axyum-spell-card.is-selected,
+.axyum-spell-card:has(input:checked) {
+  border-color: var(--axyum-accent);
+  background: rgba(125, 211, 252, 0.12);
+}
+

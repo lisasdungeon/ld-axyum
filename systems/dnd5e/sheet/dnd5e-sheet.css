@@ -1,166 +1,110 @@
-/* D&D 5e Character Sheet - Post-Apocalyptic Axyum Theme */
+/* LD Axyum - Character Sheet (scoped under .axyum-sheet-container so it
+   never leaks onto Foundry's own actor sheets or other module UI) */
 
-/* Base Theme Variables */
-:root {
-  --axyum-bg-primary: #0a0a0a;
-  --axyum-bg-secondary: #1a1a1a;
-  --axyum-bg-tertiary: #2a2a2a;
-  --axyum-border: #444444;
-  --axyum-border-glow: #666666;
-  --axyum-text-primary: #ffffff;
-  --axyum-text-secondary: #cccccc;
-  --axyum-text-muted: #888888;
-  --axyum-accent: #ff6b35;
-  --axyum-accent-glow: #ff8c42;
-  --axyum-metal: #c0c0c0;
-  --axyum-metal-dark: #808080;
-  --axyum-rust: #b7410e;
-  --axyum-danger: #ff4444;
-  --axyum-success: #86efac;
-  --axyum-warning: #ffff44;
-}
-
-/* Sheet Container */
 .axyum-sheet-container {
-  background: var(--axyum-bg-primary);
-  color: var(--axyum-text-primary);
-  font-family: 'Courier New', monospace;
-  min-height: 100%;
-  padding: 1rem;
-  background-image:
-    radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(184, 65, 14, 0.05) 0%, transparent 50%);
-  background-attachment: fixed;
-}
-
-/* Header Section */
-.sheet-header {
+  background: var(--axyum-bg-dark);
+  color: var(--axyum-text-light);
+  font-family: var(--axyum-font-ui);
+  height: 100%;
   display: flex;
-  gap: 2rem;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: var(--axyum-bg-secondary);
-  border: 2px solid var(--axyum-border);
-  border-radius: 8px;
-  box-shadow:
-    0 0 20px rgba(255, 107, 53, 0.1),
-    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.character-identity {
+/* Header widget content */
+.axyum-sheet-container .character-identity {
+  display: flex;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.axyum-sheet-container .character-identity {
   flex: 1;
+  min-width: 0;
 }
 
-.character-name {
-  margin-bottom: 1rem;
+.axyum-sheet-container .character-name {
+  margin-bottom: 0.85rem;
 }
 
-.name-input {
+.axyum-sheet-container .name-input {
   width: 100%;
-  padding: 0.75rem;
-  background: var(--axyum-bg-tertiary);
-  border: 2px solid var(--axyum-border);
-  border-radius: 4px;
-  color: var(--axyum-text-primary);
-  font-size: 1.5rem;
-  font-weight: bold;
+  padding: 0.65rem;
+  background: var(--axyum-bg-input);
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius-sm);
+  color: var(--axyum-text-strong);
+  font-size: 1.4rem;
+  font-weight: 700;
   font-family: inherit;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 0.02em;
 }
 
-.name-input:focus {
+.axyum-sheet-container .name-input:focus {
   outline: none;
   border-color: var(--axyum-accent);
-  box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 0 8px var(--axyum-accent-glow);
 }
 
-.character-details {
+.axyum-sheet-container .character-details {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
 }
 
-.detail-row {
+.axyum-sheet-container .detail-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.detail-row .label {
-  font-weight: bold;
-  color: var(--axyum-metal);
+.axyum-sheet-container .detail-row .label {
+  font-weight: 700;
+  color: var(--axyum-text-muted);
   min-width: 80px;
 }
 
-.detail-row .value {
-  color: var(--axyum-text-secondary);
-  font-style: italic;
+.axyum-sheet-container .detail-row .value {
+  color: var(--axyum-text);
 }
 
-.character-image {
-  flex-shrink: 0;
+.axyum-sheet-container .character-image {
+  flex: 0 0 110px;
 }
 
-.image-placeholder {
-  width: 120px;
-  height: 120px;
-  background: var(--axyum-bg-tertiary);
-  border: 2px solid var(--axyum-border);
-  border-radius: 8px;
+.axyum-sheet-container .character-portrait {
+  width: 110px;
+  height: 110px;
+  border-radius: var(--axyum-radius);
+  border: 1px solid var(--axyum-border);
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.axyum-sheet-container .image-placeholder {
+  width: 110px;
+  height: 110px;
+  background: var(--axyum-bg-card);
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   color: var(--axyum-text-muted);
-  font-size: 2rem;
+  font-size: 1.6rem;
+  gap: 0.25rem;
 }
 
-/* Main Grid Layout */
-.sheet-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 2rem;
+.axyum-sheet-container .image-placeholder span {
+  font-size: 0.7rem;
 }
 
-.left-column, .right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* Section Cards */
-.section-card {
-  background: var(--axyum-bg-secondary);
-  border: 2px solid var(--axyum-border);
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow:
-    0 0 15px rgba(0, 0, 0, 0.5),
-    inset 0 0 15px rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: hidden;
-}
-
-.section-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--axyum-accent), var(--axyum-rust), var(--axyum-accent));
-  box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
-}
-
-.section-title {
-  margin: 0 0 1rem 0;
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.axyum-sheet-container .section-title {
+  margin: 0 0 0.85rem 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   color: var(--axyum-accent);
   display: flex;
   align-items: center;
@@ -169,280 +113,84 @@
   padding-bottom: 0.5rem;
 }
 
-/* Abilities Section */
-.abilities-grid {
+/* Abilities widget content */
+.axyum-sheet-container .abilities-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
-.ability-block {
-  background: var(--axyum-bg-tertiary);
+.axyum-sheet-container .ability-block {
+  background: var(--axyum-bg-card);
   border: 1px solid var(--axyum-border);
-  border-radius: 6px;
-  padding: 1rem;
+  border-radius: var(--axyum-radius-sm);
+  padding: 0.85rem;
   text-align: center;
   position: relative;
-  transition: all 0.3s ease;
+  transition: border-color 0.2s ease;
 }
 
-.ability-block:hover {
-  border-color: var(--axyum-accent);
-  box-shadow: 0 0 15px rgba(255, 107, 53, 0.2);
+.axyum-sheet-container .ability-block:hover {
+  border-color: var(--axyum-border-strong);
 }
 
-.ability-name {
-  font-size: 0.9rem;
-  color: var(--axyum-text-secondary);
-  margin-bottom: 0.5rem;
+.axyum-sheet-container .ability-name {
+  font-size: 0.8rem;
+  color: var(--axyum-text-muted);
+  margin-bottom: 0.4rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.06em;
 }
 
-.ability-score {
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--axyum-text-primary);
+.axyum-sheet-container .ability-score {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--axyum-text-strong);
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
-.ability-score:hover {
+.axyum-sheet-container .ability-score:hover {
   color: var(--axyum-accent);
 }
 
-.ability-modifier {
-  font-size: 1.2rem;
-  color: var(--axyum-metal);
-  margin: 0.5rem 0;
+.axyum-sheet-container .ability-modifier {
+  font-size: 1.05rem;
+  color: var(--axyum-text-muted);
+  margin: 0.4rem 0;
 }
 
-.ability-roll-btn {
+.axyum-sheet-container .ability-roll-btn {
   background: var(--axyum-accent);
   border: none;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--axyum-bg-dark);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.15s ease;
   margin: 0 auto;
 }
 
-.ability-roll-btn:hover {
-  background: var(--axyum-accent-glow);
-  transform: scale(1.1);
-  box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
-}
-
-.saving-throw {
-  font-size: 0.8rem;
-  color: var(--axyum-text-muted);
-  margin-top: 0.5rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.saving-throw:hover {
-  color: var(--axyum-accent);
-}
-
-/* Combat Section */
-.combat-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.stat-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.stat-label {
-  font-weight: bold;
-  color: var(--axyum-metal);
-}
-
-.stat-value {
-  color: var(--axyum-text-primary);
-  font-weight: bold;
-}
-
-.hp-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.hp-input {
-  width: 60px;
-  padding: 0.25rem;
-  background: var(--axyum-bg-tertiary);
-  border: 1px solid var(--axyum-border);
-  border-radius: 3px;
-  color: var(--axyum-text-primary);
-  text-align: center;
-  font-family: inherit;
-}
-
-.hp-input.temp {
-  width: 50px;
-}
-
-.hp-input:focus {
-  outline: none;
-  border-color: var(--axyum-accent);
-}
-
-.roll-btn {
-  background: var(--axyum-accent);
-  border: none;
-  border-radius: 3px;
-  padding: 0.25rem 0.5rem;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.roll-btn:hover {
-  background: var(--axyum-accent-glow);
-}
-
-/* Skills Section */
-.skills-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.skill-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem;
-  background: var(--axyum-bg-tertiary);
-  border-radius: 4px;
-  border: 1px solid var(--axyum-border);
-}
-
-.skill-info {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.skill-name {
-  font-weight: bold;
-  color: var(--axyum-text-primary);
-}
-
-.skill-ability {
-  color: var(--axyum-text-muted);
-  font-size: 0.8rem;
-}
-
-.skill-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.proficiency-indicator {
-  color: var(--axyum-metal);
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.proficiency-indicator:hover {
-  color: var(--axyum-accent);
-}
-
-.proficiency-indicator.proficient {
-  color: var(--axyum-accent);
-}
-
-.skill-modifier {
-  font-weight: bold;
-  color: var(--axyum-text-primary);
-  min-width: 30px;
-  text-align: center;
-}
-
-.skill-roll-btn {
-  background: var(--axyum-accent);
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.skill-roll-btn:hover {
-  background: var(--axyum-accent-glow);
+.axyum-sheet-container .ability-roll-btn:hover {
   transform: scale(1.1);
 }
 
-/* Equipment Section */
-.equipment-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.equipment-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem;
-  background: var(--axyum-bg-tertiary);
-  border-radius: 4px;
-  border: 1px solid var(--axyum-border);
-}
-
-.item-name {
-  color: var(--axyum-text-primary);
-}
-
-.item-quantity {
+.axyum-sheet-container .saving-throw {
+  font-size: 0.78rem;
   color: var(--axyum-text-muted);
-  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  cursor: pointer;
 }
 
-.equipped-indicator {
-  background: var(--axyum-success);
-  color: black;
-  padding: 0.125rem 0.25rem;
-  border-radius: 3px;
-  font-size: 0.7rem;
-  font-weight: bold;
+.axyum-sheet-container .saving-throw:hover {
+  color: var(--axyum-accent);
 }
 
-.empty-equipment {
-  text-align: center;
-  padding: 2rem;
-  color: var(--axyum-text-muted);
-  font-style: italic;
-}
-
-.empty-equipment i {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-/* Bottom Section */
-.bottom-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+.axyum-sheet-container .saving-throw.is-proficient {
+  color: var(--axyum-accent);
+  font-weight: 700;
 }

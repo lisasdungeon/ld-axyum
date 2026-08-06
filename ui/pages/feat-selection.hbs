@@ -1,293 +1,79 @@
-<div class="axyum-page">
-  <h2 class="axyum-page-title">{{localize "LD_AXYUM.Pages.Feats"}}</h2>
-  <p class="axyum-page-description">
-    Select your feats and Ability Score Improvements (ASIs). You gain feats at certain character levels that can enhance your abilities or grant new capabilities.
-  </p>
+<div class="axyum-page axyum-catalog-page feats-page">
+  <header class="page-intro">
+    <p class="page-kicker">Feats &amp; ASIs</p>
+    <h2 class="axyum-page-title">Improve your character</h2>
+    <p class="axyum-page-description">
+      At ASI levels (4, 8, 12, 16, 19) you may take a feat or an Ability Score Improvement instead.
+    </p>
+  </header>
 
-  <!-- Homebrew Settings -->
-  <div class="homebrew-settings">
-    <label class="homebrew-toggle">
-      <input type="checkbox" name="showHomebrew" {{#if showHomebrew}}checked{{/if}} />
-      <span class="toggle-switch"></span>
-      <span class="toggle-label">Show Custom Content</span>
-    </label>
-    <span style="font-size: 0.9rem; color: var(--axyum-accent);">Include homebrew feats from enabled modules</span>
-  </div>
-
-  <!-- ASI/Feat Summary -->
-  <div style="margin-bottom: 2rem; padding: 1rem; background: rgba(74, 144, 226, 0.1); border-left: 4px solid var(--axyum-primary); border-radius: 4px;">
-    <h3 style="margin: 0 0 0.5rem; color: var(--axyum-primary); font-size: 1.1rem;">
-      {{localize "LD_AXYUM.Labels.ASIAndFeats"}}
-    </h3>
-    <p style="margin: 0.5rem 0; font-size: 0.95rem;">
-      <strong>Character Level:</strong> {{or characterData.totalLevel 1}} 
-      <span style="margin-left: 1rem; color: var(--axyum-primary); font-weight: 600;">
-        {{asiCount}} {{#if (eq asiCount 1)}}ASI Available{{else}}ASIs Available{{/if}}
+  <div class="axyum-catalog-toolbar">
+    <div class="tally-chip">
+      <span class="tally-label">Used</span>
+      <span class="tally-value">{{selectedFeatCount}} / {{asiCount}}</span>
+    </div>
+    <span class="muted">Level {{or characterData.totalLevel 1}}</span>
+    <label class="axyum-check-row axyum-check-row--compact">
+      <input type="checkbox" name="showHomebrew" data-action="toggleHomebrew" {{#if showHomebrew}}checked{{/if}} />
+      <span class="axyum-check"></span>
+      <span class="axyum-check-text">
+        <strong>Custom content</strong>
+        <small>Include homebrew feats</small>
       </span>
-    </p>
-    <p style="margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--axyum-dim);">
-      ASI levels: 4, 8, 12, 16, 19. You can increase two ability scores by 1 each, or select a feat instead.
-    </p>
+    </label>
   </div>
 
-  <!-- Current Selections -->
-  {{#if characterData.feats}}
-  <div style="margin-bottom: 2rem;">
-    <h3 style="margin-bottom: 1rem; color: var(--axyum-primary);">{{localize "LD_AXYUM.Labels.SelectedFeats"}}</h3>
-    {{#if (gt characterData.feats.length 0)}}
-      <div class="axyum-selected-feats-list">
-        {{#each characterData.feats}}
-          <div class="axyum-feat-item" style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; margin-bottom: 0.5rem; background: var(--axyum-secondary); border-radius: 4px; border-left: 3px solid #4CAF50;">
-            <div style="flex: 1;">
-              <strong style="color: #4CAF50;">{{this}}</strong>
-            </div>
-            <button type="button" class="axyum-remove-feat axyum-btn axyum-btn-danger" data-feat-name="{{this}}"
-                    style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
-              {{localize "LD_AXYUM.Labels.Remove"}}
-            </button>
-          </div>
-        {{/each}}
-      </div>
-    {{else}}
-      <p style="color: var(--axyum-dim); font-style: italic;">
-        {{localize "LD_AXYUM.Messages.NoFeatsSelected"}}
-      </p>
-    {{/if}}
-  </div>
-  {{/if}}
-
-  <!-- Feat Selection -->
-  <div class="axyum-feat-selection-section" style="margin-bottom: 2rem;">
-    <h3 style="margin-bottom: 1rem;">{{localize "LD_AXYUM.Labels.SelectFeat"}}</h3>
-    
-    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-      <input type="text" 
-             id="feat-search" 
-             placeholder="Search feats..."
-             class="axyum-input"
-             style="flex: 1; padding: 0.5rem; border: 1px solid #999; border-radius: 3px; font-size: 1rem;"
-             onkeydown="if (event.key === 'Enter') event.preventDefault();">
-      <button type="button" id="clear-feat-search" class="axyum-btn axyum-btn-secondary"
-              style="padding: 0.5rem 1rem;">Clear</button>
-    </div>
-
-    <div id="feat-list-container" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; background: var(--axyum-secondary);">
-      {{#if featsList}}
-        <div class="axyum-feat-selection-list">
-          {{#each featsList}}
-            {{#if (or showHomebrew (not this.isHomebrew))}}
-              <div class="axyum-feat-selection-item" style="padding: 1rem; border-bottom: 1px solid #ccc; cursor: pointer; transition: background-color 0.2s ease; display: flex; justify-content: space-between; align-items: flex-start;" data-feat-name="{{this.name}}">
-                <div style="display: flex; align-items: flex-start; gap: 1rem; flex: 1;">
-                  <input type="checkbox" 
-                         class="feat-checkbox"
-                         name="feats" 
-                         value="{{this.name}}"
-                         {{#if (includes ../characterData.feats this.name)}}checked{{/if}}
-                         style="margin-top: 0.25rem; cursor: pointer;">
-                  <div style="flex: 1;">
-                    <strong style="display: block; margin-bottom: 0.25rem; color: var(--axyum-primary);">{{this.name}}</strong>
-                    {{#if this.source}}
-                      <span class="source-badge {{#if this.isHomebrew}}homebrew{{else}}official{{/if}}" style="display: inline-block; margin-bottom: 0.5rem;">
-                        {{#if this.isHomebrew}}<i class="fas fa-scroll"></i>{{else}}<i class="fas fa-book"></i>{{/if}}{{this.source}}
-                      </span>
-                    {{/if}}
-                    {{#if this.requiresLevel}}
-                      <span style="font-size: 0.85rem; color: var(--axyum-dim); margin-left: 0.5rem;">
-                        Requires Lv. {{this.requiresLevel}}
-                      </span>
-                    {{/if}}
-                    <p style="margin: 0.5rem 0 0; font-size: 0.9rem; color: var(--axyum-dim);">
-                      {{#if this.prerequisites}}
-                        <strong>Prerequisites:</strong> {{#each this.prerequisites}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}<br>
-                      {{/if}}
-                      {{#if this.requiresAbility}}
-                        <strong>Ability:</strong> {{this.requiresAbility}}<br>
-                      {{/if}}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            {{/if}}
-          {{/each}}
-        </div>
-      {{else}}
-        <div style="padding: 2rem; text-align: center; color: var(--axyum-dim);">
-          <p>{{localize "LD_AXYUM.Messages.NoFeatsAvailable"}}</p>
-        </div>
-      {{/if}}
-    </div>
-  </div>
-
-  <!-- ASI Improvement Option -->
   {{#if (gt asiCount 0)}}
-  <div class="axyum-asi-section" style="margin-bottom: 2rem; padding: 1.5rem; background: var(--axyum-secondary); border-radius: 6px; border-left: 4px solid #FF9800;">
-    <h3 style="margin: 0 0 1rem; color: #FF9800;">{{localize "LD_AXYUM.Labels.AbilityScoreImprovement"}}</h3>
-    
-    <div style="margin-bottom: 1rem;">
-      <p style="margin: 0 0 1rem; font-size: 0.95rem;">
-        Instead of selecting a feat, you can increase two ability scores by 1 each. You have <strong>{{asiCount}}</strong> {{#if (eq asiCount 1)}}improvement{{else}}improvements{{/if}} available.
-      </p>
-      
-      <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 1rem;">
-        <input type="checkbox" 
-               name="chooseASI" 
-               id="choose-asi-checkbox"
-               {{#if characterData.chooseASI}}checked{{/if}}
-               style="margin-right: 0.5rem; cursor: pointer;">
-        <span>{{localize "LD_AXYUM.Labels.ChooseASIInsteadOfFeat"}}</span>
-      </label>
-
-      <div id="asi-selection" style="{{#unless characterData.chooseASI}}display: none;{{/unless}} margin-top: 1rem; padding: 1rem; background: var(--axyum-primary); color: white; border-radius: 4px;">
-        <p style="margin: 0 0 1rem; font-size: 0.95rem;">
-          Select two ability scores to increase by 1 (can be the same ability twice):
-        </p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.5rem;">
-          {{#each abilities}}
-            <label style="display: flex; align-items: center; cursor: pointer;">
-              <input type="checkbox" 
-                     class="asi-ability-checkbox"
-                     name="asiAbilities" 
-                     value="{{this.key}}"
-                     style="margin-right: 0.5rem; cursor: pointer;">
-              <span>{{this.name}}</span>
-            </label>
-          {{/each}}
-        </div>
-        <p style="margin: 1rem 0 0; font-size: 0.85rem; opacity: 0.9;">
-          <strong>Note:</strong> You can select the same ability twice to increase it by 2.
-        </p>
-      </div>
+    <button type="button"
+            class="axyum-package-card {{#if characterData.chooseASI}}is-selected{{/if}}"
+            data-action="toggleASI">
+      <header class="axyum-package-card-head">
+        <span class="axyum-package-label"><i class="fas fa-arrow-up"></i> Ability Score Improvement</span>
+        {{#if characterData.chooseASI}}
+          <span class="axyum-meta-chip axyum-meta-chip--rec">Selected</span>
+        {{/if}}
+      </header>
+      <p class="muted">Increase two ability scores by +1 each (or one by +2) instead of taking a feat.</p>
+    </button>
+  {{else}}
+    <div class="empty-state">
+      <p>No ASI / feat slots at this level yet. Browse feats below for later levels.</p>
     </div>
-  </div>
   {{/if}}
 
-  <!-- Info Box -->
-  <div style="padding: 1rem; background: var(--axyum-dark); border-radius: 6px; font-size: 0.85rem; color: var(--axyum-accent);">
-    <strong>Feat Information:</strong>
-    <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
-      <li>Most feats require a minimum character level to select</li>
-      <li>Some feats have specific ability score or other prerequisites</li>
-      <li>You can always choose to improve ability scores instead of taking a feat</li>
-      <li>Different sources (PHB, Tasha's, etc.) are marked with colored badges</li>
-    </ul>
+  <div class="axyum-info-card-grid feats-card-grid" role="listbox" aria-label="Feats">
+    {{#each featsList}}
+      {{#if (or ../showHomebrew (not this.isHomebrew))}}
+        <button type="button"
+                class="axyum-info-card axyum-info-card--feat {{#if (includes ../characterData.feats this.name)}}is-selected{{/if}}"
+                data-action="toggleFeat"
+                data-feat-name="{{this.name}}"
+                role="option"
+                aria-selected="{{#if (includes ../characterData.feats this.name)}}true{{else}}false{{/if}}">
+          <header class="axyum-info-card-head">
+            <span class="axyum-info-card-glyph" aria-hidden="true"><i class="fas fa-medal"></i></span>
+            <span class="axyum-info-card-titles">
+              <span class="axyum-info-card-title">{{this.name}}</span>
+              <span class="axyum-info-card-subtitle {{#if this.isHomebrew}}is-homebrew{{else}}is-official{{/if}}">
+                {{#if this.isHomebrew}}<i class="fas fa-scroll"></i>{{else}}<i class="fas fa-book"></i>{{/if}}
+                {{#if this.source}}{{this.source}}{{else}}Feat{{/if}}
+              </span>
+            </span>
+          </header>
+          <div class="axyum-info-card-chips">
+            {{#if this.requiresLevel}}<span class="axyum-meta-chip">Lv {{this.requiresLevel}}+</span>{{/if}}
+            {{#if this.prerequisites.length}}<span class="axyum-meta-chip">Prereq: {{#each this.prerequisites}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>{{/if}}
+          </div>
+          {{#if this.blurb}}
+            <p class="axyum-info-card-blurb">{{this.blurb}}</p>
+          {{/if}}
+        </button>
+      {{/if}}
+    {{/each}}
   </div>
-
-  <!-- Hidden inputs for form submission -->
-  <input type="hidden" name="chooseASI" value="{{characterData.chooseASI}}">
-  {{#each characterData.feats}}
-    <input type="hidden" name="feats[]" value="{{this}}">
-  {{/each}}
+  {{#unless featsList.length}}
+    <div class="empty-state">
+      <p>{{localize "LD_AXYUM.Messages.NoFeatsAvailable"}}</p>
+    </div>
+  {{/unless}}
 </div>
-
-<style>
-  .axyum-feat-selection-item {
-    border-bottom: 1px solid #ccc;
-  }
-
-  .axyum-feat-selection-item:hover {
-    background-color: rgba(74, 144, 226, 0.05);
-  }
-
-  .axyum-feat-selection-item:last-child {
-    border-bottom: none;
-  }
-
-  .feat-checkbox {
-    cursor: pointer;
-  }
-
-  .axyum-input {
-    font-family: inherit;
-  }
-
-  .axyum-asi-section .axyum-input {
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-
-  #asi-selection label {
-    padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    transition: background-color 0.2s ease;
-  }
-
-  #asi-selection label:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-</style>
-
-<script>
-  // Initialize feat search
-  document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('feat-search');
-    const clearBtn = document.getElementById('clear-feat-search');
-    const container = document.getElementById('feat-list-container');
-    const featList = container?.querySelector('.axyum-feat-selection-list');
-    
-    // Store original feat items for filtering
-    let featItems = container?.querySelectorAll('.axyum-feat-selection-item') || [];
-    
-    // Create a "no results" message element
-    let noResultsMsg = document.createElement('div');
-    noResultsMsg.style.cssText = 'padding: 2rem; text-align: center; color: var(--axyum-dim);';
-    noResultsMsg.textContent = 'No feats match your search.';
-    noResultsMsg.id = 'no-feats-message';
-    noResultsMsg.style.display = 'none';
-    if (featList) featList.appendChild(noResultsMsg);
-
-    if (searchInput) {
-      searchInput.addEventListener('input', function(e) {
-        const query = e.target.value.toLowerCase().trim();
-        let visibleCount = 0;
-
-        featItems.forEach(item => {
-          const featName = (item.getAttribute('data-feat-name') || '').toLowerCase();
-          const matches = !query || featName.includes(query);
-          item.style.display = matches ? 'flex' : 'none';
-          if (matches) visibleCount++;
-        });
-
-        // Show/hide no results message
-        if (noResultsMsg) {
-          noResultsMsg.style.display = (visibleCount === 0 && query) ? 'block' : 'none';
-        }
-      });
-    }
-
-    if (clearBtn) {
-      clearBtn.addEventListener('click', function() {
-        if (searchInput) {
-          searchInput.value = '';
-          // Show all feats
-          featItems.forEach(item => item.style.display = 'flex');
-          if (noResultsMsg) noResultsMsg.style.display = 'none';
-          searchInput.focus();
-        }
-      });
-    }
-
-    // Toggle ASI selection
-    const asiCheckbox = document.getElementById('choose-asi-checkbox');
-    const asiSelection = document.getElementById('asi-selection');
-    if (asiCheckbox && asiSelection) {
-      asiCheckbox.addEventListener('change', function() {
-        asiSelection.style.display = this.checked ? 'block' : 'none';
-      });
-    }
-
-    // Feat item click to toggle checkbox
-    featItems.forEach(item => {
-      item.addEventListener('click', function(e) {
-        if (e.target.type !== 'checkbox') {
-          const checkbox = this.querySelector('.feat-checkbox');
-          if (checkbox) {
-            checkbox.checked = !checkbox.checked;
-            // Trigger change event so the app knows about it
-            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-        }
-      });
-    });
-  });
-</script>

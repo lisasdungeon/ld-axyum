@@ -18,7 +18,7 @@ test('manifest is fully branded for LD Axyum', () => {
   assert.equal(manifest.id, 'ld-axyum');
   assert.equal(manifest.title, 'LD Axyum');
   assert.equal(manifest.version, '1.0.1');
-  assert.deepEqual(manifest.authors, [{ name: "Lisa's Dungeon", url: 'https://github.com/lisasdungeon' }]);
+  assert.deepEqual(manifest.authors, [{ name: "Lisa's Dungeon", url: "https://github.com/lisasdungeon", discord: "MystryssLysa", email: "Lisasdungeon@gmail.com" }]);
   assert.equal(manifest.download, 'https://github.com/lisasdungeon/ld-axyum/releases/download/v1.0.1/ld-axyum-v1.0.1.zip');
 });
 

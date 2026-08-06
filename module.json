@@ -10,7 +10,9 @@
   "authors": [
     {
       "name": "Lisa's Dungeon",
-      "url": "https://github.com/lisasdungeon"
+      "url": "https://github.com/lisasdungeon",
+      "discord": "MystryssLysa",
+      "email": "Lisasdungeon@gmail.com"
     }
   ],
   "esmodules": [
@@ -19,20 +21,28 @@
   ],
   "styles": [
     "styles/theme.css",
+    "styles/axyum-ui.css",
+    "styles/axyum-ui-2.css",
+    "styles/axyum-ui-3.css",
     "styles/wizard.css",
     "styles/wizard-2.css",
     "styles/wizard-3.css",
     "styles/wizard-4.css",
     "styles/wizard-5.css",
-    "styles/wizard-6.css",
+    "styles/point-buy.css",
     "styles/compendium-selector.css",
     "styles/scene-control-button.css",
     "gm-hub/gm-hub.css",
     "systems/dnd5e/sheet/dnd5e-sheet.css",
-    "systems/dnd5e/sheet/dnd5e-sheet-2.css"
+    "systems/dnd5e/sheet/dnd5e-sheet-2.css",
+    "systems/dnd5e/sheet/dnd5e-sheet-canvas.css"
   ],
   "languages": [
-    { "lang": "en", "name": "English", "path": "lang/en.json" }
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
   ],
   "relationships": {
     "systems": [

@@ -14,14 +14,14 @@
            style="width: 100%; padding: 0.75rem; font-size: 1.1rem; border: 2px solid var(--axyum-border); border-radius: 6px;">
   </div>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
-    <!-- Basic Info -->
+  <div class="summary-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem;">
     <div class="axyum-summary-card">
       <h3>Basic Information</h3>
-      <p><strong>Class:</strong> {{#if characterData.class.name}}{{characterData.class.name}} (Level {{characterData.class.level}}){{else}}<em style="color:#e74c3c;">Not selected</em>{{/if}}</p>
-      <p><strong>Race:</strong> {{#if characterData.race.name}}{{characterData.race.name}}{{else}}<em style="color:#e74c3c;">Not selected</em>{{/if}}</p>
-      <p><strong>Background:</strong> {{#if characterData.background.name}}{{characterData.background.name}}{{else}}<em style="color:#e74c3c;">Not selected</em>{{/if}}</p>
+      <p><strong>Class:</strong> {{#if characterData.class.name}}{{characterData.class.name}} (Level {{characterData.class.level}}){{else}}<em>Not selected</em>{{/if}}</p>
+      <p><strong>Race:</strong> {{#if characterData.race.name}}{{characterData.race.name}}{{else}}<em>Not selected — go back to Race</em>{{/if}}</p>
+      <p><strong>Background:</strong> {{#if characterData.background.name}}{{characterData.background.name}}{{else}}<em>Not selected — go back to Background</em>{{/if}}</p>
       <p><strong>Alignment:</strong> {{characterData.details.alignment}}</p>
+      <p><strong>Languages:</strong> {{selectedLanguageCount}} / {{totalLanguageSlots}}</p>
     </div>
 
     <!-- Ability Scores -->

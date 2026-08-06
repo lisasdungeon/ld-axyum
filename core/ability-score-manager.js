@@ -1,5 +1,11 @@
 /**
- * AbilityScoreManager - Handles ability score rolling, assignment, and validation
+ * AbilityScoreManager - ability score rolling / assignment
+ *
+ * Roll budget (strict):
+ *  - Set 1: first Roll All, OR finishing all 6 individual rolls
+ *  - Set 2: one Roll All reroll only
+ *  - After set 2: hard lock (no more dice)
+ * Clear Assignments does not refund the budget.
  */
 export class AbilityScoreManager {
   constructor() {
@@ -7,94 +13,148 @@ export class AbilityScoreManager {
     this.diceBreakdowns = {};
     this.assignedAbilities = {};
     this.rolledPool = null;
-    this.hasRolled = false;      // Track if initial roll has been done
-    this.hasRerolled = false;    // Track if reroll has been used (limit: 1)
+    /** Completed full roll sets: 0 none, 1 initial, 2 reroll used */
+    this.fullSetsCompleted = 0;
   }
+
+  get hasRolled() { return this.fullSetsCompleted >= 1; }
+  get hasRerolled() { return this.fullSetsCompleted >= 2; }
 
   rollAbilityScore() {
     const rolls = [];
-    for (let i = 0; i < 4; i++) {
-      rolls.push(Math.floor(Math.random() * 6) + 1);
-    }
+    for (let i = 0; i < 4; i++) rolls.push(Math.floor(Math.random() * 6) + 1);
     rolls.sort((a, b) => b - a);
     const kept = rolls.slice(0, 3);
-    const dropped = rolls[3];
     return {
       total: kept.reduce((sum, val) => sum + val, 0),
       breakdown: rolls.join(', '),
-      kept: kept,
-      dropped: dropped
+      kept,
+      dropped: rolls[3]
     };
   }
 
-  rollAllAbilityScores() {
-    // Check reroll limit: 1 initial roll + 1 reroll allowed
-    if (this.hasRolled && this.hasRerolled) {
-      console.warn('LD Axyum | Reroll limit reached - you must keep your current scores');
-      return { scores: this.rolledScores, breakdowns: this.diceBreakdowns, rerollLimitReached: true };
+  canRoll() {
+    return this.fullSetsCompleted < 2;
+  }
+
+  canReroll() {
+    return this.fullSetsCompleted === 1;
+  }
+
+  hasRolledOnce() {
+    return this.fullSetsCompleted >= 1;
+  }
+
+  getRerollStatus() {
+    const rerollsUsed = Math.max(0, this.fullSetsCompleted - 1);
+    return {
+      hasRolled: this.hasRolled,
+      hasRerolled: this.hasRerolled,
+      canRoll: this.canRoll(),
+      canReroll: this.canReroll(),
+      fullSetsCompleted: this.fullSetsCompleted,
+      rerollsUsed: Math.min(1, rerollsUsed),
+      rerollsRemaining: this.fullSetsCompleted >= 2 ? 0 : (this.fullSetsCompleted === 1 ? 1 : 1),
+      label: `Rerolls used: ${Math.min(1, rerollsUsed)} / 1`,
+      locked: this.fullSetsCompleted >= 2
+    };
+  }
+
+  _keys() {
+    return ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+  }
+
+  _allFilled() {
+    return this._keys().every((k) => this.rolledScores[k] != null);
+  }
+
+  _markSetComplete() {
+    if (this.fullSetsCompleted < 2) this.fullSetsCompleted += 1;
+  }
+
+  /**
+   * Fill one empty ability. Blocked after the first full set (use Roll All to reroll).
+   */
+  rollSingleAbility(ability) {
+    if (!ability) return { ok: false, reason: 'missing-ability' };
+
+    if (this.fullSetsCompleted >= 2) {
+      return { ok: false, reason: 'limit', status: this.getRerollStatus() };
     }
-    
-    const abilities = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+
+    if (this.fullSetsCompleted >= 1) {
+      return { ok: false, reason: 'use-reroll-all', status: this.getRerollStatus() };
+    }
+
+    if (this.rolledScores[ability] != null) {
+      return { ok: false, reason: 'use-reroll-all', status: this.getRerollStatus() };
+    }
+
+    const roll = this.rollAbilityScore();
+    this.rolledScores[ability] = roll.total;
+    this.diceBreakdowns[ability] = roll.breakdown;
+
+    if (this._allFilled()) this._markSetComplete();
+
+    return { ok: true, roll, status: this.getRerollStatus() };
+  }
+
+  rollAllAbilityScores() {
+    if (this.fullSetsCompleted >= 2) {
+      return {
+        ok: false,
+        scores: this.rolledScores,
+        breakdowns: this.diceBreakdowns,
+        status: this.getRerollStatus()
+      };
+    }
+
     const results = {};
     const breakdowns = {};
-
-    abilities.forEach(ability => {
+    this._keys().forEach((ability) => {
       const roll = this.rollAbilityScore();
       results[ability] = roll.total;
       breakdowns[ability] = roll.breakdown;
     });
 
-    // Track roll state
-    if (this.hasRolled) {
-      this.hasRerolled = true;  // This was a reroll
-    }
-    this.hasRolled = true;
-
     this.rolledScores = results;
     this.diceBreakdowns = breakdowns;
-    return { scores: results, breakdowns: breakdowns, rerollLimitReached: this.hasRerolled };
+    this.rolledPool = null;
+    this._markSetComplete();
+
+    return {
+      ok: true,
+      scores: results,
+      breakdowns,
+      rerollLimitReached: this.fullSetsCompleted >= 2,
+      status: this.getRerollStatus()
+    };
   }
 
   rollPoolScores(count = 6) {
-    // Check reroll limit: 1 initial roll + 1 reroll allowed
-    if (this.hasRolled && this.hasRerolled) {
-      console.warn('LD Axyum | Reroll limit reached - you must keep your current scores');
-      return this.rolledPool;
+    if (this.fullSetsCompleted >= 2) {
+      return { ok: false, pool: this.rolledPool, status: this.getRerollStatus() };
     }
-    
+
     const pool = [];
     for (let i = 0; i < count; i++) {
       const roll = this.rollAbilityScore();
-      pool.push({
-        value: roll.total,
-        breakdown: roll.breakdown,
-        assigned: false
-      });
+      pool.push({ value: roll.total, breakdown: roll.breakdown, assigned: false });
     }
-    
-    // Track roll state
-    if (this.hasRolled) {
-      this.hasRerolled = true;  // This was a reroll
-    }
-    this.hasRolled = true;
-    
+
     this.rolledPool = pool.sort((a, b) => b.value - a.value);
-    return this.rolledPool;
+    this.rolledScores = {};
+    this.diceBreakdowns = {};
+    this._markSetComplete();
+    return { ok: true, pool: this.rolledPool, status: this.getRerollStatus() };
   }
 
-  assignScore(ability, score) {
-    this.assignedAbilities[ability] = score;
-  }
-
-  getAssignedScore(ability) {
-    return this.assignedAbilities[ability] || null;
-  }
+  assignScore(ability, score) { this.assignedAbilities[ability] = score; }
+  getAssignedScore(ability) { return this.assignedAbilities[ability] || null; }
 
   clearAssignments() {
     this.assignedAbilities = {};
-    if (this.rolledPool) {
-      this.rolledPool.forEach(score => score.assigned = false);
-    }
+    if (this.rolledPool) this.rolledPool.forEach((s) => { s.assigned = false; });
   }
 
   isScoreAssigned(score) {
@@ -103,7 +163,7 @@ export class AbilityScoreManager {
 
   getUnassignedScores() {
     if (!this.rolledPool) return [];
-    return this.rolledPool.filter(score => !score.assigned);
+    return this.rolledPool.filter((score) => !score.assigned);
   }
 
   validateStandardArray(scores) {
@@ -113,9 +173,7 @@ export class AbilityScoreManager {
   }
 
   validatePointBuy(scores) {
-    const costs = {
-      8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
-    };
+    const costs = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 };
     let totalCost = 0;
     for (const score of Object.values(scores)) {
       if (score < 8 || score > 15) return false;
@@ -124,9 +182,7 @@ export class AbilityScoreManager {
     return totalCost === 27;
   }
 
-  calculateModifier(score) {
-    return Math.floor((score - 10) / 2);
-  }
+  calculateModifier(score) { return Math.floor((score - 10) / 2); }
 
   getAbilityModifiers(scores) {
     const modifiers = {};
@@ -137,65 +193,32 @@ export class AbilityScoreManager {
   }
 
   getStandardArrayScores() {
-    return {
-      options: [15, 14, 13, 12, 10, 8],
-      description: 'Assign these scores to your abilities'
-    };
+    return { options: [15, 14, 13, 12, 10, 8], description: 'Assign these scores to your abilities' };
   }
 
   getPointBuyRules() {
     return {
-      pointsTotal: 27,
-      minScore: 8,
-      maxScore: 15,
-      costs: {
-        8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
-      }
+      pointsTotal: 27, minScore: 8, maxScore: 15,
+      costs: { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 }
     };
   }
 
-  getRolledScores() {
-    return this.rolledScores;
-  }
+  getRolledScores() { return this.rolledScores; }
+  getDiceBreakdowns() { return this.diceBreakdowns; }
+  getAssignedAbilities() { return this.assignedAbilities; }
+  getRolledPool() { return this.rolledPool; }
 
-  getDiceBreakdowns() {
-    return this.diceBreakdowns;
-  }
-
-  getAssignedAbilities() {
-    return this.assignedAbilities;
-  }
-
-  getRolledPool() {
-    return this.rolledPool;
-  }
-
-  // Check if reroll is available (limit: 1 reroll)
-  canReroll() {
-    return !this.hasRerolled;
-  }
-
-  // Check if any roll has been made
-  hasRolledOnce() {
-    return this.hasRolled;
-  }
-
-  // Get reroll status for UI
-  getRerollStatus() {
-    return {
-      hasRolled: this.hasRolled,
-      hasRerolled: this.hasRerolled,
-      canReroll: this.hasRolled && !this.hasRerolled,
-      rerollsRemaining: this.hasRerolled ? 0 : 1
-    };
-  }
-
-  reset() {
+  /** Clear scores/assignments but keep roll budget spent. */
+  resetKeepRerollBudget() {
+    const sets = this.fullSetsCompleted;
     this.rolledScores = {};
     this.diceBreakdowns = {};
     this.assignedAbilities = {};
     this.rolledPool = null;
-    this.hasRolled = false;
-    this.hasRerolled = false;
+    this.fullSetsCompleted = sets;
+  }
+
+  reset() {
+    this.resetKeepRerollBudget();
   }
 }

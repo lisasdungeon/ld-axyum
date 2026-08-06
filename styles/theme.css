@@ -6,27 +6,46 @@
 
 :root {
   /* Core Colors */
+  --axyum-bg: #0b1120;
   --axyum-bg-dark: #0b1120;
   --axyum-bg-panel: rgba(15, 23, 42, 0.94);
   --axyum-bg-card: rgba(30, 41, 59, 0.9);
   --axyum-bg-input: rgba(15, 23, 42, 0.84);
+  --axyum-bg-elevated: rgba(51, 65, 85, 0.92);
 
   --axyum-primary: #334155;          /* Deep slate */
   --axyum-primary-alt: #475569;      /* Slate highlight */
   --axyum-primary-glow: rgba(125, 211, 252, 0.45);
+  --axyum-primary-rgb: 51, 65, 85;
 
   --axyum-accent: #7dd3fc;           /* Cool blue */
   --axyum-accent-glow: rgba(125, 211, 252, 0.55);
+  --axyum-accent-rgb: 125, 211, 252;
 
+  /* Text: --axyum-text is the default readable body/label color used
+     throughout the ported catalog UI — must stay light, this theme has
+     no light-background surfaces. */
+  --axyum-text: #e2e8f0;
   --axyum-text-light: #e2e8f0;
   --axyum-text-muted: #94a3b8;
   --axyum-text-strong: #ffffff;
+  --axyum-text-highlight: #ffffff;
 
   --axyum-border: rgba(125, 211, 252, 0.35);
   --axyum-border-strong: rgba(125, 211, 252, 0.75);
+  --axyum-border-light: rgba(125, 211, 252, 0.18);
+
+  --axyum-danger: #ef4444;
+  --axyum-success: #4ade80;
 
   --axyum-shadow: 0 10px 28px rgba(0, 0, 0, 0.75);
+  --axyum-shadow-md: 0 6px 16px rgba(0, 0, 0, 0.5);
   --axyum-glow: 0 0 18px rgba(125, 211, 252, 0.4);
+
+  --axyum-font-display: 'Signika', Georgia, serif;
+  --axyum-font-ui: 'Signika', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --axyum-radius: 8px;
+  --axyum-radius-sm: 5px;
 }
 
 /* Base window styling */

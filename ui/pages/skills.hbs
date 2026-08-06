@@ -1,74 +1,68 @@
-<div class="axyum-page">
-  <h2 class="axyum-page-title">{{localize "LD_AXYUM.Pages.Skills"}}</h2>
-  <p class="axyum-page-description">
-    Select which skills your character is proficient in.
-    {{#if skillChoices.class.count}}
-      Your <strong>{{character.class.name}}</strong> grants <strong>{{skillChoices.class.count}}</strong> skill proficiencies.
-    {{else}}
-      You get <strong>3</strong> skill proficiencies from your class.
-    {{/if}}
-  </p>
+<div class="axyum-page axyum-catalog-page skills-page">
+  <header class="page-intro">
+    <p class="page-kicker">Skills</p>
+    <h2 class="axyum-page-title">Choose your trained skills</h2>
+    <p class="axyum-page-description">
+      Pick from your class skill list. Background grants add to your total budget.
+    </p>
+  </header>
 
-  {{#if character.class.name}}
-    <div class="skill-source-info">
-      {{#if skillChoices.class.count}}
-        <div class="skill-source">
-          <span class="source-label"><i class="fas fa-hat-wizard"></i> {{character.class.name}}</span>
-          <span class="source-count">{{skillChoices.class.count}} skills</span>
-          {{#if skillChoices.class.pool.length}}
-            <span class="source-pool">
-              {{#each skillChoices.class.pool}}<span class="pool-skill">{{this}}</span>{{/each}}
-            </span>
-          {{/if}}
-        </div>
-      {{/if}}
-      
-      {{#if skillChoices.background.count}}
-        <div class="skill-source">
-          <span class="source-label"><i class="fas fa-scroll"></i> {{character.background.name}}</span>
-          <span class="source-count">{{skillChoices.background.count}} skills</span>
-        </div>
-      {{/if}}
-      
-      <div class="skill-total">
-        <span class="total-label">Total Proficiencies:</span>
-        <span class="total-count">{{skillChoices.total}}</span>
-      </div>
+  <div class="axyum-catalog-toolbar">
+    <div class="tally-chip">
+      <span class="tally-label">Selected</span>
+      <span class="tally-value">{{selectedSkillCount}} / {{skillChoices.total}}</span>
     </div>
+    {{#if skillChoices.class.count}}
+      <span class="axyum-meta-chip axyum-meta-chip--accent">{{skillChoices.class.name}}: {{skillChoices.class.count}}</span>
+    {{/if}}
+    {{#if skillChoices.background.count}}
+      <span class="axyum-meta-chip">{{skillChoices.background.name}}: +{{skillChoices.background.count}}</span>
+    {{/if}}
+  </div>
+
+  {{#if skillChoices.class.pool.length}}
+    <p class="section-hint">
+      Class pool:
+      {{#each skillChoices.class.pool}}
+        <span class="pool-skill">{{this}}</span>
+      {{/each}}
+    </p>
   {{/if}}
 
-  <div class="axyum-skills-grid">
+  <div class="axyum-info-card-grid skills-card-grid" role="listbox" aria-label="Skills">
     {{#each skillsList}}
-      <label class="axyum-skill-checkbox {{#if (includes ../character.skillProficiencies this.key)}}selected{{/if}}">
-        <div class="skill-checkbox-wrapper">
-          <input type="checkbox" 
-                 name="skillProficiencies" 
-                 value="{{this.key}}"
-                 {{#if (includes ../character.skillProficiencies this.key)}}checked{{/if}}>
-          <span class="checkbox-custom"></span>
+      <button type="button"
+              class="axyum-info-card axyum-info-card--skill {{#if this.selected}}is-selected{{/if}} {{#if this.locked}}is-locked{{/if}} {{#unless this.selectable}}is-disabled{{/unless}}"
+              data-action="toggleSkill"
+              data-skill-key="{{this.key}}"
+              role="option"
+              aria-selected="{{#if this.selected}}true{{else}}false{{/if}}"
+              {{#if this.locked}}disabled{{/if}}
+              {{#unless this.selectable}}{{#unless this.selected}}disabled{{/unless}}{{/unless}}>
+        <header class="axyum-info-card-head">
+          <span class="axyum-info-card-glyph" aria-hidden="true"><i class="fas fa-graduation-cap"></i></span>
+          <span class="axyum-info-card-titles">
+            <span class="axyum-info-card-title">{{this.label}}</span>
+          </span>
+        </header>
+        <div class="axyum-info-card-chips">
+          <span class="axyum-meta-chip">{{this.ability}}</span>
+          <span class="axyum-meta-chip">{{this.modifier}}</span>
+          {{#if this.inPool}}<span class="axyum-meta-chip axyum-meta-chip--rec">Class list</span>{{/if}}
+          {{#if this.locked}}<span class="axyum-meta-chip">Granted</span>{{/if}}
         </div>
-        <div class="skill-info">
-          <div class="skill-name">{{this.locKey}}</div>
-          <div class="skill-ability">
-            {{this.ability}} 
-            <span class="skill-modifier">
-              {{#if (gte this.modifier 0)}}+{{/if}}{{this.modifier}}
-            </span>
-          </div>
-        </div>
-      </label>
+        {{#if this.explanation}}
+          <p class="axyum-info-card-blurb">{{this.explanation}}</p>
+        {{/if}}
+      </button>
     {{/each}}
   </div>
 
-  <div class="proficiency-bonus-box">
-    <h3><i class="fas fa-certificate"></i> Proficiency Bonus</h3>
-    <p class="prof-value">
-      +<span id="profBonus">{{derivedStats.proficiencyBonus}}</span>
-      <span class="prof-note">(applies to selected skills)</span>
-    </p>
-  </div>
-
-  <div class="skill-tip">
-    <strong>Tip:</strong> Proficiency adds your Proficiency Bonus to skill checks you make with that skill. Select the skills your character is trained in!
+  <div class="axyum-selection-bar">
+    <div class="axyum-selection-bar-copy">
+      <span class="page-kicker">Proficiency bonus</span>
+      <strong class="axyum-selection-bar-name">+{{derivedStats.proficiencyBonus}}</strong>
+      <span class="muted">added to selected skill checks</span>
+    </div>
   </div>
 </div>

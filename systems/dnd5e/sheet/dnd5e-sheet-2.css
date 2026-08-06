@@ -1,125 +1,272 @@
-.features-section, .biography-section {
-  margin-bottom: 0;
-}
+/* LD Axyum - Character Sheet part 2: combat, skills, equipment, spells,
+   biography. Scoped under .axyum-sheet-container (see dnd5e-sheet.css). */
 
-.features-content {
+.axyum-sheet-container .combat-stats {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
-.feature-item {
-  padding: 0.5rem;
-  background: var(--axyum-bg-tertiary);
-  border-radius: 4px;
+.axyum-sheet-container .stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.axyum-sheet-container .stat-label {
+  font-weight: 700;
+  color: var(--axyum-text-muted);
+}
+
+.axyum-sheet-container .stat-value {
+  color: var(--axyum-text-strong);
+  font-weight: 700;
+}
+
+.axyum-sheet-container .hp-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.axyum-sheet-container .hp-input {
+  width: 56px;
+  padding: 0.25rem;
+  background: var(--axyum-bg-input);
   border: 1px solid var(--axyum-border);
-}
-
-.biography-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.bio-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.bio-field label {
-  font-weight: bold;
-  color: var(--axyum-metal);
-  text-transform: uppercase;
-  font-size: 0.9rem;
-}
-
-.bio-field textarea {
-  background: var(--axyum-bg-tertiary);
-  border: 1px solid var(--axyum-border);
-  border-radius: 4px;
-  color: var(--axyum-text-primary);
-  padding: 0.75rem;
+  border-radius: var(--axyum-radius-sm);
+  color: var(--axyum-text-strong);
+  text-align: center;
   font-family: inherit;
-  resize: vertical;
-  min-height: 80px;
 }
 
-.bio-field textarea:focus {
+.axyum-sheet-container .hp-input.temp {
+  width: 48px;
+}
+
+.axyum-sheet-container .hp-input:focus {
   outline: none;
   border-color: var(--axyum-accent);
-  box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .sheet-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .bottom-section {
-    grid-template-columns: 1fr;
-  }
-
-  .sheet-header {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .character-image {
-    order: -1;
-  }
+.axyum-sheet-container .roll-btn {
+  background: var(--axyum-accent);
+  border: none;
+  border-radius: var(--axyum-radius-sm);
+  padding: 0.25rem 0.55rem;
+  color: var(--axyum-bg-dark);
+  cursor: pointer;
+  font-weight: 700;
 }
 
-@media (max-width: 768px) {
-  .abilities-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .character-details {
-    grid-template-columns: 1fr;
-  }
-
-  .sheet-header {
-    padding: 1rem;
-  }
-
-  .section-card {
-    padding: 1rem;
-  }
+.axyum-sheet-container .roll-btn:hover {
+  filter: brightness(1.1);
 }
 
-/* Animations */
-@keyframes flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
+/* Skills */
+.axyum-sheet-container .skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 320px;
+  overflow-y: auto;
 }
 
-.axyum-sheet-container::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent,
-    transparent 2px,
-    rgba(255, 107, 53, 0.03) 2px,
-    rgba(255, 107, 53, 0.03) 4px
-  );
-  pointer-events: none;
-  animation: flicker 4s infinite;
+.axyum-sheet-container .skill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.55rem;
+  background: var(--axyum-bg-card);
+  border-radius: var(--axyum-radius-sm);
+  border: 1px solid var(--axyum-border);
 }
 
-/* Damage Effects */
-.hp-input[value="0"] {
-  background: rgba(255, 68, 68, 0.2);
-  border-color: var(--axyum-danger);
+.axyum-sheet-container .skill-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
-.hp-input.temp:not([value="0"]) {
-  background: rgba(134, 239, 172, 0.2);
-  border-color: var(--axyum-success);
+.axyum-sheet-container .skill-name {
+  font-weight: 600;
+  color: var(--axyum-text);
+}
+
+.axyum-sheet-container .skill-ability {
+  color: var(--axyum-text-muted);
+  font-size: 0.75rem;
+}
+
+.axyum-sheet-container .skill-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.axyum-sheet-container .proficiency-indicator {
+  color: var(--axyum-text-muted);
+  cursor: pointer;
+}
+
+.axyum-sheet-container .proficiency-indicator.proficient {
+  color: var(--axyum-accent);
+}
+
+.axyum-sheet-container .proficiency-indicator.expertise {
+  color: var(--axyum-text-strong);
+  text-shadow: 0 0 6px var(--axyum-accent-glow);
+}
+
+.axyum-sheet-container .skill-modifier {
+  font-weight: 700;
+  color: var(--axyum-text-strong);
+  min-width: 28px;
+  text-align: center;
+}
+
+.axyum-sheet-container .skill-roll-btn {
+  background: var(--axyum-accent);
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--axyum-bg-dark);
+  cursor: pointer;
+}
+
+.axyum-sheet-container .skill-roll-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Equipment */
+.axyum-sheet-container .equipment-list,
+.axyum-sheet-container .spell-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.axyum-sheet-container .equipment-item,
+.axyum-sheet-container .spell-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.6rem;
+  background: var(--axyum-bg-card);
+  border-radius: var(--axyum-radius-sm);
+  border: 1px solid var(--axyum-border);
+  gap: 0.5rem;
+}
+
+.axyum-sheet-container .item-name,
+.axyum-sheet-container .spell-name {
+  color: var(--axyum-text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.axyum-sheet-container .item-quantity,
+.axyum-sheet-container .spell-level {
+  color: var(--axyum-text-muted);
+  font-size: 0.75rem;
+  flex: 0 0 auto;
+}
+
+.axyum-sheet-container .equipped-indicator {
+  background: var(--axyum-accent);
+  color: var(--axyum-bg-dark);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--axyum-radius-sm);
+  font-size: 0.68rem;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.axyum-sheet-container .spell-prepared {
+  color: var(--axyum-text-muted);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.axyum-sheet-container .spell-prepared.is-prepared {
+  color: var(--axyum-accent);
+}
+
+.axyum-sheet-container .spell-slots-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.axyum-sheet-container .spell-slot-chip {
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--axyum-border);
+  background: var(--axyum-bg-card);
+  color: var(--axyum-text-muted);
+  font-size: 0.72rem;
+}
+
+.axyum-sheet-container .empty-equipment {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--axyum-text-muted);
+  font-style: italic;
+}
+
+.axyum-sheet-container .empty-equipment i {
+  font-size: 1.6rem;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+.axyum-sheet-container .biography-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.axyum-sheet-container .bio-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.axyum-sheet-container .bio-field label {
+  font-weight: 700;
+  color: var(--axyum-text-muted);
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.axyum-sheet-container .bio-field textarea {
+  background: var(--axyum-bg-input);
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius-sm);
+  color: var(--axyum-text-light);
+  padding: 0.6rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 70px;
+}
+
+.axyum-sheet-container .bio-field textarea:focus {
+  outline: none;
+  border-color: var(--axyum-accent);
+  box-shadow: 0 0 8px var(--axyum-accent-glow);
+}
+
+.axyum-sheet-container .feature-item {
+  padding: 0.5rem;
+  background: var(--axyum-bg-card);
+  border-radius: var(--axyum-radius-sm);
+  border: 1px solid var(--axyum-border);
 }

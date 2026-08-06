@@ -1,0 +1,179 @@
+/* LD Axyum - Character Sheet free-form canvas: toolbar, page tabs,
+   draggable/resizable widgets, and "Edit Layout" chrome.
+   Scoped under .axyum-sheet-container (see dnd5e-sheet.css). */
+
+.axyum-sheet-container .axyum-sheet-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.65rem 1rem;
+  background: var(--axyum-bg-panel);
+  border-bottom: 1px solid var(--axyum-border);
+  flex: 0 0 auto;
+}
+
+.axyum-sheet-container .axyum-page-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.axyum-sheet-container .axyum-page-tab {
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--axyum-radius-sm);
+  border: 1px solid var(--axyum-border);
+  background: var(--axyum-bg-card);
+  color: var(--axyum-text-muted);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.axyum-sheet-container .axyum-page-tab:hover {
+  border-color: var(--axyum-border-strong);
+  color: var(--axyum-text-light);
+}
+
+.axyum-sheet-container .axyum-page-tab.active {
+  background: var(--axyum-accent);
+  border-color: var(--axyum-accent);
+  color: var(--axyum-bg-dark);
+}
+
+.axyum-sheet-container .axyum-page-tab--add {
+  width: 2.1rem;
+  padding: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.axyum-sheet-container .axyum-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.axyum-sheet-container .axyum-edit-hint {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  background: rgba(125, 211, 252, 0.08);
+  border-bottom: 1px solid var(--axyum-border);
+  color: var(--axyum-text-muted);
+  font-size: 0.82rem;
+  flex: 0 0 auto;
+}
+
+/* Canvas */
+.axyum-sheet-container .axyum-canvas-viewport {
+  flex: 1 1 auto;
+  overflow: auto;
+  position: relative;
+  min-height: 0;
+}
+
+.axyum-sheet-container .axyum-canvas {
+  position: relative;
+}
+
+.axyum-sheet-container .axyum-canvas.is-editing {
+  background-image: radial-gradient(circle, rgba(125, 211, 252, 0.18) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Widgets */
+.axyum-sheet-container .axyum-widget {
+  position: absolute;
+  background: var(--axyum-bg-panel);
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius);
+  box-shadow: var(--axyum-shadow-md);
+  border-top: 3px solid var(--widget-color, var(--axyum-accent));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.axyum-canvas.is-editing .axyum-widget {
+  cursor: default;
+}
+
+.axyum-sheet-container .axyum-widget.is-dragging,
+.axyum-sheet-container .axyum-widget.is-resizing {
+  z-index: 50;
+  box-shadow: 0 0 0 2px var(--axyum-accent), var(--axyum-shadow);
+  opacity: 0.92;
+}
+
+.axyum-sheet-container .widget-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.1rem;
+  min-height: 0;
+}
+
+.axyum-sheet-container .widget-chrome {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid var(--axyum-border);
+}
+
+.axyum-sheet-container .widget-drag-handle {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--axyum-text-muted);
+  cursor: grab;
+  padding: 0.2rem;
+  touch-action: none;
+}
+
+.axyum-sheet-container .widget-drag-handle:active {
+  cursor: grabbing;
+}
+
+.axyum-sheet-container .widget-tool-btn {
+  flex: 0 0 auto;
+  width: 1.8rem;
+  height: 1.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius-sm);
+  background: var(--axyum-bg-card);
+  color: var(--axyum-text-muted);
+  cursor: pointer;
+}
+
+.axyum-sheet-container .widget-tool-btn:hover {
+  color: var(--axyum-accent);
+  border-color: var(--axyum-border-strong);
+}
+
+.axyum-sheet-container .widget-resize-handle {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 1.1rem;
+  height: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--axyum-text-muted);
+  cursor: nwse-resize;
+  touch-action: none;
+  font-size: 0.7rem;
+}
+
+.axyum-sheet-container .widget-resize-handle:hover {
+  color: var(--axyum-accent);
+}

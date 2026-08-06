@@ -116,10 +116,12 @@ export class SpellcastingCalculator {
   static getCantripCount(className, level) {
     const cantripProgression = {
       'bard': { 1: 2, 4: 3, 10: 4 },
-      'cleric': { 1: 3, 10: 4 },
-      'druid': { 1: 2, 6: 3, 10: 4 },
+      'cleric': { 1: 3, 4: 4, 10: 5 },
+      'druid': { 1: 2, 4: 3, 10: 4 },
       'sorcerer': { 1: 4, 4: 5, 10: 6 },
-      'wizard': { 1: 3, 6: 4, 10: 5 }
+      'wizard': { 1: 3, 4: 4, 10: 5 },
+      'warlock': { 1: 2, 4: 3, 10: 4 },
+      'artificer': { 1: 2, 10: 3, 14: 4 }
     };
 
     // Handle null/undefined className

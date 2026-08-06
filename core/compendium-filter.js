@@ -74,31 +74,36 @@ export class CompendiumFilter {
     return roleClassMap[roleIndex] || null;
   }
 
-  filterClassesByRole(classes) {
-    // Don't filter if no role selected or "Any Role" selected
-    if (this.selectedRoleIndex === null || this.selectedRoleIndex === 7) {
-      return classes;
-    }
-
-    const recommendedClasses = this.getRecommendedClassesForRole(this.selectedRoleIndex);
-    if (!recommendedClasses || recommendedClasses.length === 0) {
-      return classes;
-    }
-
-    const filtered = classes.filter(cls => 
-      recommendedClasses.some(recommended => 
-        cls.name.toLowerCase().includes(recommended.toLowerCase())
-      )
+  isClassRecommendedForRole(className, roleIndex = this.selectedRoleIndex) {
+    if (roleIndex === null || roleIndex === 7) return false;
+    const recommended = this.getRecommendedClassesForRole(roleIndex) || [];
+    return recommended.some((name) =>
+      String(className || '').toLowerCase().includes(String(name).toLowerCase())
     );
-    
-    // If filtering removes ALL classes, return original list instead
-    // (user's homebrew classes may not match standard names)
-    if (filtered.length === 0 && classes.length > 0) {
-      console.log('CompendiumFilter | Role filter would remove all classes, returning unfiltered');
-      return classes;
+  }
+
+  /**
+   * Soft role filter: tag + sort recommended classes, never hide PHB/Tasha/etc.
+   */
+  filterClassesByRole(classes) {
+    if (!Array.isArray(classes)) return [];
+
+    if (this.selectedRoleIndex === null || this.selectedRoleIndex === 7) {
+      return classes.map((cls) => ({ ...cls, recommended: false }));
     }
-    
-    return filtered;
+
+    const recommendedClasses = this.getRecommendedClassesForRole(this.selectedRoleIndex) || [];
+    const tagged = classes.map((cls) => {
+      const recommended = recommendedClasses.some((recommended) =>
+        String(cls.name || '').toLowerCase().includes(String(recommended).toLowerCase())
+      );
+      return { ...cls, recommended };
+    });
+
+    return tagged.sort((a, b) => {
+      if (a.recommended !== b.recommended) return a.recommended ? -1 : 1;
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    });
   }
 
   filterByCompendium(items, filterValue) {
@@ -139,20 +144,11 @@ export class CompendiumFilter {
   applyAllFilters(items, type) {
     let filtered = items || [];
     
-    console.log(`CompendiumFilter | applyAllFilters(${type})`, {
-      inputCount: items?.length || 0,
-      showHomebrew: this.showHomebrew,
-      selectedRoleIndex: this.selectedRoleIndex
-    });
-
     filtered = this.filterHomebrewItems(filtered);
-    console.log(`CompendiumFilter | After homebrew filter: ${filtered?.length || 0}`);
 
     if (type === 'class') {
       filtered = this.filterClassesByRole(filtered);
-      console.log(`CompendiumFilter | After role filter: ${filtered?.length || 0}`);
       filtered = this.filterByCompendium(filtered, this.selectedCompendiumFilter);
-      console.log(`CompendiumFilter | After compendium filter: ${filtered?.length || 0}`);
     } else if (type === 'race') {
       filtered = this.filterByCompendium(filtered, this.selectedRaceCompendiumFilter);
     } else if (type === 'background') {

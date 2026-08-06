@@ -1,0 +1,490 @@
+/* LD Axyum — layout, controls, tallies (overrides legacy wizard.css) */
+
+.welcome-hero {
+  margin-bottom: 1.5rem;
+}
+
+.welcome-kicker {
+  margin: 0 0 0.4rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--axyum-accent);
+  font-weight: 700;
+}
+
+.welcome-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.9rem;
+  margin: 1.25rem 0;
+}
+
+.welcome-card {
+  padding: 1.1rem 1.15rem;
+  border-radius: var(--axyum-radius);
+  border: 1px solid var(--axyum-border);
+  background: var(--axyum-bg-card);
+}
+
+.welcome-card h3 {
+  margin: 0 0 0.65rem;
+  font-family: var(--axyum-font-display);
+  color: var(--axyum-text-strong);
+}
+
+.welcome-card-accent {
+  border-color: var(--axyum-border-strong);
+  background: rgba(125, 211, 252, 0.1);
+}
+
+.welcome-steps {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--axyum-text);
+  line-height: 1.55;
+}
+
+.welcome-ready {
+  margin-top: 1.25rem;
+  color: var(--axyum-text-muted);
+}
+
+.version-info {
+  font-weight: 700;
+  color: var(--axyum-accent);
+  letter-spacing: 0.04em;
+}
+
+.axyum-form.ld-axyum-layout {
+  font-family: var(--axyum-font-ui);
+  background: transparent;
+  color: var(--axyum-text);
+}
+
+.axyum-form.ld-axyum-layout::before {
+  opacity: 0.12;
+  background-image:
+    radial-gradient(circle at 20% 0%, rgba(125, 211, 252, 0.12), transparent 40%),
+    radial-gradient(circle at 80% 100%, rgba(125, 211, 252, 0.08), transparent 45%);
+}
+
+.axyum-topbar {
+  background: rgba(26, 30, 36, 0.96);
+  border-bottom: 1px solid var(--axyum-border);
+  box-shadow: none;
+  gap: 1rem;
+}
+
+.axyum-branding .brand-text {
+  font-family: var(--axyum-font-display);
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  color: var(--axyum-accent);
+}
+
+.axyum-branding .brand-icon i {
+  color: var(--axyum-accent);
+}
+
+.step-title,
+.axyum-page-title {
+  font-family: var(--axyum-font-display);
+  font-weight: 700;
+  color: var(--axyum-text-strong);
+  letter-spacing: 0.01em;
+}
+
+.axyum-page-description,
+.page-intro .axyum-page-description {
+  color: var(--axyum-text-muted);
+  max-width: 62ch;
+  line-height: 1.45;
+}
+
+.progress-bar {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  height: 6px;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, var(--axyum-primary), var(--axyum-accent));
+  height: 100%;
+}
+
+/* ---- Custom checkboxes (single control, no doubles) ---- */
+.axyum-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 1rem 0 1.25rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.axyum-check-row input[type="checkbox"],
+.axyum-spell-card > input[type="checkbox"],
+.axyum-skill-checkbox input[type="checkbox"],
+.skill-checkbox-wrapper input[type="checkbox"],
+.equipment-card input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.axyum-check,
+.spell-check,
+.checkbox-custom {
+  flex: 0 0 auto;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  border: 1.5px solid var(--axyum-border-strong);
+  border-radius: 4px;
+  background: var(--axyum-bg-input);
+  position: relative;
+  display: inline-block;
+}
+
+.axyum-check-row input:checked + .axyum-check,
+.axyum-spell-card input:checked + .spell-check,
+.skill-checkbox-wrapper input:checked ~ .checkbox-custom {
+  background: var(--axyum-accent);
+  border-color: var(--axyum-accent);
+}
+
+.axyum-check-row input:checked + .axyum-check::after,
+.axyum-spell-card input:checked + .spell-check::after,
+.skill-checkbox-wrapper input:checked ~ .checkbox-custom::after {
+  content: '';
+  position: absolute;
+  left: 0.32rem;
+  top: 0.08rem;
+  width: 0.28rem;
+  height: 0.55rem;
+  border: solid var(--axyum-bg-dark);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.axyum-check-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.axyum-check-text strong {
+  color: var(--axyum-text-strong);
+  font-weight: 600;
+}
+
+.axyum-check-text small,
+.muted,
+.empty-note {
+  color: var(--axyum-text-muted);
+  font-size: 0.85rem;
+}
+
+/* Hide legacy broken homebrew toggle pieces if any remain */
+.homebrew-toggle .toggle-switch,
+.spell-card-header .spell-checkbox {
+  display: none !important;
+}
+
+/* ---- Page intros ---- */
+.page-intro {
+  margin-bottom: 1.25rem;
+}
+
+.page-kicker,
+.welcome-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--axyum-accent);
+}
+
+.axyum-footnote {
+  margin: 1.25rem 0 0;
+  font-size: 0.88rem;
+  color: var(--axyum-text-muted);
+  font-style: italic;
+}
+
+/* ---- Role studio (split rail + stage) ---- */
+.axyum-role-studio {
+  display: grid;
+  grid-template-columns: minmax(220px, 34%) 1fr;
+  gap: 1rem;
+  min-height: 380px;
+  align-items: stretch;
+}
+
+.axyum-role-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border-radius: var(--axyum-radius);
+  background:
+    linear-gradient(180deg, rgba(125, 211, 252, 0.06), transparent 40%),
+    var(--axyum-bg-panel);
+  border: 1px solid var(--axyum-border);
+  animation: axyum-rise 0.45s ease both;
+}
+
+/* Foundry Application buttons force height/flex — override hard */
+.ld-axyum-window button.axyum-pick-option,
+button.axyum-pick-option {
+  all: unset;
+  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0.75rem !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 3.1rem !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0.55rem 0.7rem !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--axyum-radius-sm) !important;
+  background: transparent !important;
+  color: var(--axyum-text) !important;
+  font-family: var(--axyum-font-ui) !important;
+  font-size: 0.95rem !important;
+  line-height: 1.3 !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: visible !important;
+  float: none !important;
+  transform: none !important;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.ld-axyum-window button.axyum-pick-option:hover,
+button.axyum-pick-option:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: var(--axyum-border) !important;
+}
+
+.ld-axyum-window button.axyum-pick-option.is-selected,
+button.axyum-pick-option.is-selected {
+  background: rgba(125, 211, 252, 0.14) !important;
+  border-color: var(--axyum-border-strong) !important;
+  box-shadow: inset 3px 0 0 var(--axyum-accent) !important;
+}
+
+.ld-axyum-window button.axyum-pick-option > *,
+button.axyum-pick-option > * {
+  position: static !important;
+  float: none !important;
+  margin: 0 !important;
+}
+
+.axyum-pick-glyph {
+  flex: 0 0 2.4rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 2.4rem !important;
+  height: 2.4rem !important;
+  border-radius: 6px !important;
+  background: rgba(0, 0, 0, 0.28) !important;
+  border: 1px solid var(--axyum-border) !important;
+  color: var(--axyum-accent) !important;
+  font-size: 1rem !important;
+}
+
+button.axyum-pick-option.is-selected .axyum-pick-glyph {
+  color: var(--axyum-accent) !important;
+  border-color: var(--axyum-border-strong) !important;
+  background: rgba(125, 211, 252, 0.16) !important;
+}
+
+.axyum-pick-glyph {
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.axyum-pick-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 5px;
+}
+
+.axyum-pick-copy {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.12rem !important;
+  min-width: 0 !important;
+}
+
+.axyum-pick-title {
+  display: block !important;
+  font-family: var(--axyum-font-display) !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: var(--axyum-text-strong) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.axyum-pick-sub {
+  display: block !important;
+  font-size: 0.78rem !important;
+  font-weight: 400 !important;
+  color: var(--axyum-text-muted) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.axyum-role-stage {
+  position: relative;
+  border-radius: var(--axyum-radius);
+  border: 1px solid var(--axyum-border);
+  background:
+    radial-gradient(500px 220px at 90% 0%, rgba(125, 211, 252, 0.1), transparent 55%),
+    var(--axyum-bg-card);
+  padding: 1.35rem 1.4rem;
+  overflow: auto;
+  min-width: 0;
+  animation: axyum-fade 0.5s ease both 0.08s;
+}
+
+.axyum-role-detail-title {
+  margin: 0 0 0.65rem;
+  font-family: var(--axyum-font-display);
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--axyum-text-strong);
+  line-height: 1.2;
+}
+
+.axyum-role-lede {
+  margin: 0 0 1.15rem;
+  color: var(--axyum-text);
+  line-height: 1.5;
+  max-width: 48ch;
+}
+
+.axyum-role-facts {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.axyum-role-facts > div {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(125, 211, 252, 0.18);
+}
+
+.axyum-role-facts dt {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--axyum-accent);
+}
+
+.axyum-role-facts dd {
+  margin: 0;
+  color: var(--axyum-text);
+  line-height: 1.45;
+}
+
+.axyum-role-empty {
+  height: 100%;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--axyum-text-muted);
+  text-align: center;
+}
+
+.axyum-role-empty i {
+  font-size: 1.8rem;
+  color: var(--axyum-accent);
+  opacity: 0.7;
+}
+
+/* ---- Catalog (class / race / background) ---- */
+.axyum-catalog-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.85rem 1.25rem;
+  margin-bottom: 0.9rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius);
+  background: var(--axyum-bg-panel);
+  animation: axyum-rise 0.4s ease both;
+}
+
+.axyum-catalog-filters {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.axyum-toolbar-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--axyum-text-muted);
+}
+
+.axyum-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+}
+
+button.axyum-chip {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.32rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--axyum-border);
+  background: var(--axyum-bg-card);
+  color: var(--axyum-text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+

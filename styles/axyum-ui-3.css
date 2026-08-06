@@ -1,0 +1,481 @@
+.spell-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.spell-name {
+  color: var(--axyum-text-strong);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.spell-school {
+  color: var(--axyum-accent);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ---- Proficiencies ---- */
+.prof-header {
+  align-items: center;
+}
+
+.prof-count {
+  display: none; /* replaced by tally chip */
+}
+
+.prof-card.selected:not(.granted) {
+  border-color: var(--axyum-accent);
+  background: rgba(125, 211, 252, 0.14);
+}
+
+.grant-badge.race,
+.grant-badge.background {
+  background: rgba(125, 211, 252, 0.12);
+  color: var(--axyum-accent);
+}
+
+/* ---- Buttons / footer ---- */
+.axyum-btn {
+  border-radius: var(--axyum-radius-sm);
+  font-family: var(--axyum-font-ui);
+  font-weight: 600;
+}
+
+.axyum-btn-primary {
+  background: rgba(125, 211, 252, 0.12);
+  border: 1px solid var(--axyum-accent);
+  color: var(--axyum-accent);
+}
+
+.axyum-btn-primary:hover {
+  background: var(--axyum-accent);
+  color: var(--axyum-bg-dark);
+}
+
+.axyum-btn-secondary {
+  background: transparent;
+  border: 1px solid var(--axyum-border);
+  color: var(--axyum-text);
+}
+
+.axyum-preview-sidebar {
+  background: var(--axyum-bg-panel);
+  border-left: 1px solid var(--axyum-border);
+}
+
+.preview-header h3 {
+  font-family: var(--axyum-font-display);
+  color: var(--axyum-accent);
+}
+
+.axyum-summary-card {
+  background: var(--axyum-bg-card);
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius);
+  padding: 1rem;
+}
+
+.axyum-summary-card h3 {
+  font-family: var(--axyum-font-display);
+  margin-top: 0;
+  color: var(--axyum-accent);
+}
+
+.axyum-summary-card em {
+  color: var(--axyum-danger);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.compendium-filters {
+  margin-bottom: 0.85rem;
+}
+
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.compendium-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--axyum-border);
+  background: var(--axyum-bg-card);
+  color: var(--axyum-text);
+  cursor: pointer;
+}
+
+.compendium-filter-btn.active {
+  border-color: var(--axyum-accent);
+  background: rgba(125, 211, 252, 0.16);
+}
+
+/* ---- Class / race info cards ---- */
+.axyum-info-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+  animation: axyum-fade 0.45s ease both 0.06s;
+}
+
+.ld-axyum-window button.axyum-info-card,
+button.axyum-info-card {
+  all: unset;
+  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 0.55rem !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0.9rem 1rem !important;
+  border: 1px solid var(--axyum-border) !important;
+  border-radius: var(--axyum-radius) !important;
+  background: var(--axyum-bg-card) !important;
+  color: var(--axyum-text) !important;
+  font-family: var(--axyum-font-ui) !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: visible !important;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.ld-axyum-window button.axyum-info-card:hover,
+button.axyum-info-card:hover {
+  border-color: var(--axyum-border-strong) !important;
+  background: var(--axyum-bg-elevated) !important;
+  transform: translateY(-2px);
+}
+
+.ld-axyum-window button.axyum-info-card.is-selected,
+button.axyum-info-card.is-selected {
+  border-color: var(--axyum-accent) !important;
+  background: rgba(125, 211, 252, 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.35) !important;
+}
+
+.axyum-info-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.axyum-info-card-glyph {
+  flex: 0 0 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--axyum-border);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--axyum-accent) !important;
+  font-size: 1rem;
+}
+
+.axyum-info-card-glyph i {
+  color: var(--axyum-accent) !important;
+}
+
+button.axyum-info-card.is-selected .axyum-info-card-glyph {
+  color: var(--axyum-accent) !important;
+  border-color: var(--axyum-border-strong);
+}
+
+button.axyum-info-card.is-selected .axyum-info-card-glyph i {
+  color: var(--axyum-accent) !important;
+}
+
+.axyum-info-card-glyph:has(.axyum-info-card-portrait) {
+  overflow: hidden;
+  padding: 0;
+}
+
+.axyum-info-card-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 5px;
+}
+
+.axyum-info-card-titles {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.axyum-info-card-title {
+  font-family: var(--axyum-font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--axyum-text-strong);
+  line-height: 1.2;
+}
+
+.axyum-info-card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.axyum-info-card-facts {
+  margin: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.axyum-info-card-facts > div {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.axyum-info-card-facts dt {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--axyum-accent);
+}
+
+.axyum-info-card-facts dd {
+  margin: 0;
+  color: var(--axyum-text);
+}
+
+.axyum-info-card-blurb {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--axyum-text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+button.axyum-info-card.is-disabled:not(.is-selected),
+button.axyum-info-card:disabled:not(.is-selected) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+button.axyum-info-card--skill .axyum-info-card-blurb {
+  -webkit-line-clamp: 4;
+}
+
+/* Prevent dnd5e content-link tooltips from targeting removed/null nodes in Axyum */
+.ld-axyum-window a.content-link,
+.ld-axyum-window .content-link,
+.ld-axyum-window [data-uuid] {
+  pointer-events: none !important;
+  cursor: inherit;
+  text-decoration: none;
+  color: inherit;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* ---- Starting packages / skills / feats ---- */
+.axyum-package-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.75rem;
+}
+
+.axyum-package-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius);
+  background: var(--axyum-bg-card);
+}
+
+.axyum-package-card.is-selected {
+  border-color: var(--axyum-accent);
+  background: rgba(125, 211, 252, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.35);
+}
+
+button.axyum-package-select,
+button.axyum-package-card {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.35rem 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.axyum-package-label {
+  font-family: var(--axyum-font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--axyum-text-strong);
+}
+
+.axyum-package-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.axyum-package-items {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--axyum-text);
+  line-height: 1.45;
+}
+
+.axyum-package-items li + li {
+  margin-top: 0.35rem;
+}
+
+.axyum-item-blurb {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--axyum-text-muted);
+  margin-top: 0.15rem;
+}
+
+.axyum-package-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(125, 211, 252, 0.2);
+}
+
+.axyum-catalog-row.is-disabled,
+.axyum-catalog-row.is-locked {
+  opacity: 0.72;
+}
+
+.axyum-catalog-row.is-disabled:not(.is-selected) {
+  cursor: not-allowed;
+}
+
+.ability-method-buttons button:disabled,
+.roll-ability-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pool-skill {
+  display: inline-block;
+  margin: 0.1rem 0.25rem 0.1rem 0;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid var(--axyum-border);
+  font-size: 0.72rem;
+  color: var(--axyum-accent);
+}
+
+.prof-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.prof-header h3 {
+  margin: 0;
+  font-family: var(--axyum-font-display);
+  color: var(--axyum-text-strong);
+}
+
+.proficiencies-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.prof-section {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius);
+  background: var(--axyum-bg-panel);
+}
+
+.prof-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+button.prof-card {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius-sm);
+  background: var(--axyum-bg-card);
+  color: var(--axyum-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+button.prof-card.selected,
+button.prof-card.granted {
+  border-color: var(--axyum-accent);
+  background: rgba(125, 211, 252, 0.14);
+}
+
+button.prof-card:disabled {
+  cursor: default;
+}
+
+.prof-name {
+  font-weight: 600;
+  color: var(--axyum-text-strong);
+}
+
+.prof-source {
+  font-size: 0.72rem;
+  color: var(--axyum-text-muted);
+}
+
+@media (max-width: 900px) {
+  .spell-summary-bar {
+    flex-direction: column;
+  }
+}

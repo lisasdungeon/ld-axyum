@@ -1,34 +1,38 @@
-<div class="axyum-page">
-  <h2 class="axyum-page-title">Welcome to LD Axyum</h2>
-  <p class="axyum-page-description">
-    A next-generation character creation system for D&D 5e. This wizard will guide you through creating a fully realized character with all abilities, skills, and equipment calculated automatically.
+<div class="axyum-page welcome-page">
+  <header class="welcome-hero">
+    <p class="welcome-kicker">LD Axyum · Brass &amp; Ink · v0.2.4</p>
+    <h2 class="axyum-page-title">Build a character that is ready to play</h2>
+    <p class="axyum-page-description">
+      Guided creation for D&amp;D 5e — class, species, background, abilities, skills, and gear —
+      with live rules calculations as you go.
+    </p>
+  </header>
+
+  <div class="welcome-grid">
+    <section class="welcome-card">
+      <h3>How it works</h3>
+      <ol class="welcome-steps">
+        <li>Pick a role and class</li>
+        <li>Choose species and background</li>
+        <li>Assign abilities, skills, and languages</li>
+        <li>Review the summary and create the actor</li>
+      </ol>
+    </section>
+
+    <section class="welcome-card welcome-card-accent">
+      <h3>Content sources</h3>
+      <p>
+        Axyum loads from your world’s Item packs (dnd5e SRD and any enabled books).
+        Optionally narrow sources with the compendium picker.
+      </p>
+      <button type="button" class="axyum-btn axyum-btn-primary" data-action="configureCompendia">
+        <i class="fas fa-books"></i>
+        <span>Configure Compendia</span>
+      </button>
+    </section>
+  </div>
+
+  <p class="welcome-ready">
+    Ready? Click <strong>Next</strong> to start.
   </p>
-
-  <div style="margin-top: 2rem; padding: 2rem; background: rgba(108, 92, 231, 0.05); border-left: 4px solid var(--axyum-primary); border-radius: 6px;">
-    <h3 style="margin-top: 0;">Quick Tips:</h3>
-    <ul style="margin: 0;">
-      <li>Follow the 12-page wizard in order (or jump back to any page anytime)</li>
-      <li>Your choices automatically calculate ability modifiers, hit points, and other stats</li>
-      <li>You can edit your choices on the Summary page before creating your character</li>
-      <li>All character data is drawn from official D&D 5e rules and compendia</li>
-    </ul>
-  </div>
-
-  <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(231, 76, 60, 0.15); border: 2px solid rgba(231, 76, 60, 0.5); border-radius: 6px;">
-    <p style="margin: 0 0 0.8rem 0; font-size: 0.95rem; font-weight: bold; color: #e74c3c;">
-      <i class="fas fa-exclamation-triangle"></i> IMPORTANT: Configure Your Content Sources
-    </p>
-    <p style="margin: 0 0 0.8rem 0; font-size: 0.9rem;">
-      Before creating your first character, you MUST select which compendia to use. By default, NO compendia are enabled to give you full control over your content.
-    </p>
-    <button type="button" class="configure-compendia-btn" data-action="configureCompendia" style="padding: 0.6rem 1.2rem; background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: 600; transition: all 0.2s; box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);">
-      <i class="fas fa-cog"></i> Configure Compendia Now
-    </button>
-  </div>
-
-  <div style="margin-top: 2rem;">
-    <p style="font-size: 0.95rem; color: #666;">
-      <strong>Ready to begin?</strong> Click "Next" to start building your character!
-    </p>
-  </div>
 </div>

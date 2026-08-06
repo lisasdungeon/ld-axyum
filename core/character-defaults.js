@@ -47,7 +47,7 @@ export const CHARACTER_DEFAULTS = {
     subrace: null,
     culture: null,
     speed: 30,
-    size: 'Medium',
+    size: 'med',
     senses: [] // darkvision, etc.
   },
   
@@ -59,12 +59,12 @@ export const CHARACTER_DEFAULTS = {
   
   // ===== ABILITY SCORES =====
   abilities: {
-    str: null,
-    dex: null,
-    con: null,
-    int: null,
-    wis: null,
-    cha: null
+    str: 10,
+    dex: 10,
+    con: 10,
+    int: 10,
+    wis: 10,
+    cha: 10
   },
   
   savingThrows: {
@@ -194,7 +194,10 @@ export const CHARACTER_DEFAULTS = {
   
   // Equipment IDs selected during wizard creation
   selectedEquipmentIds: [],
-  
+  startingPackageId: null,
+  startingPackageChoices: {},
+  chooseASI: false,
+
   // ===== EQUIPMENT & TREASURE =====
   equipment: {
     armor: null,

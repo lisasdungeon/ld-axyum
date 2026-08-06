@@ -127,24 +127,24 @@ export const BACKGROUND_TOOL_MAP = {
 };
 
 export const SKILL_DEFINITIONS = [
-  { key: 'acrobatics', locKey: 'Acrobatics', ability: 'DEX' },
-  { key: 'animalHandling', locKey: 'AnimalHandling', ability: 'WIS' },
-  { key: 'arcana', locKey: 'Arcana', ability: 'INT' },
-  { key: 'athletics', locKey: 'Athletics', ability: 'STR' },
-  { key: 'deception', locKey: 'Deception', ability: 'CHA' },
-  { key: 'history', locKey: 'History', ability: 'INT' },
-  { key: 'insight', locKey: 'Insight', ability: 'WIS' },
-  { key: 'intimidation', locKey: 'Intimidation', ability: 'CHA' },
-  { key: 'investigation', locKey: 'Investigation', ability: 'INT' },
-  { key: 'medicine', locKey: 'Medicine', ability: 'WIS' },
-  { key: 'nature', locKey: 'Nature', ability: 'INT' },
-  { key: 'perception', locKey: 'Perception', ability: 'WIS' },
-  { key: 'performance', locKey: 'Performance', ability: 'CHA' },
-  { key: 'persuasion', locKey: 'Persuasion', ability: 'CHA' },
-  { key: 'religion', locKey: 'Religion', ability: 'INT' },
-  { key: 'sleightOfHand', locKey: 'SleightOfHand', ability: 'DEX' },
-  { key: 'stealth', locKey: 'Stealth', ability: 'DEX' },
-  { key: 'survival', locKey: 'Survival', ability: 'WIS' }
+  { key: 'acrobatics', locKey: 'Acrobatics', ability: 'DEX', explanation: 'Stay on your feet in tricky situations — balance, tumble, and aerial control.' },
+  { key: 'animalHandling', locKey: 'AnimalHandling', ability: 'WIS', explanation: 'Calm, train, or read the intent of animals and mounts.' },
+  { key: 'arcana', locKey: 'Arcana', ability: 'INT', explanation: 'Recall lore about spells, magic items, planes, and occult symbols.' },
+  { key: 'athletics', locKey: 'Athletics', ability: 'STR', explanation: 'Climb, jump, swim, grapple, and force your way through physical obstacles.' },
+  { key: 'deception', locKey: 'Deception', ability: 'CHA', explanation: 'Lie convincingly, disguise your intent, or bluff your way past suspicion.' },
+  { key: 'history', locKey: 'History', ability: 'INT', explanation: 'Remember notable people, wars, kingdoms, and ancient events.' },
+  { key: 'insight', locKey: 'Insight', ability: 'WIS', explanation: 'Read body language and motives — tell when someone is lying or uneasy.' },
+  { key: 'intimidation', locKey: 'Intimidation', ability: 'CHA', explanation: 'Influence others through threats, presence, or sheer force of will.' },
+  { key: 'investigation', locKey: 'Investigation', ability: 'INT', explanation: 'Search for clues, deduce what happened, and piece evidence together.' },
+  { key: 'medicine', locKey: 'Medicine', ability: 'WIS', explanation: 'Diagnose illness, stabilize the dying, and treat injuries.' },
+  { key: 'nature', locKey: 'Nature', ability: 'INT', explanation: 'Know terrain, plants, animals, weather, and natural hazards.' },
+  { key: 'perception', locKey: 'Perception', ability: 'WIS', explanation: 'Spot, hear, or otherwise notice hidden creatures and details.' },
+  { key: 'performance', locKey: 'Performance', ability: 'CHA', explanation: 'Entertain an audience with music, dance, acting, or oratory.' },
+  { key: 'persuasion', locKey: 'Persuasion', ability: 'CHA', explanation: 'Negotiate, convince, and win people over with diplomacy.' },
+  { key: 'religion', locKey: 'Religion', ability: 'INT', explanation: 'Recall rites, deities, holy symbols, and religious practice.' },
+  { key: 'sleightOfHand', locKey: 'SleightOfHand', ability: 'DEX', explanation: 'Pick pockets, plant objects, and perform manual tricks unnoticed.' },
+  { key: 'stealth', locKey: 'Stealth', ability: 'DEX', explanation: 'Hide, move quietly, and avoid being seen or heard.' },
+  { key: 'survival', locKey: 'Survival', ability: 'WIS', explanation: 'Track, forage, navigate wilderness, and endure the outdoors.' }
 ];
 
 export const CLASS_SKILL_MAP = {

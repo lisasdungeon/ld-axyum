@@ -1,83 +1,112 @@
-<div class="axyum-page">
-  <h2 class="axyum-page-title">{{localize "LD_AXYUM.Pages.Class"}}</h2>
-  <p class="axyum-page-description">
-    Choose your character's class. Each class determines your hit die, proficiencies, and special abilities.
-  </p>
+<div class="axyum-page axyum-catalog-page">
+  <header class="page-intro">
+    <p class="page-kicker">Class</p>
+    <h2 class="axyum-page-title">Choose your vocation</h2>
+    <p class="axyum-page-description">
+      Class sets your hit die, armor and weapon training, and the features that define how you play.
+      Role picks only highlight recommendations — every enabled book stays visible.
+    </p>
+  </header>
 
-  <!-- Compendium Filter Buttons -->
-  {{#if compendiumFilters}}
-  <div class="compendium-filters">
-    <span class="filter-label"><i class="fas fa-filter"></i> Filter by Source:</span>
-    <div class="filter-buttons">
-      {{#each compendiumFilters}}
-        <button class="compendium-filter-btn {{#if (eq this.id ../selectedCompendiumFilter)}}active{{/if}}" 
-                data-action="filterCompendium"
-                data-filter="{{this.id}}"
-                type="button">
-          <i class="fas fa-book"></i>
-          <span class="filter-name">{{this.name}}</span>
-          <span class="filter-count">({{this.count}})</span>
-        </button>
-      {{/each}}
+  <div class="axyum-catalog-toolbar">
+    {{#if compendiumFilters}}
+    <div class="axyum-catalog-filters" role="group" aria-label="Filter by source">
+      <span class="axyum-toolbar-label"><i class="fas fa-filter" aria-hidden="true"></i> Source</span>
+      <div class="axyum-chip-row">
+        {{#each compendiumFilters}}
+          <button type="button"
+                  class="axyum-chip {{#if (eq this.id ../selectedCompendiumFilter)}}is-active{{/if}}"
+                  data-action="filterCompendium"
+                  data-filter="{{this.id}}">
+            <span>{{this.name}}</span>
+            <span class="axyum-chip-count">{{this.count}}</span>
+          </button>
+        {{/each}}
+      </div>
     </div>
-  </div>
-  {{/if}}
+    {{/if}}
 
-  <!-- Homebrew Settings -->
-  <div class="homebrew-settings">
-    <label class="homebrew-toggle">
-      <input type="checkbox" name="showHomebrew" {{#if showHomebrew}}checked{{/if}} />
-      <span class="toggle-switch"></span>
-      <span class="toggle-label">Show Custom Content</span>
+    <label class="axyum-check-row axyum-check-row--compact">
+      <input type="checkbox" name="showHomebrew" data-action="toggleHomebrew" {{#if showHomebrew}}checked{{/if}} />
+      <span class="axyum-check"></span>
+      <span class="axyum-check-text">
+        <strong>Custom content</strong>
+        <small>Include homebrew classes</small>
+      </span>
     </label>
-    <span style="font-size: 0.9rem; color: var(--axyum-accent);">Include homebrew classes from enabled modules</span>
   </div>
 
-  <div class="axyum-selection-grid">
+  <div class="axyum-info-card-grid" role="listbox" aria-label="Classes">
     {{#each classes}}
-      {{#if (or ../showHomebrew (not this.isHomebrew))}}
-        <button type="button" class="axyum-selection-card {{#if (eq this.id ../character.class.id)}}selected{{/if}}" 
-             data-action="selectClass"
-             data-class-id="{{this.id}}" 
-             data-class-name="{{this.name}}" 
-             data-pack-name="{{this.packName}}"
-             title="Click to select, Shift+Click to view details">
-          <i class="{{this.icon}}"></i>
-          <h3 class="axyum-selection-card-title">{{this.name}}</h3>
-          <p class="axyum-selection-card-desc">d{{this.hitDie}} hit die{{#if this.spellcasting}} • Spellcaster{{/if}}</p>
-          {{#if this.source}}
-            <span class="source-badge {{#if this.isHomebrew}}homebrew{{else}}official{{/if}}" style="margin-top: 0.25rem;">
-              {{#if this.isHomebrew}}<i class="fas fa-scroll"></i>{{else}}<i class="fas fa-book"></i>{{/if}}{{this.source}}
-            </span>
+      <button type="button"
+              class="axyum-info-card {{#if (eq this.id ../characterData.class.id)}}is-selected{{/if}}"
+              data-action="selectClass"
+              data-class-id="{{this.id}}"
+              data-class-name="{{this.name}}"
+              data-pack-name="{{this.packName}}"
+              role="option"
+              aria-selected="{{#if (eq this.id ../characterData.class.id)}}true{{else}}false{{/if}}">
+        <header class="axyum-info-card-head">
+          <span class="axyum-info-card-glyph" aria-hidden="true">
+            {{#if this.portrait}}
+              <img class="axyum-info-card-portrait" src="{{this.portrait}}" alt="">
+            {{else}}
+              <i class="{{this.icon}}"></i>
+            {{/if}}
+          </span>
+          <span class="axyum-info-card-titles">
+            <span class="axyum-info-card-title">{{this.name}}</span>
+            {{#if this.source}}
+              <span class="axyum-catalog-source {{#if this.isHomebrew}}is-homebrew{{else}}is-official{{/if}}">{{this.source}}</span>
+            {{/if}}
+          </span>
+          {{#if this.recommended}}
+            <span class="axyum-meta-chip axyum-meta-chip--rec">Fits role</span>
           {{/if}}
-        </button>
-      {{/if}}
+        </header>
+        <div class="axyum-info-card-chips">
+          <span class="axyum-meta-chip">{{this.hitDieLabel}}</span>
+          <span class="axyum-meta-chip {{#if this.spellcasting}}axyum-meta-chip--accent{{/if}}">{{this.spellcastingLabel}}</span>
+          {{#if this.primaryAbility}}
+            <span class="axyum-meta-chip">{{this.primaryAbility}}</span>
+          {{/if}}
+        </div>
+        <dl class="axyum-info-card-facts">
+          <div><dt>Saves</dt><dd>{{this.savesLabel}}</dd></div>
+        </dl>
+        {{#if this.description}}
+          <p class="axyum-info-card-blurb">{{this.description}}</p>
+        {{else}}
+          <p class="axyum-info-card-blurb muted">Hit die {{this.hitDieLabel}} · {{this.spellcastingLabel}}</p>
+        {{/if}}
+      </button>
     {{else}}
-      <p style="grid-column: 1 / -1; color: #999; text-align: center; padding: 2rem;">
-        {{localize "LD_AXYUM.Messages.LoadingCompendia"}}
-      </p>
+      <div class="empty-state">
+        {{#if isLoading}}
+          <p>{{localize "LD_AXYUM.Messages.LoadingCompendia"}}</p>
+        {{else}}
+          <p>{{localize "LD_AXYUM.Messages.NoCompendiumContent"}}</p>
+        {{/if}}
+      </div>
     {{/each}}
   </div>
 
   {{#if characterData.class.id}}
-    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--axyum-secondary); border-left: 4px solid var(--axyum-primary); border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
-      <div>
-        <p style="margin: 0;"><strong>{{localize "LD_AXYUM.Messages.Selected"}}:</strong> {{characterData.class.name}}
-          {{#if characterData.class.source}}
-            <span class="source-badge {{#if characterData.class.isHomebrew}}homebrew{{else}}official{{/if}}">
-              {{#if characterData.class.isHomebrew}}<i class="fas fa-scroll"></i>{{else}}<i class="fas fa-book"></i>{{/if}}{{characterData.class.source}}
-            </span>
-          {{/if}}
-        </p>
+    <div class="axyum-selection-bar">
+      <div class="axyum-selection-bar-copy">
+        <span class="page-kicker">Selected</span>
+        <strong class="axyum-selection-bar-name">{{characterData.class.name}}</strong>
+        {{#if characterData.class.source}}
+          <span class="axyum-catalog-source {{#if characterData.class.isHomebrew}}is-homebrew{{else}}is-official{{/if}}">{{characterData.class.source}}</span>
+        {{/if}}
       </div>
-      <div style="display: flex; align-items: center;">
-        <label for="primary-class-level" style="margin-right: 0.5rem; font-weight: bold;">Level:</label>
-        <input type="number" id="primary-class-level" name="class.level" value="{{characterData.class.level}}" min="1" max="20" style="width: 60px; padding: 0.3rem; border: 1px solid #666; border-radius: 3px; color: #000; background: #fff;">
-      </div>
+      <label class="axyum-level-field">
+        <span>Level</span>
+        <input type="number" id="primary-class-level" name="class.level" value="{{characterData.class.level}}" min="1" max="20">
+      </label>
     </div>
   {{/if}}
 
-  <!-- Hidden inputs to persist selection -->
   <input type="hidden" name="class.id" value="{{characterData.class.id}}">
   <input type="hidden" name="class.name" value="{{characterData.class.name}}">
   <input type="hidden" name="class.level" value="{{characterData.class.level}}">

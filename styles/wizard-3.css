@@ -1,58 +1,6 @@
-.pool-skill {
-  font-size: 0.7rem;
-  padding: 0.15rem 0.4rem;
-  background: rgba(125, 211, 252, 0.15);
-  border: 1px solid rgba(125, 211, 252, 0.3);
-  border-radius: 10px;
-  color: var(--axyum-accent);
-}
-
-.skill-total {
-  margin-left: auto;
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, var(--axyum-primary), rgba(138, 43, 226, 0.5));
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.total-label {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: uppercase;
-}
-
-.total-count {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
-/* Skills Grid */
-.axyum-skills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-.axyum-skill-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: rgba(20, 10, 40, 0.6);
-  border: 2px solid rgba(138, 43, 226, 0.2);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
 .axyum-skill-checkbox:hover {
   border-color: var(--axyum-primary);
-  background: rgba(138, 43, 226, 0.15);
+  background: rgba(125, 211, 252, 0.15);
   transform: translateY(-2px);
 }
 
@@ -138,7 +86,7 @@
 .proficiency-bonus-box {
   margin-top: 1.5rem;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(0, 0, 0, 0.3));
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.2), rgba(0, 0, 0, 0.3));
   border: 1px solid var(--axyum-primary);
   border-radius: 8px;
   display: flex;
@@ -149,7 +97,7 @@
 .proficiency-bonus-box h3 {
   margin: 0;
   font-size: 1rem;
-  color: var(--axyum-primary);
+  color: var(--axyum-accent);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -179,200 +127,10 @@
 }
 
 .skill-tip strong {
-  color: var(--axyum-primary);
-}
-
-/* Legacy card support */
-.axyum-selection-card {
-  flex: 1 1 200px;
-  min-width: 200px;
-  background: var(--axyum-bg-card);
-  border: 1px solid var(--axyum-border-light);
-  border-radius: 8px;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.axyum-selection-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--axyum-primary);
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 15px var(--axyum-primary-glow);
-}
-
-.axyum-selection-card.selected {
-  background: rgba(212, 112, 74, 0.2);
-  border-color: var(--axyum-accent);
-  box-shadow: 0 0 20px var(--axyum-accent-glow);
-}
-
-.card-icon {
-  font-size: 2.5rem;
-  color: var(--axyum-text-muted);
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
-}
-
-.axyum-selection-card:hover .card-icon,
-.axyum-selection-card.selected .card-icon {
-  color: var(--axyum-accent);
-  text-shadow: 0 0 10px var(--axyum-accent-glow);
-}
-
-.card-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--axyum-text-light);
-}
-
-.card-description {
-  font-size: 0.9rem;
-  color: var(--axyum-text-muted);
-  line-height: 1.4;
-}
-
-/* ========================================
-   ROLE DETAIL PANEL
-   ======================================== */
-
-.role-detail-panel {
-  margin-top: 2rem;
-  padding: 2rem;
-  background: rgba(30, 10, 40, 0.6);
-  border: 2px solid var(--axyum-primary);
-  border-radius: 8px;
-  box-shadow: 0 0 20px var(--axyum-primary-glow);
-  animation: fadeIn 0.4s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.role-detail-panel h3 {
-  font-size: 1.8rem;
-  color: var(--axyum-primary);
-  margin-bottom: 1.2rem;
-  text-shadow: 0 0 10px var(--axyum-primary);
-  border-bottom: 2px solid var(--axyum-primary);
-  padding-bottom: 0.5rem;
-}
-
-.role-detail-panel p {
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  color: var(--axyum-text-light);
-}
-
-.role-detail-panel .role-concept {
-  font-size: 1.05rem;
-  color: var(--axyum-accent);
-  border-left: 4px solid var(--axyum-accent);
-  padding-left: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.role-detail-panel strong {
-  color: var(--axyum-accent);
-  font-weight: 600;
-}
-
-/* ========================================
-   COMPENDIUM FILTERS
-   ======================================== */
-
-.compendium-filters {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: rgba(30, 10, 50, 0.6);
-  border: 1px solid var(--axyum-border);
-  border-radius: 8px;
-}
-
-.filter-label {
-  font-size: 0.95rem;
-  color: var(--axyum-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  white-space: nowrap;
-}
-
-.filter-label i {
-  margin-right: 0.5rem;
   color: var(--axyum-accent);
 }
 
-.filter-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.compendium-filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: rgba(20, 10, 40, 0.8);
-  border: 2px solid rgba(138, 43, 226, 0.3);
-  border-radius: 6px;
-  color: var(--axyum-text-light);
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.compendium-filter-btn:hover {
-  background: rgba(138, 43, 226, 0.2);
-  border-color: var(--axyum-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(138, 43, 226, 0.4);
-}
-
-.compendium-filter-btn.active {
-  background: linear-gradient(135deg, var(--axyum-primary), var(--axyum-accent));
-  border-color: var(--axyum-accent);
-  color: #fff;
-  box-shadow: 0 0 20px var(--axyum-primary-glow);
-}
-
-.compendium-filter-btn i {
-  font-size: 0.9em;
-}
-
-.filter-name {
-  font-weight: 600;
-}
-
-.filter-count {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.85em;
-}
-
-.compendium-filter-btn.active .filter-count {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.role-grid {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
+/* Legacy selection / role / filter chrome moved to styles/axyum-ui.css */
 /* ========================================
 /* ========================================
    INTERACTIVE ABILITIES PAGE (Standard Layout)
@@ -389,7 +147,7 @@
   padding: 1rem;
   background: rgba(20, 10, 40, 0.4);
   border-radius: 8px;
-  border: 1px solid rgba(138, 43, 226, 0.2);
+  border: 1px solid rgba(125, 211, 252, 0.2);
   margin-bottom: 1.5rem;
 }
 
@@ -412,7 +170,7 @@
 }
 
 .section-title {
-  color: var(--axyum-primary);
+  color: var(--axyum-accent);
   margin: 0;
   font-size: 1.1rem;
   text-transform: uppercase;
@@ -446,5 +204,273 @@
 .roll-slot:hover {
   background: rgba(255, 255, 255, 0.05);
   border-color: var(--axyum-primary);
+}
+
+/* State when dice are rolling */
+.roll-slot.is-rolling .roll-ability-btn {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.roll-slot.is-rolling .dice-animation-container {
+  z-index: 100 !important;
+}
+
+.roll-ability-btn {
+  background: var(--axyum-bg-panel) !important;
+  border: 1px solid var(--axyum-primary) !important;
+  color: var(--axyum-text-light) !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.roll-ability-btn:hover {
+  background: var(--axyum-primary) !important;
+  color: #000 !important;
+  box-shadow: 0 0 15px var(--axyum-primary-glow) !important;
+}
+
+.rolled-result {
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.1), rgba(125, 211, 252, 0.05));
+  border: 2px solid var(--axyum-accent);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  max-width: 120px;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: grab;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.rolled-result:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px var(--axyum-accent-glow);
+}
+
+.score-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--axyum-accent);
+  line-height: 1;
+}
+
+.dice-breakdown {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  color: var(--axyum-text-light);
+  margin-top: 0.2rem;
+}
+
+.reroll-btn {
+  background: rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid var(--axyum-primary) !important;
+  color: var(--axyum-text-muted) !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.75rem !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  width: auto;
+}
+
+.reroll-btn:hover {
+  background: var(--axyum-primary) !important;
+  color: #000 !important;
+}
+
+/* Assignment Groups */
+.ability-drop-zones {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 1rem !important;
+}
+
+.ability-drop-zone {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100px;
+  width: 100%;
+  color: inherit;
+  font-family: inherit;
+  position: relative;
+}
+
+.ability-drop-zone:hover {
+  border-color: var(--axyum-primary);
+  background: rgba(125, 211, 252, 0.05);
+}
+
+.ability-drop-zone.is-filled {
+  border-style: solid;
+  border-color: var(--axyum-primary);
+  background: rgba(125, 211, 252, 0.1);
+}
+
+.zone-header {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.zone-abbr {
+  font-weight: bold;
+  color: var(--axyum-accent);
+}
+
+.zone-full {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+.zone-body {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.assigned-score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.assigned-score-display .big-val {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.mod-val {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  color: var(--axyum-accent);
+}
+
+.unassign-x {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  color: #ff4d4d;
+  font-size: 1.2rem;
+  opacity: 0.6;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 4px;
+}
+
+.unassign-x:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  color: #ff0000;
+}
+
+.reroll-trigger {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: var(--axyum-text-light);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  margin-left: 8px;
+}
+
+.reroll-trigger:hover {
+  background: var(--axyum-primary);
+  border-color: var(--axyum-primary);
+  box-shadow: 0 0 10px var(--axyum-primary-glow);
+}
+
+.abilities-footer-bar {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0 0 10px 10px;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stat-pill .lbl {
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+.stat-pill .val {
+  font-weight: bold;
+  color: var(--axyum-accent);
+  font-size: 1.1rem;
+}
+
+/* Ability Name Label */
+.ability-name-label {
+  font-weight: 600;
+  color: var(--axyum-accent);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-width: 80px;
+}
+
+.kept {
+  color: var(--axyum-accent);
+  font-weight: 600;
+}
+
+.dropped {
+  color: rgba(255, 100, 100, 0.5);
+  text-decoration: line-through;
+}
+
+.reroll-btn {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(125, 211, 252, 0.3);
+  border: 1px solid var(--axyum-primary);
+  border-radius: 4px;
+  color: var(--axyum-text-light);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reroll-btn:hover {
+  background: rgba(125, 211, 252, 0.5);
+  transform: scale(1.05);
+}
+
+/* Pulse Glow Effect for Roll Buttons */
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 

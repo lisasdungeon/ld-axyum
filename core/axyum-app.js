@@ -1,1 +1,418 @@
-import{CharacterModel}from"./character-model.js";import{RulesEngine}from"./rules-engine.js";import CompendiumLoader from"./compendium-loader.js";import{WizardNavigation}from"./wizard-navigation.js";import{AbilityScoreManager}from"./ability-score-manager.js";import{CompendiumFilter}from"./compendium-filter.js";import{CharacterCreator}from"./character-creator.js";import{RollTableManager}from"./roll-table-manager.js";import{AxyumActionHandlers}from"./axyum-action-handlers.js";import{ALL_LANGUAGES,RACE_LANGUAGE_MAP,ARMOR_TYPES,CLASS_ARMOR_MAP,WEAPON_TYPES,CLASS_WEAPON_MAP,TOOL_TYPES,BACKGROUND_TOOL_MAP,SKILL_DEFINITIONS,CLASS_SKILL_MAP,ABILITY_DEFINITIONS}from"./axyum-static-data.js";const{ApplicationV2:ApplicationV2,HandlebarsApplicationMixin:HandlebarsApplicationMixin}=foundry.applications.api;class AxyumAppBase extends(HandlebarsApplicationMixin(ApplicationV2)){static _cachedOptions=null;static _cachePromise=null;static invalidateContentCache(){AxyumAppBase._cachedOptions=null,AxyumAppBase._cachePromise=null}static DEFAULT_OPTIONS={id:"axyum-app",tag:"div",window:{title:"Character Creator (Axyum)",icon:"fa-solid fa-atom",resizable:!0,minimizable:!0,positioned:!0},classes:["ld-axyum-window"],position:{width:1400,height:900,top:50,left:50},actions:{next:AxyumAppBase.prototype.onNext,previous:AxyumAppBase.prototype.onPrevious,create:AxyumAppBase.prototype.onCreate,save:AxyumAppBase.prototype.onSave,selectClass:AxyumAppBase.prototype.onSelectClass,selectRace:AxyumAppBase.prototype.onSelectRace,selectBackground:AxyumAppBase.prototype.onSelectBackground,rollAbility:AxyumAppBase.prototype.onRollAbility,rollAllAbilities:AxyumAppBase.prototype.onRollAllAbilities,assignScore:AxyumAppBase.prototype.onAssignScore,unassignScore:AxyumAppBase.prototype.onUnassignScore,useStandardArray:AxyumAppBase.prototype.onUseStandardArray,usePointBuy:AxyumAppBase.prototype.onUsePointBuy,resetAbilities:AxyumAppBase.prototype.onResetAbilities,assignScoreClick:AxyumAppBase.prototype.onAssignScoreClick,rollTrait:AxyumAppBase.prototype.onRollTrait,filterCompendium:AxyumAppBase.prototype.onFilterCompendium,toggleHomebrew:AxyumAppBase.prototype.onToggleHomebrew,selectRole:AxyumAppBase.prototype.onSelectRole,configureCompendia:AxyumAppBase.prototype.onConfigureCompendia,filterEquipment:AxyumAppBase.prototype.onFilterEquipment,toggleEquipment:AxyumAppBase.prototype.onToggleEquipment,toggleLanguage:AxyumAppBase.prototype.onToggleLanguage,toggleArmorProf:AxyumAppBase.prototype.onToggleArmorProf,toggleWeaponProf:AxyumAppBase.prototype.onToggleWeaponProf,toggleToolProf:AxyumAppBase.prototype.onToggleToolProf}};static PARTS={form:{template:"modules/ld-axyum/ui/axyum-app.hbs"}};constructor(options={}){super(options),this.mode=options.mode||"create",this.actor=null,options.actor instanceof Actor&&(this.actor=options.actor,this.mode="edit"),this.characterData=CharacterModel.getDefaults(),this.availableOptions={classes:[],races:[],backgrounds:[],spells:[],equipment:[],feats:[]},this.navigation=new WizardNavigation,this.abilityManager=new AbilityScoreManager,this.filter=new CompendiumFilter,this.creator=new CharacterCreator(this.availableOptions),this.rollTables=new RollTableManager,this.currentEquipmentFilter=""}async _prepareContext(options){if(!AxyumAppBase._cachedOptions){AxyumAppBase._cachePromise||(AxyumAppBase._cachePromise=this._loadAvailableOptions());try{await AxyumAppBase._cachePromise}catch(err){console.error("AxyumApp | Failed to load data:",err)}}AxyumAppBase._cachedOptions&&(this.availableOptions=AxyumAppBase._cachedOptions,this.creator.availableOptions=AxyumAppBase._cachedOptions);const filteredClasses=this.filter.applyAllFilters(this.availableOptions.classes||[],"class"),filteredRaces=this.filter.applyAllFilters(this.availableOptions.races||[],"race"),filteredBackgrounds=this.filter.applyAllFilters(this.availableOptions.backgrounds||[],"background");this._updateDerivedStats();const asiCount=RulesEngine.countASIsByLevel(this.characterData.totalLevel||this.characterData.class.level||1),selectedClassName=this.characterData.class?.name||"",selectedClassData=(this.availableOptions.classes||[]).find((c=>c.name===selectedClassName)),isSpellcaster=!!selectedClassData?.spellcasting||RulesEngine.isSpellcaster(selectedClassName),derivedStats={hitPoints:this.characterData.hitPoints?.max||0,armorClass:this.characterData.armorClass||10,proficiencyBonus:this.characterData.proficiencyBonus||2,initiative:this.characterData.initiative||0,passivePerception:this.characterData.passivePerception||10,passiveInsight:this.characterData.passiveInsight||10,speed:this.characterData.speed?.walk||30,isSpellcaster:isSpellcaster,abilityModifiers:{str:this._getAbilityModifier("str"),dex:this._getAbilityModifier("dex"),con:this._getAbilityModifier("con"),int:this._getAbilityModifier("int"),wis:this._getAbilityModifier("wis"),cha:this._getAbilityModifier("cha")}};return{character:this.characterData,characterData:this.characterData,derivedStats:derivedStats,asiCount:asiCount,isLoading:!1,mode:this.mode,currentPage:this.navigation.getCurrentPage(),currentPageIndex:this.navigation.getCurrentPageIndex(),currentStepLabel:this.navigation.getPageLabel(this.navigation.getCurrentPage()),totalPages:this.navigation.getTotalPages(),isFirstPage:this.navigation.isFirstPage(),isLastPage:this.navigation.isLastPage(),steps:this.navigation.getSteps(),version:game.modules.get("ld-axyum")?.version||"0.1.3",classes:filteredClasses,races:filteredRaces,backgrounds:filteredBackgrounds,spells:this.availableOptions.spells,spellsByLevel:this._buildSpellsByLevel(),equipment:this._buildEquipmentList(),feats:this._buildFeatsList(),featsList:this._buildFeatsList(),abilities:this.availableOptions.abilities,skillsList:this._buildSkillsList(),skillChoices:this._buildSkillChoices(),rolledScores:this.abilityManager.getRolledScores(),diceBreakdowns:this.abilityManager.getDiceBreakdowns(),rolledPool:this.abilityManager.getRolledPool(),assignedAbilities:this.abilityManager.getAssignedAbilities(),rerollStatus:this.abilityManager.getRerollStatus(),canReroll:this.abilityManager.canReroll(),showHomebrew:this.filter.getHomebrewVisibility(),selectedRoleIndex:this.filter.getSelectedRole(),equipmentFilter:this.currentEquipmentFilter,selectedEquipmentCount:this.characterData.selectedEquipmentIds?.length||0,maxStartingItems:10,selectionPercent:Math.min(100,(this.characterData.selectedEquipmentIds?.length||0)/10*100),availableLanguages:this._buildLanguageList(),armorProficiencies:this._buildArmorProficiencies(),weaponProficiencies:this._buildWeaponProficiencies(),toolProficiencies:this._buildToolProficiencies(),languageGrants:this._getLanguageGrants(),toolGrants:this._getToolGrants(),selectedLanguageCount:this.characterData.proficiencies?.languages?.length||0,totalLanguageSlots:this._getTotalLanguageSlots()}}async _loadAvailableOptions(){try{let loader=game.ldAxyum?.compendiumLoader;loader||(loader=new CompendiumLoader,game.ldAxyum&&(game.ldAxyum.compendiumLoader=loader)),loader.loadPromise?await loader.loadPromise:loader.cache.classes?.length||await loader.loadAllContent();let classes=loader.cache.classes||[],races=loader.cache.races||[],backgrounds=loader.cache.backgrounds||[],feats=loader.cache.feats||[];0===classes.length&&0===races.length&&game.packs.size>0&&(await loader.clearCache(),await loader.loadAllContent(),classes=loader.cache.classes||[],races=loader.cache.races||[],backgrounds=loader.cache.backgrounds||[],feats=loader.cache.feats||[]);const spells=loader.cache.spells||[],equipment=loader.cache.equipment||[];AxyumAppBase._cachedOptions={classes:(classes||[]).map((cls=>this._normalizeClass(cls))).filter(Boolean),races:(races||[]).map((race=>this._normalizeRace(race))).filter(Boolean),backgrounds:(backgrounds||[]).map((bg=>this._normalizeBackground(bg))).filter(Boolean),feats:(feats||[]).map((feat=>this._normalizeFeat(feat))).filter(Boolean),spells:(spells||[]).map((spell=>this._normalizeSpell(spell))).filter(Boolean),equipment:(equipment||[]).map((item=>this._normalizeEquipment(item))).filter(Boolean),abilities:ABILITY_DEFINITIONS},this.availableOptions=AxyumAppBase._cachedOptions,this.creator.availableOptions=this.availableOptions}catch(err){console.error("LD Axyum | Failed to load available options",err),ui.notifications?.error?.("Failed to load compendium content")}}_normalizeClass(cls){return cls?{...cls,id:cls.id||"",name:cls.name||"Unknown Class",hitDie:cls.hitDice&&cls.hitDice.match(/\d+/)?.[0]||"8",spellcasting:cls.spellcasting||null,icon:this.filter.getClassIcon(cls.name||"Unknown")}:null}_normalizeRace(race){return race?{...race,id:race.id||"",name:race.name||"Unknown Race"}:null}_normalizeBackground(bg){return bg?{...bg,id:bg.id||"",name:bg.name||"Unknown Background"}:null}_normalizeSpell(spell){return spell?{...spell,id:spell.id||"",name:spell.name||"Unknown Spell",level:spell.level||0}:null}_normalizeEquipment(item){return item?{...item,id:item.id||"",name:item.name||"Unknown Item",type:item.type||"loot"}:null}_normalizeFeat(feat){return feat?{...feat,id:feat.id||"",name:feat.name||"Unknown Feat",requiresLevel:feat.requiresLevel||1}:null}_buildSkillsList(){const mods=RulesEngine.getAbilityModifiers(this.characterData?.abilities||{}),abilityMap={STR:mods.str||0,DEX:mods.dex||0,CON:mods.con||0,INT:mods.int||0,WIS:mods.wis||0,CHA:mods.cha||0};return SKILL_DEFINITIONS.map((skill=>({...skill,modifier:abilityMap[skill.ability]||0})))}_buildSkillChoices(){const className=this.characterData?.class?.name||"",backgroundName=this.characterData?.background?.name||"";let classSkills=null;for(const[key,value]of Object.entries(CLASS_SKILL_MAP))if(className.toLowerCase().includes(key.toLowerCase())){classSkills={...value,name:key};break}classSkills||(classSkills={count:3,pool:["Any"],name:className||"Unknown"});const backgroundSkills=backgroundName?{count:2,pool:[]}:null;return{total:classSkills.count+(backgroundSkills?.count||0),class:{name:className,count:classSkills.count,pool:classSkills.pool},race:null,background:backgroundSkills?{name:backgroundName,count:backgroundSkills.count,pool:backgroundSkills.pool}:null}}_buildSpellsByLevel(){const spells=this.availableOptions.spells||[],grouped=[];for(const spell of spells){const lvl=spell.level||0;grouped[lvl]||(grouped[lvl]=[]),grouped[lvl].push(spell)}for(let i=0;i<grouped.length;i++)grouped[i]?grouped[i].sort(((a,b)=>(a.name||"").localeCompare(b.name||""))):grouped[i]=[];return grouped}_buildEquipmentList(){let equipment=[...this.availableOptions.equipment||[]];const normalizeType=t=>String(t||"").toLowerCase().trim(),selectedFilter=normalizeType(this.currentEquipmentFilter);if(selectedFilter){const allowed={weapon:["weapon","weapons"],equipment:["equipment","armor","armour"],tool:["tool","tools"],gear:["loot","consumable","backpack","container","gear"]}[selectedFilter]||[selectedFilter];if(equipment=equipment.filter((item=>allowed.includes(normalizeType(item?.type)))),0===equipment.length&&(this.availableOptions.equipment||[]).length>0){const types=[...new Set((this.availableOptions.equipment||[]).map((i=>normalizeType(i?.type))).filter(Boolean))];console.warn("AxyumApp | Equipment filter yielded no results:",{selectedFilter:selectedFilter,availableTypes:types})}}return equipment=equipment.filter((item=>!!item&&!!item.name&&!!item.type)),equipment.sort(((a,b)=>(a?.name||"").localeCompare(b?.name||"")))}_buildFeatsList(){const characterLevel=this.characterData?.totalLevel||1;return(this.availableOptions.feats||[]).filter((feat=>feat&&(!feat.requiresLevel||feat.requiresLevel<=characterLevel))).sort(((a,b)=>(a?.name||"").localeCompare(b?.name||"")))}_buildLanguageList(){const raceLanguages=this._getRaceLanguages();return ALL_LANGUAGES.map((lang=>({...lang,granted:raceLanguages.includes(lang.id),source:raceLanguages.includes(lang.id)?this.characterData.race.name:null})))}_getRaceLanguages(){const raceName=this.characterData.race.name?.toLowerCase()||"";return RACE_LANGUAGE_MAP[raceName]||["common"]}_getLanguageGrants(){const raceName=this.characterData.race.name,backgroundName=this.characterData.background.name;return{race:raceName?{name:raceName,languages:this._getRaceLanguages().join(", ")}:null,background:backgroundName?{name:backgroundName,count:1}:null}}_getTotalLanguageSlots(){return this._getRaceLanguages().length+(this.characterData.background.name?1:0)}_buildArmorProficiencies(){const className=this.characterData.class.name?.toLowerCase()||"",grantedArmor=CLASS_ARMOR_MAP[className]||[];return ARMOR_TYPES.map((armor=>({...armor,granted:grantedArmor.includes(armor.id),source:grantedArmor.includes(armor.id)?this.characterData.class.name:null})))}_buildWeaponProficiencies(){const className=this.characterData.class.name?.toLowerCase()||"",grantedWeapons=CLASS_WEAPON_MAP[className]||[];return WEAPON_TYPES.map((weapon=>({...weapon,granted:grantedWeapons.includes(weapon.id),source:grantedWeapons.includes(weapon.id)?this.characterData.class.name:null})))}_buildToolProficiencies(){const backgroundName=this.characterData.background.name?.toLowerCase()||"",grantedTools=BACKGROUND_TOOL_MAP[backgroundName]||[];return TOOL_TYPES.map((tool=>({...tool,granted:grantedTools.includes(tool.id),source:grantedTools.includes(tool.id)?this.characterData.background.name:null})))}_getToolGrants(){const backgroundName=this.characterData.background.name;return{background:backgroundName?{name:backgroundName}:null}}_getAbilityModifier(ability){const score=this.characterData.abilities[ability]||10,mod=Math.floor((score-10)/2);return mod>=0?`+${mod}`:`${mod}`}_calculateHP(){const conMod=Math.floor((this.characterData.abilities.con-10)/2),hitDie=parseInt(this.characterData.class.hitDie)||8,maxHP=hitDie+conMod+((this.characterData.class.level||1)-1)*(Math.floor(hitDie/2)+1+conMod);return Math.floor(Math.max(1,maxHP))}_calculateAC(){return 10+Math.floor((this.characterData.abilities.dex-10)/2)}_calculateProficiencyBonus(){const level=this.characterData.totalLevel||this.characterData.class.level||1;return Math.floor((level-1)/4)+2}_calculateInitiative(){return Math.floor((this.characterData.abilities.dex-10)/2)}_calculatePassivePerception(){const wisMod=Math.floor((this.characterData.abilities.wis-10)/2),profBonus=this._calculateProficiencyBonus();return 10+wisMod+(this.characterData.skillProficiencies?.includes("perception")?profBonus:0)}_getTotalLevel(){return this.characterData?.isMulticlass&&Array.isArray(this.characterData.classes)&&this.characterData.classes.length>0?this.characterData.classes.reduce(((sum,c)=>sum+(parseInt(c.level,10)||1)),0):parseInt(this.characterData?.class?.level,10)||1}_calculatePassiveInsight(){const wisMod=Math.floor((this.characterData.abilities.wis-10)/2),profBonus=this._calculateProficiencyBonus();return 10+wisMod+(this.characterData.skillProficiencies?.includes("insight")?profBonus:0)}_updateDerivedStats(){this.characterData.totalLevel=this._getTotalLevel(),this.characterData.hitPoints={max:this._calculateHP(),current:this._calculateHP(),temp:0},this.characterData.armorClass=this._calculateAC(),this.characterData.proficiencyBonus=this._calculateProficiencyBonus(),this.characterData.initiative=this._calculateInitiative(),this.characterData.passivePerception=this._calculatePassivePerception(),this.characterData.passiveInsight=this._calculatePassiveInsight(),this.characterData.speed||(this.characterData.speed={walk:30,swim:0,fly:0,burrow:0,climb:0}),this.characterData.race.speed&&(this.characterData.speed.walk=this.characterData.race.speed)}async _preRender(context,options){await(super._preRender?.(context,options));const content=this.element?.querySelector(".axyum-content");content&&(this._savedScrollTop=content.scrollTop)}_onRender(context,options){super._onRender?.(context,options),requestAnimationFrame((()=>{if(this._setupDragDrop(),this._updateAbilitySummary(),this._setupSkillCheckboxes(),this._setupFormInputs(),this._setupFeatSearch(),void 0!==this._savedScrollTop){const content=this.element?.querySelector(".axyum-content");content&&(content.scrollTop=this._savedScrollTop)}}))}_setupFeatSearch(){const html=this.element;if(!html)return;const searchInput=html.querySelector("#feat-search"),container=html.querySelector("#feat-list-container");if(!searchInput||!container)return;if(searchInput.dataset.aware)return;searchInput.dataset.aware="true";const updateFilter=()=>{const query=(searchInput.value||"").toLowerCase().trim(),items=container.querySelectorAll(".axyum-feat-selection-item");let visibleCount=0;items.forEach((item=>{const name=(item.dataset.featName||"").toLowerCase(),matches=!query||name.includes(query);item.style.display=matches?"flex":"none",matches&&visibleCount++}));const noResults=container.querySelector("#no-feats-message");noResults&&(noResults.style.display=query&&0===visibleCount?"block":"none")};searchInput.addEventListener("input",updateFilter),searchInput.addEventListener("keydown",(e=>{"Enter"===e.key&&(e.preventDefault(),updateFilter())}))}_setupFormInputs(){const html=this.element;html&&html.querySelectorAll('input[type="text"], input[type="number"], select, textarea').forEach((input=>{"skillProficiencies"!==input.name&&(input.hasAttribute("data-action")||(input.addEventListener("change",(e=>this._onFormInputChange(e))),input.addEventListener("blur",(e=>this._onFormInputChange(e)))))}))}_setupSkillCheckboxes(){const html=this.element;html&&html.querySelectorAll('input[name="skillProficiencies"]').forEach((cb=>{cb.addEventListener("change",(e=>{const skill=e.target.value,isChecked=e.target.checked;this.characterData.skillProficiencies||(this.characterData.skillProficiencies=[]),isChecked?this.characterData.skillProficiencies.includes(skill)||this.characterData.skillProficiencies.push(skill):this.characterData.skillProficiencies=this.characterData.skillProficiencies.filter((s=>s!==skill));const label=e.target.closest(".axyum-skill-checkbox");label&&label.classList.toggle("selected",isChecked)}))}))}_updateAbilitySummary(){const html=this.element;if(!html)return;const abilities=this.characterData?.abilities||{},values=Object.values(abilities).filter((v=>"number"==typeof v)),total=values.reduce(((sum,v)=>sum+v),0),count=values.length,totalEl=html.querySelector("#ability-total"),countEl=html.querySelector("#assigned-count");totalEl&&(totalEl.textContent=total>0?total:"--"),countEl&&(countEl.textContent=`${count} / 6`)}_setupDragDrop(){const html=this.element;html&&(html.querySelectorAll(".draggable-score").forEach((el=>{el.addEventListener("dragstart",this._onDragStart.bind(this)),el.addEventListener("dragend",this._onDragEnd.bind(this))})),html.querySelectorAll(".ability-drop-zone").forEach((zone=>{zone.addEventListener("dragover",this._onDragOver.bind(this)),zone.addEventListener("dragleave",this._onDragLeave.bind(this)),zone.addEventListener("drop",this._onDrop.bind(this))})))}setPosition(position={}){if(!this.element)return;const safePosition={width:position?.width??this.options.position?.width??1400,height:position?.height??this.options.position?.height??900,top:position?.top??this.options.position?.top??50,left:position?.left??this.options.position?.left??50};try{return super.setPosition?.(safePosition)}catch(err){console.warn("AxyumApp | Position update failed:",err.message)}}_updatePosition(position){if(this.element&&position&&"object"==typeof position)try{return super._updatePosition?.(position)}catch(err){console.warn("AxyumApp | Position update skipped:",err.message)}}async _onClose(options){return this.characterData=null,this.availableOptions=null,this.navigation=null,this.abilityManager=null,this.filter=null,this.creator=null,this.rollTables=null,super._onClose?.(options)}}export const AxyumApp=AxyumActionHandlers(AxyumAppBase);AxyumApp.DEFAULT_OPTIONS.actions={next:AxyumApp.prototype.onNext,previous:AxyumApp.prototype.onPrevious,create:AxyumApp.prototype.onCreate,save:AxyumApp.prototype.onSave,selectClass:AxyumApp.prototype.onSelectClass,selectRace:AxyumApp.prototype.onSelectRace,selectBackground:AxyumApp.prototype.onSelectBackground,rollAbility:AxyumApp.prototype.onRollAbility,rollAllAbilities:AxyumApp.prototype.onRollAllAbilities,assignScore:AxyumApp.prototype.onAssignScore,unassignScore:AxyumApp.prototype.onUnassignScore,useStandardArray:AxyumApp.prototype.onUseStandardArray,usePointBuy:AxyumApp.prototype.onUsePointBuy,resetAbilities:AxyumApp.prototype.onResetAbilities,assignScoreClick:AxyumApp.prototype.onAssignScoreClick,rollTrait:AxyumApp.prototype.onRollTrait,filterCompendium:AxyumApp.prototype.onFilterCompendium,toggleHomebrew:AxyumApp.prototype.onToggleHomebrew,selectRole:AxyumApp.prototype.onSelectRole,configureCompendia:AxyumApp.prototype.onConfigureCompendia,filterEquipment:AxyumApp.prototype.onFilterEquipment,toggleEquipment:AxyumApp.prototype.onToggleEquipment,toggleLanguage:AxyumApp.prototype.onToggleLanguage,toggleArmorProf:AxyumApp.prototype.onToggleArmorProf,toggleWeaponProf:AxyumApp.prototype.onToggleWeaponProf,toggleToolProf:AxyumApp.prototype.onToggleToolProf};
+/**
+ * AxyumApp - Main Application Coordinator for LD Axyum
+ * Migrated to ApplicationV2 (Foundry v13+)
+ */
+
+import { CharacterModel } from './character-model.js';
+import { RulesEngine } from './rules-engine.js';
+import CompendiumLoader from './compendium-loader.js';
+import { WizardNavigation } from './wizard-navigation.js';
+import { AbilityScoreManager } from './ability-score-manager.js';
+import { CompendiumFilter } from './compendium-filter.js';
+import { CharacterCreator } from './character-creator.js';
+import { RollTableManager } from './roll-table-manager.js';
+import { AxyumContextBuilders } from './axyum-context-builders.js';
+import { AxyumActionHandlers } from './axyum-action-handlers.js';
+import { AxyumActionHandlersChoices } from './axyum-action-handlers-choices.js';
+import { logger } from './logger.js';
+import { ROLE_CARD_IMAGES } from './role-card-images.js';
+
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
+class AxyumAppBase extends HandlebarsApplicationMixin(ApplicationV2) {
+  static _cachedOptions = null;
+  static _cachePromise = null;
+  static _cachedModuleVersion = null;
+
+  static invalidateContentCache() {
+    AxyumAppBase._cachedOptions = null;
+    AxyumAppBase._cachePromise = null;
+    AxyumAppBase._cachedModuleVersion = null;
+  }
+
+  static _ensureCacheFresh() {
+    const version = game.modules.get('ld-axyum')?.version || '';
+    if (AxyumAppBase._cachedModuleVersion && AxyumAppBase._cachedModuleVersion !== version) {
+      AxyumAppBase.invalidateContentCache();
+      game.ldAxyum?.compendiumLoader?.clearCache?.();
+    }
+    AxyumAppBase._cachedModuleVersion = version;
+  }
+
+  static DEFAULT_OPTIONS = {
+    id: 'axyum-app',
+    tag: 'div',
+    window: {
+      title: 'Character Creator (Axyum)',
+      icon: 'fa-solid fa-atom',
+      resizable: true,
+      minimizable: true,
+      positioned: true
+    },
+    classes: ['ld-axyum-window'],
+    position: { width: 1400, height: 900, top: 50, left: 50 },
+    actions: {}
+  };
+
+  static PARTS = {
+    form: { template: 'modules/ld-axyum/ui/axyum-app.hbs' }
+  };
+
+  constructor(options = {}) {
+    super(options);
+    this.mode = options.mode || 'create';
+    this.actor = null;
+
+    if (options.actor instanceof Actor) {
+      this.actor = options.actor;
+      this.mode = 'edit';
+    }
+
+    this.characterData = CharacterModel.getDefaults();
+    this.availableOptions = { classes: [], races: [], backgrounds: [], spells: [], equipment: [], feats: [] };
+    this.navigation = new WizardNavigation();
+    this.abilityManager = new AbilityScoreManager();
+    this.filter = new CompendiumFilter();
+    this.creator = new CharacterCreator(this.availableOptions);
+    this.rollTables = new RollTableManager();
+    this.currentEquipmentFilter = '';
+    this._contentLoading = !AxyumAppBase._cachedOptions;
+  }
+
+  /** Resolve data-action host even when Foundry passes an icon/child or null target. */
+  _actionEl(event, target) {
+    const raw = target || event?.currentTarget || event?.target || null;
+    if (!raw || typeof raw.closest !== 'function') return null;
+    if (raw.dataset?.action) return raw;
+    return raw.closest('[data-action]') || null;
+  }
+
+  // ===== CONTEXT PREPARATION =====
+
+  async _prepareContext(options) {
+    AxyumAppBase._ensureCacheFresh();
+    if (!AxyumAppBase._cachedOptions) {
+      this._contentLoading = true;
+      if (!AxyumAppBase._cachePromise) {
+        AxyumAppBase._cachePromise = this._loadAvailableOptions();
+      }
+      try {
+        await AxyumAppBase._cachePromise;
+      } catch (err) {
+        logger.error('Failed to load data:', err);
+      } finally {
+        this._contentLoading = false;
+      }
+    }
+
+    if (AxyumAppBase._cachedOptions) {
+      this.availableOptions = AxyumAppBase._cachedOptions;
+      this.creator.availableOptions = AxyumAppBase._cachedOptions;
+      this._contentLoading = false;
+    }
+
+    const filteredClasses = this.filter.applyAllFilters(this.availableOptions.classes || [], 'class');
+    const filteredRaces = this.filter.applyAllFilters(this.availableOptions.races || [], 'race');
+    const filteredBackgrounds = this.filter.applyAllFilters(this.availableOptions.backgrounds || [], 'background');
+    this._updateDerivedStats();
+
+    const asiCount = RulesEngine.countASIsByLevel(this.characterData.totalLevel || this.characterData.class.level || 1);
+
+    const selectedClassName = this.characterData.class?.name || '';
+    const selectedClassData = (this.availableOptions.classes || []).find(c => c.name === selectedClassName);
+    const progression = typeof selectedClassData?.spellcasting === 'string' ? selectedClassData.spellcasting : null;
+    const isSpellcaster = !!(progression && progression !== 'none') || RulesEngine.isSpellcaster(selectedClassName);
+
+    const level = this.characterData.totalLevel || this.characterData.class?.level || 1;
+    const slotInfo = RulesEngine.getSpellSlots(selectedClassName, level);
+    const spellSlotArray = slotInfo?.slots || null;
+    let maxSpellLevel = 0;
+    if (spellSlotArray) {
+      spellSlotArray.forEach((count, idx) => { if (count > 0) maxSpellLevel = idx + 1; });
+    } else if (isSpellcaster) {
+      maxSpellLevel = level >= 17 ? 5 : level >= 11 ? 4 : level >= 7 ? 3 : level >= 3 ? 2 : level >= 1 ? 1 : 0;
+      if (String(selectedClassName).toLowerCase() === 'warlock' && level >= 1) {
+        maxSpellLevel = Math.min(5, Math.max(1, Math.ceil(level / 2)));
+      }
+    }
+    const cantripCount = RulesEngine.getCantripCount(selectedClassName, level);
+    const spellKnownCount = this._getSpellKnownBudget(selectedClassName, level);
+    const selectedCantrips = this.characterData.selectedCantrips || [];
+    const selectedSpells = this.characterData.selectedSpells || [];
+    const skillChoices = this._buildSkillChoices();
+    const skillsList = this._buildSkillsList(skillChoices);
+    const selectedSkillCount = (this.characterData.skillProficiencies || []).length;
+    const armorProfs = this._buildArmorProficiencies();
+    const weaponProfs = this._buildWeaponProficiencies();
+    const toolProfs = this._buildToolProficiencies();
+    const startingEquipment = this._buildStartingEquipmentView();
+    const selectedPackageItems = startingEquipment.selectedItems || [];
+    const featsList = this._buildFeatsList();
+    const selectedFeatCount = (this.characterData.chooseASI ? 1 : 0) + (this.characterData.feats?.length || 0);
+    const pointBuy = this._buildPointBuyView();
+
+    const derivedStats = {
+      hitPoints: this.characterData.hitPoints?.max || 0,
+      armorClass: this.characterData.armorClass || 10,
+      proficiencyBonus: this.characterData.proficiencyBonus || 2,
+      initiative: this.characterData.initiative || 0,
+      passivePerception: this.characterData.passivePerception || 10,
+      passiveInsight: this.characterData.passiveInsight || 10,
+      speed: this.characterData.speed?.walk || 30,
+      isSpellcaster,
+      cantripCount,
+      spellKnownCount,
+      maxSpellLevel,
+      spellSlots: spellSlotArray,
+      selectedCantripCount: selectedCantrips.length,
+      selectedSpellCount: selectedSpells.length,
+      abilityModifiers: {
+        str: this._getAbilityModifier('str'),
+        dex: this._getAbilityModifier('dex'),
+        con: this._getAbilityModifier('con'),
+        int: this._getAbilityModifier('int'),
+        wis: this._getAbilityModifier('wis'),
+        cha: this._getAbilityModifier('cha')
+      }
+    };
+
+    return {
+      character: this.characterData,
+      characterData: this.characterData,
+      derivedStats,
+      asiCount,
+      isLoading: !!this._contentLoading,
+      contentLoaded: !!AxyumAppBase._cachedOptions,
+      mode: this.mode,
+      currentPage: this.navigation.getCurrentPage(),
+      currentPageIndex: this.navigation.getCurrentPageIndex(),
+      currentStepLabel: this.navigation.getPageLabel(this.navigation.getCurrentPage()),
+      totalPages: this.navigation.getTotalPages(),
+      progressPercent: Math.round(((this.navigation.getCurrentPageIndex() + 1) / Math.max(1, this.navigation.getTotalPages())) * 100),
+      isFirstPage: this.navigation.isFirstPage(),
+      isLastPage: this.navigation.isLastPage(),
+      steps: this.navigation.getSteps(),
+      version: game.modules.get('ld-axyum')?.version || '1.0.1',
+      classes: filteredClasses,
+      races: filteredRaces,
+      backgrounds: filteredBackgrounds,
+      spells: this.availableOptions.spells,
+      spellsByLevel: this._buildSpellsByLevel(selectedClassName, maxSpellLevel, isSpellcaster),
+      equipment: this._buildEquipmentList(),
+      startingEquipment,
+      selectedPackageItems,
+      feats: featsList,
+      featsList,
+      selectedFeatCount,
+      abilities: this.availableOptions.abilities,
+      skillsList,
+      skillChoices,
+      selectedSkillCount,
+      pointBuy,
+      rolledScores: this.abilityManager.getRolledScores(),
+      diceBreakdowns: this.abilityManager.getDiceBreakdowns(),
+      rolledPool: this.abilityManager.getRolledPool(),
+      assignedAbilities: this.abilityManager.getAssignedAbilities(),
+      rerollStatus: this.abilityManager.getRerollStatus(),
+      canReroll: this.abilityManager.canReroll(),
+      showHomebrew: this.filter.getHomebrewVisibility(),
+      selectedRoleIndex: this.filter.getSelectedRole(),
+      roleImages: ROLE_CARD_IMAGES,
+      equipmentFilter: this.currentEquipmentFilter,
+      selectedEquipmentCount: this.characterData.selectedEquipmentIds?.length || 0,
+      maxStartingItems: selectedPackageItems.length || 0,
+      selectionPercent: 100,
+      availableLanguages: this._buildLanguageList(),
+      armorProficiencies: armorProfs,
+      weaponProficiencies: weaponProfs,
+      toolProficiencies: toolProfs,
+      armorGrantCount: armorProfs.filter((a) => a.granted).length,
+      weaponGrantCount: weaponProfs.filter((w) => w.granted).length,
+      toolGrantCount: toolProfs.filter((t) => t.granted).length,
+      languageGrants: this._getLanguageGrants(),
+      toolGrants: this._getToolGrants(),
+      selectedLanguageCount: this.characterData.proficiencies?.languages?.length || 0,
+      totalLanguageSlots: this._getTotalLanguageSlots()
+    };
+  }
+
+  // ===== LIFECYCLE =====
+
+  async _preRender(context, options) {
+    await super._preRender?.(context, options);
+    const content = this.element?.querySelector('.axyum-content');
+    if (content) this._savedScrollTop = content.scrollTop;
+  }
+
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    requestAnimationFrame(() => {
+      this._setupDragDrop();
+      this._updateAbilitySummary();
+      this._setupSpellCheckboxes();
+      this._setupFormInputs();
+      if (this._savedScrollTop !== undefined) {
+        const content = this.element?.querySelector('.axyum-content');
+        if (content) content.scrollTop = this._savedScrollTop;
+      }
+    });
+  }
+
+  _setupSpellCheckboxes() {
+    const html = this.element;
+    if (!html || html.dataset.axyumSpellsBound === 'true') return;
+    html.dataset.axyumSpellsBound = 'true';
+
+    html.addEventListener('change', (e) => {
+      const input = e.target;
+      if (!(input instanceof HTMLInputElement) || input.type !== 'checkbox') return;
+      if (input.name !== 'cantrips' && input.name !== 'spells') return;
+
+      const key = input.name === 'cantrips' ? 'selectedCantrips' : 'selectedSpells';
+      if (!Array.isArray(this.characterData[key])) this.characterData[key] = [];
+
+      const id = input.value;
+      const className = this.characterData.class?.name || '';
+      const level = this.characterData.totalLevel || this.characterData.class?.level || 1;
+      const maxCantrips = RulesEngine.getCantripCount(className, level);
+      const maxSpells = this._getSpellKnownBudget(className, level);
+
+      if (input.checked) {
+        if (key === 'selectedCantrips' && maxCantrips > 0 && this.characterData[key].length >= maxCantrips) {
+          input.checked = false;
+          ui.notifications?.warn?.(`You can only select ${maxCantrips} cantrips.`);
+          return;
+        }
+        if (key === 'selectedSpells' && maxSpells > 0 && this.characterData[key].length >= maxSpells) {
+          input.checked = false;
+          ui.notifications?.warn?.(`You can only select ${maxSpells} spells for this class/level.`);
+          return;
+        }
+        if (!this.characterData[key].includes(id)) this.characterData[key].push(id);
+      } else {
+        this.characterData[key] = this.characterData[key].filter((x) => x !== id);
+      }
+
+      input.closest('.axyum-spell-card')?.classList.toggle('is-selected', input.checked);
+      this.render();
+    });
+  }
+
+  _setupFormInputs() {
+    const html = this.element;
+    if (!html) return;
+    const inputs = html.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
+    inputs.forEach(input => {
+      if (input.name === 'skillProficiencies') return;
+      if (input.hasAttribute('data-action')) return;
+      input.addEventListener('change', (e) => this._onFormInputChange(e));
+      input.addEventListener('blur', (e) => this._onFormInputChange(e));
+    });
+  }
+
+  _updateAbilitySummary() {
+    const html = this.element;
+    if (!html) return;
+    const method = this.characterData?.abilityMethod;
+    // Point Buy assigns every score by definition; roll/standard-array track explicit assignment.
+    const values = method === 'pointbuy'
+      ? Object.values(this.characterData?.abilities || {}).filter(v => typeof v === 'number')
+      : Object.values(this.abilityManager?.assignedAbilities || {}).filter(v => typeof v === 'number');
+    const total = values.reduce((sum, v) => sum + v, 0);
+    const count = values.length;
+    const totalEl = html.querySelector('#ability-total');
+    const countEl = html.querySelector('#assigned-count');
+    if (totalEl) totalEl.textContent = total > 0 ? total : '--';
+    if (countEl) countEl.textContent = `${count} / 6`;
+  }
+
+  _setupDragDrop() {
+    const html = this.element;
+    if (!html) return;
+    html.querySelectorAll('.draggable-score').forEach(el => {
+      el.addEventListener('dragstart', this._onDragStart.bind(this));
+      el.addEventListener('dragend', this._onDragEnd.bind(this));
+    });
+    html.querySelectorAll('.ability-drop-zone').forEach(zone => {
+      zone.addEventListener('dragover', this._onDragOver.bind(this));
+      zone.addEventListener('dragleave', this._onDragLeave.bind(this));
+      zone.addEventListener('drop', this._onDrop.bind(this));
+    });
+  }
+
+  setPosition(position = {}) {
+    if (!this.element) return;
+    const safePosition = {
+      width: position?.width ?? this.options.position?.width ?? 1400,
+      height: position?.height ?? this.options.position?.height ?? 900,
+      top: position?.top ?? this.options.position?.top ?? 50,
+      left: position?.left ?? this.options.position?.left ?? 50
+    };
+    try {
+      return super.setPosition?.(safePosition);
+    } catch (err) {
+      console.warn('AxyumApp | Position update failed:', err.message);
+    }
+  }
+
+  _updatePosition(position) {
+    const element = this.element;
+    if (!element) return;
+    if (!position || typeof position !== 'object') return;
+    try {
+      return super._updatePosition?.(position);
+    } catch (err) {
+      console.warn('AxyumApp | Position update skipped:', err.message);
+    }
+  }
+
+  async _onClose(options) {
+    this.characterData = null;
+    this.availableOptions = null;
+    this.navigation = null;
+    this.abilityManager = null;
+    this.filter = null;
+    this.creator = null;
+    this.rollTables = null;
+    return super._onClose?.(options);
+  }
+}
+
+// Compose mixins: context builders + both action handler halves
+export const AxyumApp = AxyumActionHandlersChoices(AxyumActionHandlers(AxyumContextBuilders(AxyumAppBase)));
+
+AxyumApp.DEFAULT_OPTIONS.actions = {
+  next: AxyumApp.prototype.onNext,
+  previous: AxyumApp.prototype.onPrevious,
+  create: AxyumApp.prototype.onCreate,
+  save: AxyumApp.prototype.onSave,
+  selectClass: AxyumApp.prototype.onSelectClass,
+  selectRace: AxyumApp.prototype.onSelectRace,
+  selectBackground: AxyumApp.prototype.onSelectBackground,
+  rollAbility: AxyumApp.prototype.onRollAbility,
+  rollAllAbilities: AxyumApp.prototype.onRollAllAbilities,
+  assignScore: AxyumApp.prototype.onAssignScore,
+  unassignScore: AxyumApp.prototype.onUnassignScore,
+  useStandardArray: AxyumApp.prototype.onUseStandardArray,
+  usePointBuy: AxyumApp.prototype.onUsePointBuy,
+  increaseAbilityScore: AxyumApp.prototype.onIncreaseAbilityScore,
+  decreaseAbilityScore: AxyumApp.prototype.onDecreaseAbilityScore,
+  resetAbilities: AxyumApp.prototype.onResetAbilities,
+  assignScoreClick: AxyumApp.prototype.onAssignScoreClick,
+  rollTrait: AxyumApp.prototype.onRollTrait,
+  filterCompendium: AxyumApp.prototype.onFilterCompendium,
+  toggleHomebrew: AxyumApp.prototype.onToggleHomebrew,
+  selectRole: AxyumApp.prototype.onSelectRole,
+  configureCompendia: AxyumApp.prototype.onConfigureCompendia,
+  filterEquipment: AxyumApp.prototype.onFilterEquipment,
+  toggleEquipment: AxyumApp.prototype.onToggleEquipment,
+  selectStartingPackage: AxyumApp.prototype.onSelectStartingPackage,
+  selectPackageChoice: AxyumApp.prototype.onSelectPackageChoice,
+  toggleLanguage: AxyumApp.prototype.onToggleLanguage,
+  toggleArmorProf: AxyumApp.prototype.onToggleArmorProf,
+  toggleWeaponProf: AxyumApp.prototype.onToggleWeaponProf,
+  toggleToolProf: AxyumApp.prototype.onToggleToolProf,
+  toggleSkill: AxyumApp.prototype.onToggleSkill,
+  toggleFeat: AxyumApp.prototype.onToggleFeat,
+  toggleASI: AxyumApp.prototype.onToggleASI
+};

@@ -1,108 +1,155 @@
-<div class="axyum-page">
-  <h2 class="axyum-page-title">Choose Your Party Role</h2>
-  <p class="axyum-page-description">
-    Select a party dynamic role that defines how your character contributes to the team. This is NOT your class - any class can lean into multiple roles depending on build and playstyle. Your selection will help recommend suitable classes.
-  </p>
-
-  <div class="axyum-selection-grid role-grid">
-    <button type="button" class="axyum-selection-card axyum-role-select {{#if (eq selectedRoleIndex 0)}}selected{{/if}}" data-action="selectRole" data-role-index="0">
-      <i class="fas fa-shield-alt"></i>
-      <h3 class="axyum-selection-card-title">Tank (Defender)</h3>
-      <p class="axyum-selection-card-desc">Frontline protector who draws fire</p>
-    </button>
-    <button type="button" class="axyum-selection-card axyum-role-select {{#if (eq selectedRoleIndex 1)}}selected{{/if}}" data-action="selectRole" data-role-index="1">
-      <i class="fas fa-bolt"></i>
-      <h3 class="axyum-selection-card-title">Striker (Damage Dealer)</h3>
-      <p class="axyum-selection-card-desc">High-output specialist, kills key targets</p>
-    </button>
-    <button type="button" class="axyum-selection-card axyum-role-select {{#if (eq selectedRoleIndex 2)}}selected{{/if}}" data-action="selectRole" data-role-index="2">
-      <i class="fas fa-chess-board"></i>
-      <h3 class="axyum-selection-card-title">Controller</h3>
-      <p class="axyum-selection-card-desc">Controls space, tempo, and enemy movement</p>
-    </button>
-    <button type="button" class="axyum-selection-card axyum-role-select {{#if (eq selectedRoleIndex 3)}}selected{{/if}}" data-action="selectRole" data-role-index="3">
-      <i class="fas fa-hands-helping"></i>
-      <h3 class="axyum-selection-card-title">Support (Buffer)</h3>
-      <p class="axyum-selection-card-desc">Boosts allies through buffs and advantages</p>
-    </button>
-    <button type="button" class="axyum-selection-card axyum-role-select {{#if (eq selectedRoleIndex 4)}}selected{{/if}}" data-action="selectRole" data-role-index="4">
-      <i class="fas fa-heart"></i>
-      <h3 class="axyum-selection-card-title">Healer</h3>
-      <p class="axyum-selection-card-desc">Triage specialist, restores and revives</p>
-    </button>
-    <button type="button" class="axyum-selection-card axyum-role-select {{#if (eq selectedRoleIndex 5)}}selected{{/if}}" data-action="selectRole" data-role-index="5">
-      <i class="fas fa-tools"></i>
-      <h3 class="axyum-selection-card-title">Skill Monkey</h3>
-      <p class="axyum-selection-card-desc">Utility expert for exploration and traps</p>
-    </button>
-    <button type="button" class="axyum-selection-card axyum-role-select {{#if (eq selectedRoleIndex 6)}}selected{{/if}}" data-action="selectRole" data-role-index="6">
-      <i class="fas fa-comment-dots"></i>
-      <h3 class="axyum-selection-card-title">Face (Social Leader)</h3>
-      <p class="axyum-selection-card-desc">Spokesperson, excels in diplomacy</p>
-    </button>
-    <button type="button" class="axyum-selection-card axyum-role-select {{#if (eq selectedRoleIndex 7)}}selected{{/if}}" data-action="selectRole" data-role-index="7">
-      <i class="fas fa-asterisk"></i>
-      <h3 class="axyum-selection-card-title">Custom / Flexible</h3>
-      <p class="axyum-selection-card-desc">Show all classes without filtering</p>
-    </button>
-  </div>
-
-  {{#if (ne selectedRoleIndex null)}}
-    <div class="role-detail-panel">
-      <h3>{{#if (eq selectedRoleIndex 0)}}Tank (Defender){{else}}{{#if (eq selectedRoleIndex 1)}}Striker (Damage Dealer){{else}}{{#if (eq selectedRoleIndex 2)}}Controller{{else}}{{#if (eq selectedRoleIndex 3)}}Support (Buffer & Enhancer){{else}}{{#if (eq selectedRoleIndex 4)}}Healer{{else}}{{#if (eq selectedRoleIndex 5)}}Skill Monkey{{else}}{{#if (eq selectedRoleIndex 6)}}Face (Social Leader){{else}}Custom / Flexible{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}</h3>
-      
-      {{#if (eq selectedRoleIndex 0)}}
-        <p class="role-concept"><strong>Core Concept:</strong> The frontline protector. A tank's job is to draw enemy attention, soak up damage, and prevent weaker allies from getting hit.</p>
-        <p><strong>Typical Traits:</strong> Extremely high AC and HP. Defensive features that impose disadvantage, impose conditions, or reduce damage. Often occupies choke points or engages multiple foes at once.</p>
-        <p><strong>Tactics:</strong> Forces enemies to focus attacks on them via Compelled Duel, Sentinel, or Reckless Attack. Provides zone control through physical positioning or mechanics that punish disengagement.</p>
-        <p><strong>Example Classes/Subclasses:</strong> Fighter (Champion, Battle Master, Cavalier), Paladin (Any oath), Barbarian (Bear Totem or Zealot)</p>
-        <p><strong>In the Party:</strong> Keeps enemies off squishier allies and stabilizes chaotic fights.</p>
-      {{else}}{{#if (eq selectedRoleIndex 1)}}
-        <p class="role-concept"><strong>Core Concept:</strong> The high-output specialist who focuses on killing key targets fast.</p>
-        <p><strong>Typical Traits:</strong> Exceptional damage per round (DPR), often through advantage stacking or extra attacks/spells. Usually has weaker defenses but excels in action economy - bonus actions, reactions, etc. May specialize in burst damage (nova rounds) or consistent precision attacks.</p>
-        <p><strong>Tactics:</strong> Focuses on high-value targets (enemy casters, leaders). Times abilities around allies' control setups for lethal combos.</p>
-        <p><strong>Example Classes/Subclasses:</strong> Rogue (Assassin or Swashbuckler), Ranger (Gloom Stalker or Hunter), Fighter (Champion or Samurai), Sorcerer (Draconic or Shadow)</p>
-        <p><strong>In the Party:</strong> They end threats quickly, reducing incoming damage for everyone else.</p>
-      {{else}}{{#if (eq selectedRoleIndex 2)}}
-        <p class="role-concept"><strong>Core Concept:</strong> Controls space, tempo, and enemy movement - the tactician's role.</p>
-        <p><strong>Typical Traits:</strong> Spells or effects that restrict movement, reduce visibility, or cause status effects. High area-of-effect coverage and burst positioning effects like Entangle, Web, or Wall of Force. Good battlefield awareness; thrives on predicting enemy behavior.</p>
-        <p><strong>Tactics:</strong> Shapes encounters by cutting off escapes, funneling enemies, or locking down powerful foes. Combines well with Tanks who can hold enemies in zones like Spirit Guardians or Spike Growth.</p>
-        <p><strong>Example Classes/Subclasses:</strong> Wizard (Evocation or Conjuration), Druid (Land or Moon), Cleric (Tempest or Light)</p>
-        <p><strong>In the Party:</strong> Keeps the battlefield manageable while the team picks off enemies efficiently.</p>
-      {{else}}{{#if (eq selectedRoleIndex 3)}}
-        <p class="role-concept"><strong>Core Concept:</strong> Boosts allies' performance through buffs, advantages, and resource management.</p>
-        <p><strong>Typical Traits:</strong> Features that enhance attack rolls, saving throws, or provide temporary HP. Highly synergistic - thrives when all allies coordinate. Often provides utility outside combat (e.g., inspiration, guidance, or ritual casting).</p>
-        <p><strong>Tactics:</strong> Uses spells like Bless, Heroism, or Haste to empower allies. Manages concentration to sustain key effects over multiple rounds.</p>
-        <p><strong>Example Classes/Subclasses:</strong> Bard (College of Lore or Valor), Cleric (Life, Peace, or Twilight), Paladin (Ancients or Devotion)</p>
-        <p><strong>In the Party:</strong> Makes everyone else more effective, turning good rolls into great ones.</p>
-      {{else}}{{#if (eq selectedRoleIndex 4)}}
-        <p class="role-concept"><strong>Core Concept:</strong> The party's triage specialist - restores HP, removes conditions, and keeps the group alive through tough encounters.</p>
-        <p><strong>Typical Traits:</strong> Spells for restoration, protection, and revival (Healing Word, Lesser Restoration, Revivify). Deep understanding of resource economy and timing: when to heal, when to push damage instead. Often overlaps with Support but focuses on reactive aid over proactive buffs.</p>
-        <p><strong>Tactics:</strong> Keeps key allies alive during focus fire scenarios. Preemptive use of spells and positioning to prevent downed states.</p>
-        <p><strong>Example Classes/Subclasses:</strong> Cleric (Life, Grave, or Order), Druid (Dreams), Paladin (Lay on Hands and Aura Protection)</p>
-        <p><strong>In the Party:</strong> Enables extended adventuring and recovers from tactical mistakes.</p>
-      {{else}}{{#if (eq selectedRoleIndex 5)}}
-        <p class="role-concept"><strong>Core Concept:</strong> The utility expert - handles exploration, infiltration, traps, and problem-solving outside raw combat.</p>
-        <p><strong>Typical Traits:</strong> High Dexterity or Intelligence, lots of skill proficiencies, often Expertise in key skills. Can function as a scout, investigator, or trap-springer. Always has a tool, plan, or workaround ready.</p>
-        <p><strong>Tactics:</strong> Uses stealth or investigation to give the party an upper hand before battle. Provides critical information, shortcuts, or tactical setup advantages.</p>
-        <p><strong>Example Classes/Subclasses:</strong> Rogue (Thief, Arcane Trickster), Bard (Lore), Ranger (Gloom Stalker)</p>
-        <p><strong>In the Party:</strong> Keeps exploration efficient and prevents ambushes, saves spell slots for others.</p>
-      {{else}}{{#if (eq selectedRoleIndex 6)}}
-        <p class="role-concept"><strong>Core Concept:</strong> The spokesperson - excels in persuasion, deception, intimidation, and negotiation.</p>
-        <p><strong>Typical Traits:</strong> High Charisma, proficiency in social skills. Strong RP drive - guides the story through dialog choices and diplomacy. Often overlaps with Support or Skill Monkey roles.</p>
-        <p><strong>Tactics:</strong> Talks the party into or out of trouble, securing allies, deals, or information. Can shift entire campaigns through roleplay influence.</p>
-        <p><strong>Example Classes/Subclasses:</strong> Bard (any), Paladin (Devotion or Ancients), Warlock (Fiend or Archfey), Sorcerer (Divine Soul or Enchanter)</p>
-        <p><strong>In the Party:</strong> Owns social encounters and reduces the need for combat through words.</p>
-      {{else}}
-        <p class="role-concept"><strong>Flexible Approach:</strong> You prefer to explore all options without role-based recommendations. All classes will be shown on the next page.</p>
-        <p><strong>Note:</strong> Many builds can flex between two or three roles - for example, a Bard might cover Support + Face + Skill Monkey, while a Paladin might handle Tank + Support + Healer.</p>
-      {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}
-    </div>
-  {{/if}}
-
-  <div style="margin-top: 2rem;">
-    <p style="font-size: 0.9rem; color: var(--axyum-accent);">
-      <em>Note: A well-balanced party typically covers at least 4 of these roles. Role selection will filter recommended classes on the next page.</em>
+<div class="axyum-page axyum-role-page">
+  <header class="page-intro">
+    <p class="page-kicker">Party dynamics</p>
+    <h2 class="axyum-page-title">How do you fight beside the party?</h2>
+    <p class="axyum-page-description">
+      Pick a contribution style — not a class. Any class can lean into several roles;
+      this only shapes which classes we recommend next.
     </p>
+  </header>
+
+  <div class="axyum-role-studio">
+    <div class="axyum-role-rail" role="listbox" aria-label="Party roles">
+      <button type="button" class="axyum-pick-option {{#if (eq selectedRoleIndex 0)}}is-selected{{/if}}" data-action="selectRole" data-role-index="0" role="option" aria-selected="{{#if (eq selectedRoleIndex 0)}}true{{else}}false{{/if}}">
+        <span class="axyum-pick-glyph" aria-hidden="true"><img class="axyum-pick-portrait" src="{{lookup roleImages 'Tank'}}" alt=""></span>
+        <span class="axyum-pick-copy">
+          <span class="axyum-pick-title">Tank</span>
+          <span class="axyum-pick-sub">Defender · draws fire</span>
+        </span>
+      </button>
+      <button type="button" class="axyum-pick-option {{#if (eq selectedRoleIndex 1)}}is-selected{{/if}}" data-action="selectRole" data-role-index="1" role="option" aria-selected="{{#if (eq selectedRoleIndex 1)}}true{{else}}false{{/if}}">
+        <span class="axyum-pick-glyph" aria-hidden="true"><img class="axyum-pick-portrait" src="{{lookup roleImages 'Striker'}}" alt=""></span>
+        <span class="axyum-pick-copy">
+          <span class="axyum-pick-title">Striker</span>
+          <span class="axyum-pick-sub">Damage · ends threats</span>
+        </span>
+      </button>
+      <button type="button" class="axyum-pick-option {{#if (eq selectedRoleIndex 2)}}is-selected{{/if}}" data-action="selectRole" data-role-index="2" role="option" aria-selected="{{#if (eq selectedRoleIndex 2)}}true{{else}}false{{/if}}">
+        <span class="axyum-pick-glyph" aria-hidden="true"><img class="axyum-pick-portrait" src="{{lookup roleImages 'Controller'}}" alt=""></span>
+        <span class="axyum-pick-copy">
+          <span class="axyum-pick-title">Controller</span>
+          <span class="axyum-pick-sub">Tempo · shapes the field</span>
+        </span>
+      </button>
+      <button type="button" class="axyum-pick-option {{#if (eq selectedRoleIndex 3)}}is-selected{{/if}}" data-action="selectRole" data-role-index="3" role="option" aria-selected="{{#if (eq selectedRoleIndex 3)}}true{{else}}false{{/if}}">
+        <span class="axyum-pick-glyph" aria-hidden="true"><img class="axyum-pick-portrait" src="{{lookup roleImages 'Support'}}" alt=""></span>
+        <span class="axyum-pick-copy">
+          <span class="axyum-pick-title">Support</span>
+          <span class="axyum-pick-sub">Buffer · lifts the party</span>
+        </span>
+      </button>
+      <button type="button" class="axyum-pick-option {{#if (eq selectedRoleIndex 4)}}is-selected{{/if}}" data-action="selectRole" data-role-index="4" role="option" aria-selected="{{#if (eq selectedRoleIndex 4)}}true{{else}}false{{/if}}">
+        <span class="axyum-pick-glyph" aria-hidden="true"><img class="axyum-pick-portrait" src="{{lookup roleImages 'Healer'}}" alt=""></span>
+        <span class="axyum-pick-copy">
+          <span class="axyum-pick-title">Healer</span>
+          <span class="axyum-pick-sub">Triage · keeps people up</span>
+        </span>
+      </button>
+      <button type="button" class="axyum-pick-option {{#if (eq selectedRoleIndex 5)}}is-selected{{/if}}" data-action="selectRole" data-role-index="5" role="option" aria-selected="{{#if (eq selectedRoleIndex 5)}}true{{else}}false{{/if}}">
+        <span class="axyum-pick-glyph" aria-hidden="true"><img class="axyum-pick-portrait" src="{{lookup roleImages 'Skill Monkey'}}" alt=""></span>
+        <span class="axyum-pick-copy">
+          <span class="axyum-pick-title">Skill Monkey</span>
+          <span class="axyum-pick-sub">Utility · solves the map</span>
+        </span>
+      </button>
+      <button type="button" class="axyum-pick-option {{#if (eq selectedRoleIndex 6)}}is-selected{{/if}}" data-action="selectRole" data-role-index="6" role="option" aria-selected="{{#if (eq selectedRoleIndex 6)}}true{{else}}false{{/if}}">
+        <span class="axyum-pick-glyph" aria-hidden="true"><img class="axyum-pick-portrait" src="{{lookup roleImages 'Face'}}" alt=""></span>
+        <span class="axyum-pick-copy">
+          <span class="axyum-pick-title">Face</span>
+          <span class="axyum-pick-sub">Social · owns the room</span>
+        </span>
+      </button>
+      <button type="button" class="axyum-pick-option {{#if (eq selectedRoleIndex 7)}}is-selected{{/if}}" data-action="selectRole" data-role-index="7" role="option" aria-selected="{{#if (eq selectedRoleIndex 7)}}true{{else}}false{{/if}}">
+        <span class="axyum-pick-glyph" aria-hidden="true"><img class="axyum-pick-portrait" src="{{lookup roleImages 'Flexible'}}" alt=""></span>
+        <span class="axyum-pick-copy">
+          <span class="axyum-pick-title">Flexible</span>
+          <span class="axyum-pick-sub">No filter · show everything</span>
+        </span>
+      </button>
+    </div>
+
+    <aside class="axyum-role-stage">
+      {{#if (ne selectedRoleIndex null)}}
+        <div class="axyum-role-detail">
+          <p class="page-kicker">Selected role</p>
+          <h3 class="axyum-role-detail-title">
+            {{#if (eq selectedRoleIndex 0)}}Tank — Defender
+            {{else if (eq selectedRoleIndex 1)}}Striker — Damage
+            {{else if (eq selectedRoleIndex 2)}}Controller
+            {{else if (eq selectedRoleIndex 3)}}Support — Buffer
+            {{else if (eq selectedRoleIndex 4)}}Healer
+            {{else if (eq selectedRoleIndex 5)}}Skill Monkey
+            {{else if (eq selectedRoleIndex 6)}}Face — Social
+            {{else}}Flexible — All classes{{/if}}
+          </h3>
+
+          {{#if (eq selectedRoleIndex 0)}}
+            <p class="axyum-role-lede">Frontline protector. Draw attention, soak hits, and keep weaker allies off the menu.</p>
+            <dl class="axyum-role-facts">
+              <div><dt>Traits</dt><dd>High AC / HP, defensive locks, choke-point control</dd></div>
+              <div><dt>Tactics</dt><dd>Compelled Duel, Sentinel, Reckless Attack — force focus fire onto you</dd></div>
+              <div><dt>Fits</dt><dd>Fighter, Paladin, Barbarian (Bear / Zealot)</dd></div>
+            </dl>
+          {{else if (eq selectedRoleIndex 1)}}
+            <p class="axyum-role-lede">High-output specialist. Delete priority targets before they act twice.</p>
+            <dl class="axyum-role-facts">
+              <div><dt>Traits</dt><dd>Strong DPR, advantage stacking, burst or precision focus</dd></div>
+              <div><dt>Tactics</dt><dd>Hunt casters and leaders; combo off ally control</dd></div>
+              <div><dt>Fits</dt><dd>Rogue, Ranger, Fighter, Sorcerer</dd></div>
+            </dl>
+          {{else if (eq selectedRoleIndex 2)}}
+            <p class="axyum-role-lede">Shapes space and tempo. Lock movement, blind sightlines, dictate the map.</p>
+            <dl class="axyum-role-facts">
+              <div><dt>Traits</dt><dd>Zones, walls, conditions, battlefield awareness</dd></div>
+              <div><dt>Tactics</dt><dd>Funnel foes into tank zones; cut escape routes</dd></div>
+              <div><dt>Fits</dt><dd>Wizard, Druid, Cleric (Tempest / Light)</dd></div>
+            </dl>
+          {{else if (eq selectedRoleIndex 3)}}
+            <p class="axyum-role-lede">Makes everyone else better — buffs, advantage, and resource timing.</p>
+            <dl class="axyum-role-facts">
+              <div><dt>Traits</dt><dd>Bless / Haste / Inspiration, concentration management</dd></div>
+              <div><dt>Tactics</dt><dd>Empower allies before they swing; sustain key effects</dd></div>
+              <div><dt>Fits</dt><dd>Bard, Cleric, Paladin</dd></div>
+            </dl>
+          {{else if (eq selectedRoleIndex 4)}}
+            <p class="axyum-role-lede">Triage specialist. Restore HP, clear conditions, prevent downs.</p>
+            <dl class="axyum-role-facts">
+              <div><dt>Traits</dt><dd>Healing Word, restorations, revive tools, resource timing</dd></div>
+              <div><dt>Tactics</dt><dd>Reactive saves over overheal; prevent the first drop</dd></div>
+              <div><dt>Fits</dt><dd>Cleric, Druid (Dreams), Paladin</dd></div>
+            </dl>
+          {{else if (eq selectedRoleIndex 5)}}
+            <p class="axyum-role-lede">Utility expert for exploration, traps, scouting, and odd jobs.</p>
+            <dl class="axyum-role-facts">
+              <div><dt>Traits</dt><dd>Skill depth, Expertise, tools, investigation</dd></div>
+              <div><dt>Tactics</dt><dd>Win before combat — intel, shortcuts, trap clears</dd></div>
+              <div><dt>Fits</dt><dd>Rogue, Bard (Lore), Ranger</dd></div>
+            </dl>
+          {{else if (eq selectedRoleIndex 6)}}
+            <p class="axyum-role-lede">Spokesperson. Persuasion, deception, intimidation — talk past the fight.</p>
+            <dl class="axyum-role-facts">
+              <div><dt>Traits</dt><dd>High Charisma, social skills, strong RP drive</dd></div>
+              <div><dt>Tactics</dt><dd>Deals, intel, allies — reshape the session with words</dd></div>
+              <div><dt>Fits</dt><dd>Bard, Paladin, Warlock, Sorcerer</dd></div>
+            </dl>
+          {{else}}
+            <p class="axyum-role-lede">No role filter. Browse every class on the next page.</p>
+            <dl class="axyum-role-facts">
+              <div><dt>Note</dt><dd>Many builds cover two or three roles — Bard (Support + Face + Skills), Paladin (Tank + Support + Heal).</dd></div>
+            </dl>
+          {{/if}}
+        </div>
+      {{else}}
+        <div class="axyum-role-empty">
+          <i class="fas fa-compass" aria-hidden="true"></i>
+          <p>Select a role on the left to see how it plays at the table.</p>
+        </div>
+      {{/if}}
+    </aside>
   </div>
+
+  <p class="axyum-footnote">
+    A balanced party usually covers at least four of these. Next page lists every class from your books;
+    role matches are tagged “Fits role” and sorted to the top.
+  </p>
 </div>

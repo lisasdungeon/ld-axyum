@@ -3,10 +3,10 @@
  * Manages loading orchestration and caching for compendium content
  */
 
+import { logger } from './logger.js';
+import { itemPriority } from './content-loader.js';
+
 export class CompendiumCacheManager {
-  /**
-   * Clear cache for specific category
-   */
   static clearCacheForCategory(cache, category) {
     switch (category) {
       case 'classes':
@@ -24,150 +24,138 @@ export class CompendiumCacheManager {
       case 'spells':
         cache.spells = null;
         break;
+      case 'equipment':
+        cache.equipment = null;
+        break;
     }
   }
 
   /**
-   * Get enabled compendia from settings
+   * Get enabled compendia from settings.
+   * Empty result = permissive mode (caller loads all packs).
    */
   static getEnabledCompendia() {
-    // Get settings from game settings
     let settings;
     try {
       settings = game.settings.get('ld-axyum', 'enabledCompendia');
     } catch (err) {
-      console.warn('CompendiumCacheManager | Could not read enabledCompendia setting:', err.message);
-      return []; // Return empty = permissive mode (load all packs)
+      logger.warn('Could not read enabledCompendia setting:', err.message);
+      return [];
     }
-    
-    console.log('CompendiumCacheManager | Raw settings:', settings);
-    
-    // Handle array format (legacy or direct list)
+
     if (Array.isArray(settings)) {
-        console.log('CompendiumCacheManager | Settings is array, returning:', settings);
-        return settings;
+      return settings.filter(Boolean);
     }
-    
-    // Handle object format (map of id -> boolean)
+
     const enabledMap = settings || {};
-    
-    // Convert map to array of pack IDs
-    const enabledPacks = Object.entries(enabledMap)
-      .filter(([packId, isEnabled]) => isEnabled)
+    return Object.entries(enabledMap)
+      .filter(([, isEnabled]) => isEnabled)
       .map(([packId]) => packId);
-    
-    console.log('CompendiumCacheManager | Enabled packs:', enabledPacks);
-      
-    return enabledPacks;
   }
 
-  /**
-   * Load all available content from enabled compendia with caching
-   */
-  static async loadAllContent(loader, cache, isLoading, loadPromise) {
-    // Return existing promise if already loading
-    if (isLoading && loadPromise) {
-      return loadPromise;
-    }
-
-    // Return cached data if already loaded
-    if (cache.classes && cache.classes.length > 0 && 
-        cache.races && cache.races.length > 0 && 
-        cache.backgrounds && cache.backgrounds.length > 0) {
-      return cache;
-    }
-
-    return loader._performLoad();
+  /** Always include official book Item packs when present in the world. */
+  static getOfficialBookPacks() {
+    if (!game?.packs) return [];
+    const prefer = [
+      /^dnd-players-handbook\./i,
+      /^dnd-tashas-cauldron\./i,
+      /^dnd-dungeon-masters-guide\./i,
+      /^dnd5e\.(classes|classes24|races|origins24|backgrounds|spells|spells24|feats|feats24|items|equipment24)/i
+    ];
+    const nonItem = new Set(['Actor', 'JournalEntry', 'RollTable', 'Macro', 'Playlist', 'Scene', 'Adventure', 'Cards']);
+    return Array.from(game.packs)
+      .filter((pack) => {
+        const docName = pack?.documentName || pack?.metadata?.documentName || pack?.metadata?.type;
+        if (nonItem.has(docName)) return false;
+        return prefer.some((re) => re.test(pack.collection));
+      })
+      .map((pack) => pack.collection);
   }
 
-  /**
-   * Perform the actual loading of all content types
-   */
   static async performLoad(contentLoader, cache, transformers) {
     let enabled = this.getEnabledCompendia();
+    const official = this.getOfficialBookPacks();
 
-    // If no compendia are enabled via settings, default to all available packs.
-    // This avoids unnecessary warnings and ensures content is still loaded.
-    if (enabled.length === 0) {
-      enabled = Array.from(game.packs.values()).map(pack => pack.collection);
+    // Permissive default: load from every Item pack when nothing is configured.
+    // Only exclude packs positively identified as non-Item — never exclude on an
+    // unrecognized/empty docName, or a Foundry API quirk silently empties the wizard.
+    if (enabled.length === 0 && game?.packs) {
+      const nonItem = new Set(['Actor', 'JournalEntry', 'RollTable', 'Macro', 'Playlist', 'Scene', 'Adventure', 'Cards']);
+      enabled = Array.from(game.packs)
+        .filter((pack) => {
+          const docName = pack?.documentName || pack?.metadata?.documentName || pack?.metadata?.type;
+          return !nonItem.has(docName);
+        })
+        .map((pack) => pack.collection);
+    } else if (enabled.length > 0 && official.length > 0) {
+      // Settings may have been saved before books were installed — merge them in
+      enabled = Array.from(new Set([...enabled, ...official]));
     }
 
-    console.log('CompendiumCacheManager | performLoad starting', {
-      enabledCompendia: enabled,
+    logger.log('performLoad starting', {
       enabledCount: enabled.length,
       availablePacks: game?.packs?.size || 0
     });
 
     if (enabled.length === 0) {
-      console.warn('CompendiumCacheManager | No compendia available to load. Ensure your world has compendium packs.');
+      logger.warn('No Item compendia available to load.');
     }
 
-    try {
-      console.log('CompendiumCacheManager | Loading classes...');
-      const classes = await contentLoader.loadItemType('class', enabled, transformers.ClassTransformer.transform);
-      console.log('CompendiumCacheManager | Classes loaded:', classes?.length || 0);
-      
-      console.log('CompendiumCacheManager | Loading races...');
-      const races = await contentLoader.loadItemType('race', enabled, transformers.RaceTransformer.transform);
-      console.log('CompendiumCacheManager | Races loaded:', races?.length || 0);
-      
-      console.log('CompendiumCacheManager | Loading backgrounds...');
-      const backgrounds = await contentLoader.loadItemType('background', enabled, transformers.BackgroundTransformer.transform);
-      console.log('CompendiumCacheManager | Backgrounds loaded:', backgrounds?.length || 0);
-      
-      console.log('CompendiumCacheManager | Loading spells...');
-      const spells = await contentLoader.loadItemType('spell', enabled, transformers.SpellTransformer.transform);
-      console.log('CompendiumCacheManager | Spells loaded:', spells?.length || 0);
-      
-      console.log('CompendiumCacheManager | Loading equipment (including weapons/tools)...');
-      const equipmentTypes = ['equipment', 'weapon', 'tool', 'consumable'];
-      let equipment = [];
-      for (const type of equipmentTypes) {
-        try {
-          const items = await contentLoader.loadItemType(type, enabled, transformers.EquipmentTransformer.transform);
-          equipment = equipment.concat(items || []);
-        } catch (err) {
-          console.warn(`CompendiumCacheManager | Failed to load equipment type ${type}`, err);
-        }
+    const loadType = async (type, transformer) => {
+      let items = await contentLoader.loadItemType(type, enabled, transformer);
+      // If a filtered pack list yields nothing, fall back to every Item pack
+      if ((!items || items.length === 0) && enabled.length > 0) {
+        logger.warn(`${type} empty with enabled filter — scanning all Item packs`);
+        items = await contentLoader.loadItemType(type, [], transformer);
       }
-      // Deduplicate by name to avoid weapon/equipment duplicates from multiple sources.
-      const seen = new Set();
-      equipment = equipment.filter(item => {
+      return items || [];
+    };
+
+    try {
+      const [classes, races, backgrounds, spells, feats, ...equipmentChunks] = await Promise.all([
+        loadType('class', transformers.ClassTransformer.transform),
+        loadType('race', transformers.RaceTransformer.transform),
+        loadType('background', transformers.BackgroundTransformer.transform),
+        loadType('spell', transformers.SpellTransformer.transform),
+        loadType('feat', transformers.FeatTransformer.transform),
+        loadType('equipment', transformers.EquipmentTransformer.transform),
+        loadType('weapon', transformers.EquipmentTransformer.transform),
+        loadType('tool', transformers.EquipmentTransformer.transform),
+        loadType('consumable', transformers.EquipmentTransformer.transform)
+      ]);
+
+      const bestEquip = new Map();
+      for (const item of equipmentChunks.flat()) {
         const key = (item?.name || '').toLowerCase().trim();
-        if (!key || seen.has(key)) return false;
-        seen.add(key);
-        return true;
+        if (!key) continue;
+        const prev = bestEquip.get(key);
+        if (!prev || itemPriority(item) > itemPriority(prev)) bestEquip.set(key, item);
+      }
+      const equipment = Array.from(bestEquip.values());
+
+      cache.classes = classes || [];
+      cache.races = races || [];
+      cache.backgrounds = backgrounds || [];
+      cache.spells = spells || [];
+      cache.equipment = equipment;
+      cache.feats = feats || [];
+      cache.features = cache.features || [];
+
+      logger.log('All content loaded', {
+        classes: cache.classes.length,
+        races: cache.races.length,
+        backgrounds: cache.backgrounds.length,
+        spells: cache.spells.length,
+        equipment: cache.equipment.length,
+        feats: cache.feats.length
       });
 
-      console.log('CompendiumCacheManager | Equipment loaded (merged, deduped):', equipment?.length || 0);
-      
-      console.log('CompendiumCacheManager | Loading feats...');
-      const feats = await contentLoader.loadItemType('feat', enabled, transformers.FeatTransformer.transform);
-      console.log('CompendiumCacheManager | Feats loaded:', feats?.length || 0);
-      
-      cache.classes = classes;
-      cache.races = races;
-      cache.backgrounds = backgrounds;
-      cache.spells = spells;
-      cache.equipment = equipment;
-      cache.feats = feats;
-      
-      console.log('CompendiumCacheManager | All content loaded successfully', {
-        classes: classes?.length || 0,
-        races: races?.length || 0,
-        backgrounds: backgrounds?.length || 0,
-        spells: spells?.length || 0,
-        equipment: equipment?.length || 0,
-        feats: feats?.length || 0
-      });
-      
       return cache;
     } catch (err) {
-      console.error('CompendiumCacheManager | Load error', err);
-      return cache;
+      logger.error('Load error', err);
+      throw err;
     }
   }
 }
 
-// ES module export
 export default CompendiumCacheManager;

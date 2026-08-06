@@ -16,6 +16,7 @@ import { ProficiencyBonusAutomation } from './core/proficiency-bonus-automation.
 import CompendiumLoader from './core/compendium-loader.js';
 import { CompendiumSelector } from './ui/modals/compendium-selector.js';
 import { MODULE_ID, forceRender, getOpenApp } from './core/multipath.js';
+import { Dnd5eCharacterSheet } from './systems/dnd5e/sheet/dnd5e-sheet.js';
 
 // ============================================
 // Module Initialization
@@ -289,6 +290,22 @@ Hooks.once('init', async () => {
 
   } catch (e) {
     console.warn('LD Axyum | Settings registration error', e);
+  }
+
+  // Register the Axyum character sheet as an available option for dnd5e characters.
+  // makeDefault is false — only characters created by the wizard (flagged with
+  // core.sheetClass) open with it automatically; others keep their existing sheet.
+  if (game.system?.id === 'dnd5e') {
+    try {
+      const DocumentSheetConfig = foundry.applications.apps.DocumentSheetConfig;
+      DocumentSheetConfig.registerSheet(Actor, MODULE_ID, Dnd5eCharacterSheet, {
+        types: ['character'],
+        makeDefault: false,
+        label: 'LD Axyum Character Sheet'
+      });
+    } catch (e) {
+      console.warn('LD Axyum | Character sheet registration error', e);
+    }
   }
 });
 

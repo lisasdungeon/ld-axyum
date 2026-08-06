@@ -1,0 +1,138 @@
+/* LD Axyum - Point Buy ability score UI */
+
+/* --- Point Buy --- */
+.point-buy-panel {
+  background: var(--axyum-bg-card);
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius, 8px);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.point-buy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.point-buy-header h3 {
+  margin: 0;
+  color: var(--axyum-text-light);
+  font-size: 1.1rem;
+}
+
+.point-buy-budget {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--axyum-border);
+  background: rgba(125, 211, 252, 0.08);
+}
+
+.point-buy-budget.is-spent {
+  border-color: var(--axyum-accent);
+  box-shadow: var(--axyum-glow);
+}
+
+.budget-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--axyum-text-muted);
+}
+
+.budget-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--axyum-accent);
+}
+
+.point-buy-instructions {
+  color: var(--axyum-text-muted);
+  font-size: 0.85rem;
+  margin: 0 0 1rem;
+}
+
+.point-buy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.point-buy-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--axyum-border);
+  border-radius: var(--axyum-radius-sm, 5px);
+  background: var(--axyum-bg-input);
+}
+
+.pb-ability-label {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.pb-ability-label .ability-abbr {
+  font-weight: 700;
+  color: var(--axyum-text-light);
+}
+
+.pb-ability-label .ability-full {
+  font-size: 0.7rem;
+  color: var(--axyum-text-muted);
+}
+
+.pb-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pb-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--axyum-border-strong);
+  background: var(--axyum-bg-elevated, var(--axyum-bg-card));
+  color: var(--axyum-text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.pb-btn:hover:not(:disabled) {
+  background: var(--axyum-accent);
+  color: var(--axyum-bg-dark);
+  transform: scale(1.08);
+}
+
+.pb-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pb-score {
+  min-width: 1.75rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--axyum-text-strong, var(--axyum-text-light));
+  font-size: 1.05rem;
+}
+
+.pb-modifier {
+  min-width: 2.25rem;
+  text-align: right;
+  font-size: 0.85rem;
+  color: var(--axyum-text-muted);
+}

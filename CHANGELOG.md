@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Compliance pass: sole author Lisa's Dungeon with Discord MystryssLysa, email Lisasdungeon@gmail.com, and Patreon LisasDungeon.
+- Enforced the 500 LOC file cap for styles, templates, and tests.
+- Removed non-Lisa branding references from package metadata and docs.
+
 ## [1.0.1] - 2026-07-30
 
 - Fixed the GM Hub launching the wrong character wizard for a selected game system instead of using that system's own registered wizard class.
@@ -12,7 +18,7 @@
 
 ## [1.0.0] - 2026-07-24
 
-- Rebranded the module as LD Axyum under Lisa's Dungeon.
+- Released as LD Axyum under Lisa's Dungeon.
 - Removed the logo component, logo variants, logo styles, and logo template references.
 - Updated module identifiers, localization namespaces, runtime APIs, selectors, paths, and release metadata.
 - Preserved lazy loading, event-driven initialization, GM hub behavior, and system adapters.

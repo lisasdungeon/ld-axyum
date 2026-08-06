@@ -123,6 +123,8 @@
       "MulticlassHint": "Check this box to add multiple classes to your character. Each class can have 1-20 levels, with a total of 20 levels maximum.",
       "NoClassesSelected": "No classes selected yet. Click 'Add Class' to get started.",
       "NoFeatsSelected": "No feats selected yet.",
+      "NoFeatsAvailable": "No feats available. Enable more compendia in Configure Compendia Sources.",
+      "NoCompendiumContent": "No content found. Open Configure Compendia Sources (top of the character creator) and enable at least one compendium.",
       "LoadingSpellSlots": "Calculating spell slots...",
       "SpellSlotPreview": "Spell slots will be calculated based on your class levels."
     },

@@ -33,6 +33,16 @@ export class CharacterCreator {
 
       Hooks.callAll('axyum.beforeCharacterCreate', characterData);
 
+      // Sync wizard skill picks (skillProficiencies[]) into skills.*.proficient
+      if (Array.isArray(characterData.skillProficiencies) && characterData.skillProficiencies.length) {
+        if (!characterData.skills || typeof characterData.skills !== 'object') characterData.skills = {};
+        for (const key of characterData.skillProficiencies) {
+          const k = String(key);
+          if (!characterData.skills[k]) characterData.skills[k] = { proficient: false, expertise: false };
+          characterData.skills[k].proficient = true;
+        }
+      }
+
       // Create the actor with proper D&D 5e system data (classes/levels, skills, proficiencies)
       const actor = await Dnd5eActorAdapter.createActor(characterData);
       if (!actor) throw new Error('Actor.create returned null — check console for Foundry errors');

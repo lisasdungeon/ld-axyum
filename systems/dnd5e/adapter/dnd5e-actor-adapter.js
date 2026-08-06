@@ -18,6 +18,7 @@ export class Dnd5eActorAdapter {
       type: 'character',
       img: characterData.details?.portrait || 'icons/svg/mystery-man.svg',
       system: actorData,
+      flags: { core: { sheetClass: 'ld-axyum.Dnd5eCharacterSheet' } },
       ...options
     });
 
@@ -141,12 +142,21 @@ export class Dnd5eActorAdapter {
       performance: 'prf', persuasion: 'per', religion: 'rel',
       sleightOfHand: 'slt', stealth: 'ste', survival: 'sur'
     };
+    // Foundry's skill schema defaults "ability" to dex when it's left unset,
+    // so every skill must get its real governing ability explicitly.
+    const skillAbility = {
+      acr: 'dex', ani: 'wis', arc: 'int', ath: 'str', dec: 'cha',
+      his: 'int', ins: 'wis', itm: 'cha', inv: 'int', med: 'wis',
+      nat: 'int', prc: 'wis', prf: 'cha', per: 'cha', rel: 'int',
+      slt: 'dex', ste: 'dex', sur: 'wis'
+    };
 
     for (const [axyumKey, foundryKey] of Object.entries(skillMap)) {
       if (skills[axyumKey]) {
         foundrySkills[foundryKey] = {
           value: skills[axyumKey].proficient ? 1 : 0,
-          bonus: skills[axyumKey].expertise ? 2 : 0
+          bonus: skills[axyumKey].expertise ? 2 : 0,
+          ability: skillAbility[foundryKey]
         };
       }
     }

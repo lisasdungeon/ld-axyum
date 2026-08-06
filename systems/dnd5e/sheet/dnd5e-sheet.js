@@ -1,424 +1,290 @@
 /**
- * D&D 5e Character Sheet - Post-Apocalyptic Axyum Theme
- * Custom character sheet with Axyum post-apocalyptic aesthetic
+ * D&D 5e Character Sheet - LD Axyum Theme
+ * Registered Foundry actor sheet. Reads dnd5e's own computed derived data
+ * (abilities/skills/AC/initiative/etc.) instead of recalculating it, so
+ * values stay correct for armor, feats, and other bonuses dnd5e applies.
+ *
+ * Layout is a free-form, per-actor-saved canvas (see sheet-layout-manager.js
+ * and dnd5e-sheet-layout-actions.js) — every section is a widget the player
+ * can drag, resize, recolor, and assign to any page while "Edit Layout" is on.
  */
+import { normalizeLayout, computeCanvasSize } from './sheet-layout-manager.js';
+import { Dnd5eSheetLayoutActions } from './dnd5e-sheet-layout-actions.js';
 
-import { Dnd5eActorAdapter } from '../adapter/dnd5e-actor-adapter.js';
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { ActorSheetV2 } = foundry.applications.sheets;
 
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+const SKILL_ABILITY_FALLBACK = {
+  acr: 'dex', ani: 'wis', arc: 'int', ath: 'str', dec: 'cha',
+  his: 'int', ins: 'wis', itm: 'cha', inv: 'int', med: 'wis',
+  nat: 'int', prc: 'wis', prf: 'cha', per: 'cha', rel: 'int',
+  slt: 'dex', ste: 'dex', sur: 'wis'
+};
 
-class Dnd5eCharacterSheet extends HandlebarsApplicationMixin(ApplicationV2) {
+class Dnd5eCharacterSheetBase extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
-    id: 'dnd5e-character-sheet',
+    id: 'ld-axyum-dnd5e-sheet-{id}',
     tag: 'div',
     window: {
-      title: 'Character Sheet (Axyum Theme)',
+      title: 'Character Sheet (LD Axyum)',
       icon: 'fa-solid fa-user',
       resizable: true,
       minimizable: true
     },
-    classes: ['ld-axyum-sheet', 'dnd5e-sheet', 'axyum-post-apocalyptic'],
-    position: { width: 900, height: 700 },
-    actions: {
-      editAbility: Dnd5eCharacterSheet.prototype._onEditAbility,
-      rollAbility: Dnd5eCharacterSheet.prototype._onRollAbility,
-      rollSkill: Dnd5eCharacterSheet.prototype._onRollSkill,
-      rollSavingThrow: Dnd5eCharacterSheet.prototype._onRollSavingThrow,
-      toggleProficiency: Dnd5eCharacterSheet.prototype._onToggleProficiency,
-      editHitPoints: Dnd5eCharacterSheet.prototype._onEditHitPoints,
-      rollHitDie: Dnd5eCharacterSheet.prototype._onRollHitDie
-    }
+    classes: ['ld-axyum-sheet', 'dnd5e-sheet'],
+    position: { width: 1000, height: 750 },
+    actions: {}
   };
 
   static PARTS = {
     main: { template: 'modules/ld-axyum/systems/dnd5e/sheet/dnd5e-sheet.hbs' }
   };
 
-  constructor(actor, options = {}) {
+  constructor(options = {}) {
     super(options);
-    this.actor = actor;
-    this.system = actor.system;
+    this.editMode = false;
+    this.currentPageId = null;
   }
 
-  // ===== CONTEXT PREPARATION =====
+  // ActorSheetV2 is constructed with {document: actor}; `this.actor` is provided as an alias.
 
   async _prepareContext(options) {
-    const context = {
+    const spellcasting = this._prepareSpells();
+    const layout = normalizeLayout(this.actor.getFlag('ld-axyum', 'sheetLayout'), spellcasting.caster);
+    if (!this.currentPageId || !layout.pages.some((p) => p.id === this.currentPageId)) {
+      this.currentPageId = layout.pages[0].id;
+    }
+
+    const widgets = layout.widgets
+      .filter((w) => w.page === this.currentPageId)
+      .map((w) => ({ ...w, colorStyle: `--widget-color: ${w.color};` }));
+
+    return {
       actor: this.actor,
-      system: this.system,
+      system: this.actor.system,
       abilities: this._prepareAbilities(),
       skills: this._prepareSkills(),
       combat: this._prepareCombat(),
-      spellcasting: this._prepareSpellcasting(),
+      spellcasting,
       equipment: this._prepareEquipment(),
       features: this._prepareFeatures(),
-      biography: this._prepareBiography()
+      biography: this._prepareBiography(),
+      editMode: this.editMode,
+      pages: layout.pages.map((p) => ({ ...p, active: p.id === this.currentPageId })),
+      currentPageId: this.currentPageId,
+      widgets,
+      canvasSize: computeCanvasSize(layout, this.currentPageId)
     };
-
-    return context;
   }
 
-  /**
-   * Prepare ability scores for display
-   * @returns {Object} Formatted abilities
-   * @private
-   */
+  // ===== CONTEXT BUILDERS (read dnd5e's own derived data) =====
+
   _prepareAbilities() {
     const abilities = {};
-    const abilityNames = {
-      str: 'Strength',
-      dex: 'Dexterity',
-      con: 'Constitution',
-      int: 'Intelligence',
-      wis: 'Wisdom',
-      cha: 'Charisma'
-    };
-
-    for (const [key, name] of Object.entries(abilityNames)) {
-      const score = this.system.abilities[key]?.value || 10;
-      const modifier = Math.floor((score - 10) / 2);
-
+    const names = { str: 'Strength', dex: 'Dexterity', con: 'Constitution', int: 'Intelligence', wis: 'Wisdom', cha: 'Charisma' };
+    const sys = this.actor.system;
+    for (const [key, name] of Object.entries(names)) {
+      const a = sys.abilities?.[key] || {};
+      const mod = a.mod ?? Math.floor(((a.value ?? 10) - 10) / 2);
+      const save = a.save?.value ?? mod;
       abilities[key] = {
         name,
-        score,
-        modifier: modifier >= 0 ? `+${modifier}` : modifier,
-        savingThrow: this.system.abilities[key]?.proficient ? modifier : null
+        score: a.value ?? 10,
+        modifier: mod >= 0 ? `+${mod}` : `${mod}`,
+        savingThrow: save >= 0 ? `+${save}` : `${save}`,
+        saveProficient: !!a.saveProf?.hasProficiency
       };
     }
-
     return abilities;
   }
 
-  /**
-   * Prepare skills for display
-   * @returns {Array} Formatted skills
-   * @private
-   */
   _prepareSkills() {
+    const sys = this.actor.system;
     const skills = [];
-    const skillDefinitions = {
-      acr: { name: 'Acrobatics', ability: 'dex' },
-      ani: { name: 'Animal Handling', ability: 'wis' },
-      arc: { name: 'Arcana', ability: 'int' },
-      ath: { name: 'Athletics', ability: 'str' },
-      dec: { name: 'Deception', ability: 'cha' },
-      his: { name: 'History', ability: 'int' },
-      ins: { name: 'Insight', ability: 'wis' },
-      itm: { name: 'Intimidation', ability: 'cha' },
-      inv: { name: 'Investigation', ability: 'int' },
-      med: { name: 'Medicine', ability: 'wis' },
-      nat: { name: 'Nature', ability: 'int' },
-      prc: { name: 'Perception', ability: 'wis' },
-      prf: { name: 'Performance', ability: 'cha' },
-      per: { name: 'Persuasion', ability: 'cha' },
-      rel: { name: 'Religion', ability: 'int' },
-      slt: { name: 'Sleight of Hand', ability: 'dex' },
-      ste: { name: 'Stealth', ability: 'dex' },
-      sur: { name: 'Survival', ability: 'wis' }
-    };
-
-    for (const [key, def] of Object.entries(skillDefinitions)) {
-      const skill = this.system.skills[key] || { value: 0 };
-      const abilityScore = this.system.abilities[def.ability]?.value ?? 10;
-      const abilityMod = Math.floor((abilityScore - 10) / 2);
-      const proficiencyBonus = skill.value * (this._getProficiencyBonus());
-      const total = abilityMod + proficiencyBonus;
-
+    for (const [key, skill] of Object.entries(sys.skills || {})) {
+      const config = CONFIG.DND5E?.skills?.[key];
+      const label = config?.label ? game.i18n.localize(config.label) : key;
+      const total = skill.total ?? 0;
       skills.push({
         key,
-        name: def.name,
-        ability: def.ability.toUpperCase(),
-        proficient: skill.value > 0,
-        expertise: skill.value > 1,
-        modifier: total >= 0 ? `+${total}` : total
+        name: label,
+        ability: (skill.ability || SKILL_ABILITY_FALLBACK[key] || '').toUpperCase(),
+        proficient: (skill.value ?? 0) > 0,
+        expertise: (skill.value ?? 0) > 1,
+        modifier: total >= 0 ? `+${total}` : `${total}`
       });
     }
-
-    return skills;
+    return skills.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  /**
-   * Prepare combat stats
-   * @returns {Object} Combat data
-   * @private
-   */
   _prepareCombat() {
+    const sys = this.actor.system;
+    const init = sys.attributes?.init?.total ?? sys.attributes?.init?.mod ?? 0;
+    const hd = sys.attributes?.hd || {};
     return {
       hitPoints: {
-        current: this.system.attributes.hp?.value || 0,
-        max: this.system.attributes.hp?.max || 0,
-        temp: this.system.attributes.hp?.temp || 0
+        current: sys.attributes?.hp?.value ?? 0,
+        max: sys.attributes?.hp?.max ?? 0,
+        temp: sys.attributes?.hp?.temp ?? 0
       },
-      armorClass: this._calculateAC(),
-      initiative: this._calculateInitiative(),
-      speed: this.system.attributes.movement?.walk || 30,
-      hitDice: this.system.attributes.hitDice || '1d8'
+      armorClass: sys.attributes?.ac?.value ?? 10,
+      initiative: init >= 0 ? `+${init}` : `${init}`,
+      speed: sys.attributes?.movement?.walk ?? 30,
+      hitDice: `${hd.value ?? 0} / ${hd.max ?? 0}`,
+      proficiencyBonus: sys.attributes?.prof ?? 2
     };
   }
 
-  /**
-   * Prepare spellcasting data
-   * @returns {Object} Spellcasting data
-   * @private
-   */
-  _prepareSpellcasting() {
-    // Simplified spellcasting - expand as needed
-    return {
-      caster: this.system.details.spellcasting || false,
-      level: this.system.details.spellLevel || 0,
-      ability: this.system.attributes.spellcasting || 'int'
-    };
+  _prepareSpells() {
+    const sys = this.actor.system;
+    const slots = [];
+    for (let lvl = 1; lvl <= 9; lvl++) {
+      const s = sys.spells?.[`spell${lvl}`];
+      if (s?.max > 0) slots.push({ level: lvl, value: s.value ?? 0, max: s.max });
+    }
+    const pact = sys.spells?.pact;
+    if (pact?.max > 0) slots.push({ level: `${pact.level ? pact.level + ' ' : ''}Pact`, value: pact.value ?? 0, max: pact.max });
+
+    const spells = this.actor.items
+      .filter((i) => i.type === 'spell')
+      .map((i) => ({
+        id: i.id,
+        name: i.name,
+        level: i.system?.level || 0,
+        prepared: !!i.system?.preparation?.prepared
+      }))
+      .sort((a, b) => (a.level - b.level) || a.name.localeCompare(b.name));
+
+    return { caster: spells.length > 0 || slots.length > 0, slots, spells };
   }
 
-  /**
-   * Prepare equipment
-   * @returns {Array} Equipment items
-   * @private
-   */
   _prepareEquipment() {
-    // Get items from actor
     return this.actor.items
-      .filter(item => ['weapon', 'equipment', 'consumable', 'tool', 'loot'].includes(item.type))
-      .map(item => ({
+      .filter((item) => ['weapon', 'equipment', 'consumable', 'tool', 'loot', 'container'].includes(item.type))
+      .map((item) => ({
         name: item.name,
         type: item.type,
-        quantity: item.system.quantity || 1,
-        equipped: item.system.equipped || false
+        quantity: item.system?.quantity || 1,
+        equipped: item.system?.equipped || false
       }));
   }
 
-  /**
-   * Prepare features and traits
-   * @returns {Object} Features data
-   * @private
-   */
   _prepareFeatures() {
+    const sys = this.actor.system;
+    const raceItem = this.actor.items.find((i) => i.type === 'race' || i.type === 'species');
+    const bgItem = this.actor.items.find((i) => i.type === 'background');
+    const classItems = this.actor.items.filter((i) => i.type === 'class');
     return {
-      race: this.system.details.race?.name || '',
-      background: this.system.details.background?.name || '',
-      classes: Object.entries(this.system.classes || {}).map(([id, cls]) => ({
-        name: cls.name,
-        level: cls.level
-      }))
+      race: raceItem?.name || sys.details?.race?.name || sys.details?.race || '',
+      background: bgItem?.name || sys.details?.background?.name || sys.details?.background || '',
+      classes: classItems.map((cls) => ({ name: cls.name, level: cls.system?.levels ?? cls.system?.level ?? 1 }))
     };
   }
 
-  /**
-   * Prepare biography
-   * @returns {Object} Biography data
-   * @private
-   */
   _prepareBiography() {
+    const sys = this.actor.system;
     return {
-      personality: this.system.details.biography?.value || '',
-      ideals: '',
-      bonds: '',
-      flaws: '',
-      backstory: this.system.details.biography?.public || ''
+      personality: sys.details?.trait || '',
+      backstory: sys.details?.biography?.value || ''
     };
   }
 
-  /**
-   * Calculate Armor Class
-   * @returns {number} AC value
-   * @private
-   */
-  _calculateAC() {
-    // Simplified AC calculation - expand for full armor system
-    const dexScore = this.system.abilities.dex?.value ?? 10;
-    return 10 + Math.floor((dexScore - 10) / 2);
-  }
+  // ===== BASIC ROLL / EDIT HANDLERS =====
 
-  /**
-   * Calculate initiative modifier
-   * @returns {string} Initiative modifier
-   * @private
-   */
-  _calculateInitiative() {
-    const dexScore = this.system.abilities.dex?.value ?? 10;
-    const dexMod = Math.floor((dexScore - 10) / 2);
-    const modifier = dexMod >= 0 ? `+${dexMod}` : dexMod;
-    return modifier;
-  }
-
-  /**
-   * Get proficiency bonus
-   * @returns {number} Proficiency bonus
-   * @private
-   */
-  _getProficiencyBonus() {
-    const level = Object.values(this.system.classes || {}).reduce((sum, cls) => sum + (cls.level || 0), 0);
-    return Math.ceil(level / 4) + 1;
-  }
-
-  // ===== EVENT HANDLERS =====
-
-  async _onEditAbility(event, target) {
+  async onEditAbility(event, target) {
     const ability = target.dataset.ability;
-    const currentValue = this.system.abilities[ability]?.value || 10;
-
-    const newValue = await this._promptNumber('Edit Ability Score', currentValue, 3, 20);
-    if (newValue !== null && newValue !== currentValue) {
-      await this.actor.update({
-        [`system.abilities.${ability}.value`]: newValue
-      });
-      this.render();
+    const current = this.actor.system.abilities?.[ability]?.value ?? 10;
+    const value = await this._promptNumber('Edit Ability Score', current, 3, 30);
+    if (value !== null && value !== current) {
+      await this.actor.update({ [`system.abilities.${ability}.value`]: value });
     }
   }
 
-  async _onRollAbility(event, target) {
-    const ability = target.dataset.ability;
-    const abilityScore = this.system.abilities[ability]?.value ?? 10;
-    const modifier = Math.floor((abilityScore - 10) / 2);
-
-    const roll = new Roll('1d20 + @mod', { mod: modifier });
-    await roll.evaluate();
-    roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `${ability.toUpperCase()} Ability Check`
-    });
+  async onRollAbility(event, target) {
+    await this.actor.rollAbilityCheck({ ability: target.dataset.ability });
   }
 
-  async _onRollSkill(event, target) {
-    const skill = target.dataset.skill;
-    const skillData = this.system.skills[skill];
-    if (!skillData) return;
-
-    const ability = this._getSkillAbility(skill);
-    const abilityScore = this.system.abilities[ability]?.value ?? 10;
-    const abilityMod = Math.floor((abilityScore - 10) / 2);
-    const proficiencyBonus = skillData.value * this._getProficiencyBonus();
-    const modifier = abilityMod + proficiencyBonus;
-
-    const roll = new Roll('1d20 + @mod', { mod: modifier });
-    await roll.evaluate();
-    roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `${skill} Skill Check`
-    });
+  async onRollSkill(event, target) {
+    await this.actor.rollSkill({ skill: target.dataset.skill });
   }
 
-  async _onRollSavingThrow(event, target) {
-    const ability = target.dataset.ability;
-    const proficient = this.system.abilities[ability]?.proficient || false;
-    const abilityScore = this.system.abilities[ability]?.value ?? 10;
-    const abilityMod = Math.floor((abilityScore - 10) / 2);
-    const proficiencyBonus = proficient ? this._getProficiencyBonus() : 0;
-    const modifier = abilityMod + proficiencyBonus;
-
-    const roll = new Roll('1d20 + @mod', { mod: modifier });
-    await roll.evaluate();
-    roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `${ability.toUpperCase()} Saving Throw`
-    });
+  async onRollSavingThrow(event, target) {
+    await this.actor.rollSavingThrow({ ability: target.dataset.ability });
   }
 
-  async _onToggleProficiency(event, target) {
-    const type = target.dataset.type; // 'skill' or 'save'
+  async onToggleProficiency(event, target) {
+    const type = target.dataset.type;
     const key = target.dataset.key;
 
-    let currentValue = 0;
     if (type === 'skill') {
-      currentValue = this.system.skills[key]?.value || 0;
+      const current = this.actor.system.skills?.[key]?.value ?? 0;
+      await this.actor.update({ [`system.skills.${key}.value`]: current > 0 ? 0 : 1 });
     } else if (type === 'save') {
-      currentValue = this.system.abilities[key]?.proficient ? 1 : 0;
-    }
-
-    const newValue = currentValue > 0 ? 0 : 1;
-
-    if (type === 'skill') {
-      await this.actor.update({
-        [`system.skills.${key}.value`]: newValue
-      });
-    } else if (type === 'save') {
-      await this.actor.update({
-        [`system.abilities.${key}.proficient`]: newValue > 0
-      });
-    }
-
-    this.render();
-  }
-
-  async _onEditHitPoints(event, target) {
-    const type = target.dataset.type; // 'current', 'max', 'temp'
-    const currentValue = this.system.attributes.hp?.[type] || 0;
-
-    const newValue = await this._promptNumber(`Edit ${type.charAt(0).toUpperCase() + type.slice(1)} HP`, currentValue, 0, 999);
-    if (newValue !== null) {
-      await this.actor.update({
-        [`system.attributes.hp.${type}`]: newValue
-      });
-      this.render();
+      const proficient = this.actor.system.abilities?.[key]?.proficient;
+      await this.actor.update({ [`system.abilities.${key}.proficient`]: proficient ? 0 : 1 });
+    } else if (type === 'spellPrepared') {
+      const item = this.actor.items.get(key);
+      if (item) {
+        const prepared = !!item.system?.preparation?.prepared;
+        await item.update({ 'system.preparation.prepared': !prepared });
+      }
     }
   }
 
-  async _onRollHitDie(event, target) {
-    const hitDie = this.system.attributes.hitDice || '1d8';
-    const roll = new Roll(hitDie);
-    await roll.evaluate();
-    roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: 'Hit Die Recovery'
-    });
+  async onEditHitPoints(event, target) {
+    const type = target.dataset.type;
+    const current = this.actor.system.attributes?.hp?.[type] ?? 0;
+    const value = await this._promptNumber(`Edit ${type.charAt(0).toUpperCase()}${type.slice(1)} HP`, current, 0, 999);
+    if (value !== null) {
+      await this.actor.update({ [`system.attributes.hp.${type}`]: value });
+    }
   }
 
-  // ===== UTILITY METHODS =====
-
-  /**
-   * Get the ability associated with a skill
-   * @param {string} skill - Skill key
-   * @returns {string} Ability key
-   * @private
-   */
-  _getSkillAbility(skill) {
-    const skillAbilities = {
-      acr: 'dex', ani: 'wis', arc: 'int', ath: 'str', dec: 'cha',
-      his: 'int', ins: 'wis', itm: 'cha', inv: 'int', med: 'wis',
-      nat: 'int', prc: 'wis', prf: 'cha', per: 'cha', rel: 'int',
-      slt: 'dex', ste: 'dex', sur: 'wis'
-    };
-    return skillAbilities[skill] || 'str';
+  async onRollHitDie(event, target) {
+    await this.actor.rollHitDie();
   }
 
-  /**
-   * Prompt user for a number input
-   * @param {string} title - Dialog title
-   * @param {number} defaultValue - Default value
-   * @param {number} min - Minimum value
-   * @param {number} max - Maximum value
-   * @returns {Promise<number|null>} Entered value or null if cancelled
-   * @private
-   */
-  async _promptNumber(title, defaultValue, min = 0, max = 100) {
-    return new Promise(resolve => {
-      const dialog = new Dialog({
-        title,
-        content: `
-          <div style="margin: 1rem 0;">
-            <input type="number" id="number-input" value="${defaultValue}" min="${min}" max="${max}" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
-          </div>
-        `,
-        buttons: {
-          ok: {
-            label: 'OK',
-            callback: (html) => {
-              const root = html instanceof HTMLElement ? html : (html?.[0] ?? html?.element ?? html ?? null);
-              const input = root?.querySelector?.('#number-input');
-              const value = parseInt(input?.value || '', 10);
-              resolve(isNaN(value) ? null : Math.clamp(value, min, max));
-            }
-          },
-          cancel: {
-            label: 'Cancel',
-            callback: () => resolve(null)
-          }
-        },
-        default: 'ok'
-      });
-      dialog.render(true);
+  async onShowArtwork() {
+    new foundry.applications.apps.ImagePopout({ src: this.actor.img, uuid: this.actor.uuid }).render(true);
+  }
+
+  // ===== UTILITY =====
+
+  async _promptNumber(title, defaultValue, min = 0, max = 999) {
+    return foundry.applications.api.DialogV2.prompt({
+      window: { title },
+      content: `<div style="margin:0.5rem 0;"><input type="number" id="ld-axyum-number-input" value="${defaultValue}" min="${min}" max="${max}" style="width:100%;padding:0.5rem;"></div>`,
+      ok: {
+        label: 'OK',
+        callback: (event, button) => {
+          const value = parseInt(button.form.elements['ld-axyum-number-input']?.value ?? '', 10);
+          return isNaN(value) ? null : Math.clamp(value, min, max);
+        }
+      },
+      rejectClose: false
     });
   }
 }
+
+const Dnd5eCharacterSheet = Dnd5eSheetLayoutActions(Dnd5eCharacterSheetBase);
+
+Dnd5eCharacterSheet.DEFAULT_OPTIONS.actions = {
+  editAbility: Dnd5eCharacterSheet.prototype.onEditAbility,
+  rollAbility: Dnd5eCharacterSheet.prototype.onRollAbility,
+  rollSkill: Dnd5eCharacterSheet.prototype.onRollSkill,
+  rollSavingThrow: Dnd5eCharacterSheet.prototype.onRollSavingThrow,
+  toggleProficiency: Dnd5eCharacterSheet.prototype.onToggleProficiency,
+  editHitPoints: Dnd5eCharacterSheet.prototype.onEditHitPoints,
+  rollHitDie: Dnd5eCharacterSheet.prototype.onRollHitDie,
+  showArtwork: Dnd5eCharacterSheet.prototype.onShowArtwork,
+  toggleEditMode: Dnd5eCharacterSheet.prototype.onToggleEditMode,
+  switchPage: Dnd5eCharacterSheet.prototype.onSwitchPage,
+  addPage: Dnd5eCharacterSheet.prototype.onAddPage,
+  renamePage: Dnd5eCharacterSheet.prototype.onRenamePage,
+  deletePage: Dnd5eCharacterSheet.prototype.onDeletePage,
+  resetLayout: Dnd5eCharacterSheet.prototype.onResetLayout,
+  setWidgetColor: Dnd5eCharacterSheet.prototype.onSetWidgetColor,
+  movePageMenu: Dnd5eCharacterSheet.prototype.onMovePageMenu
+};
 
 export { Dnd5eCharacterSheet };
