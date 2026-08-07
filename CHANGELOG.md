@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Gap fix pass: Foundry 13/14 compatibility standardized; sole Lisa's Dungeon authorship retained.
+- Lazy-load / single-entry startup where applicable; optional features attach on ready.
+- Coverage and flake hardening for automated suites.
+
 - Compliance pass: sole author Lisa's Dungeon with Discord MystryssLysa, email Lisasdungeon@gmail.com, and Patreon LisasDungeon.
 - Enforced the 500 LOC file cap for styles, templates, and tests.
 - Removed non-Lisa branding references from package metadata and docs.

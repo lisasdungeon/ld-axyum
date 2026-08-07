@@ -400,8 +400,9 @@ class LevelScaler {
   }
 }
 
-// Export for use in axyum.mjs
-/* istanbul ignore next -- @preserve Environment-specific export */
+// Export for use in axyum.mjs and node tests
+export { LevelScaler };
+export default LevelScaler;
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = LevelScaler;
 }

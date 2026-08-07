@@ -12,7 +12,8 @@
   ],
   "license": "Proprietary",
   "scripts": {
-    "test": "node --test 'tests/**/*.test.mjs'"
+    "test": "node --test 'tests/**/*.test.mjs'",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include='core/**' --test-coverage-include='axyum.mjs' 'tests/**/*.test.mjs'"
   },
   "repository": {
     "type": "git",
