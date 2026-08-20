@@ -403,6 +403,3 @@ class LevelScaler {
 // Export for use in axyum.mjs and node tests
 export { LevelScaler };
 export default LevelScaler;
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = LevelScaler;
-}

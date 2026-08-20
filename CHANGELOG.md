@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2
+
+- Stopped overwriting Foundry's Handlebars `localize` helper (and other helpers that already exist). Replacing `localize` blanks core UI templates.
+- The shared localize helper now also skips registration when Foundry already provided `localize` or `format`.
+- Download URL uses `releases/latest/download/module.zip`.
+- Character wizard cache invalidation uses the live app class so subclass cache slots stay consistent.
+
 ## Unreleased
 
 - Gap fix pass: Foundry 13/14 compatibility standardized; sole Lisa's Dungeon authorship retained.

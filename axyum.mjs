@@ -30,7 +30,7 @@ const openAxyum = async () => {
   try {
     await initializeAxyumIfNeeded();
     if (game.ldAxyum?.open) {
-      return game.ldAxyum.open();
+      return await game.ldAxyum.open();
     }
     const existing = getOpenApp('gm-hub-app');
     if (existing) return forceRender(existing);
@@ -114,60 +114,60 @@ async function initializeAxyumIfNeeded() {
   }
 }
 
-function registerHandlebarsHelpers() {
-  Handlebars.registerHelper('eq', (a, b) => a === b);
-  Handlebars.registerHelper('ne', (a, b) => a !== b);
-  Handlebars.registerHelper('gt', (a, b) => a > b);
-  Handlebars.registerHelper('gte', (a, b) => a >= b);
-  Handlebars.registerHelper('lt', (a, b) => a < b);
-  Handlebars.registerHelper('lte', (a, b) => a <= b);
-  Handlebars.registerHelper('add', (a, b) => a + b);
-  Handlebars.registerHelper('sum', (a, b) => a + b);
-  Handlebars.registerHelper('includes', (arr, val) => Array.isArray(arr) && arr.includes(val));
-  Handlebars.registerHelper('subtract', (a, b) => a - b);
-  Handlebars.registerHelper('multiply', (a, b) => a * b);
-  Handlebars.registerHelper('divide', (a, b) => b !== 0 ? Math.floor(a / b) : 0);
-  Handlebars.registerHelper('abs', (a) => Math.abs(a));
-  Handlebars.registerHelper('percent', (current, total) => Math.round((current / (total || 1)) * 100));
-  Handlebars.registerHelper('localize', (key) => game.i18n?.localize?.(String(key)) || String(key));
-  Handlebars.registerHelper('uppercase', (str) => String(str || '').toUpperCase());
-  
-  // Format modifier with + or -
-  Handlebars.registerHelper('formatModifier', (value) => {
+function hasHandlebarsHelper(name) {
+  if (Handlebars.helpers?.[name]) return true;
+  if (typeof Handlebars.helpers?.get === 'function' && Handlebars.helpers.get(name)) return true;
+  return false;
+}
+
+function registerHandlebarsHelper(name, fn) {
+  if (hasHandlebarsHelper(name)) return;
+  Handlebars.registerHelper(name, fn);
+}
+
+export function registerHandlebarsHelpers() {
+  registerHandlebarsHelper('eq', (a, b) => a === b);
+  registerHandlebarsHelper('ne', (a, b) => a !== b);
+  registerHandlebarsHelper('gt', (a, b) => a > b);
+  registerHandlebarsHelper('gte', (a, b) => a >= b);
+  registerHandlebarsHelper('lt', (a, b) => a < b);
+  registerHandlebarsHelper('lte', (a, b) => a <= b);
+  registerHandlebarsHelper('add', (a, b) => a + b);
+  registerHandlebarsHelper('sum', (a, b) => a + b);
+  registerHandlebarsHelper('includes', (arr, val) => Array.isArray(arr) && arr.includes(val));
+  registerHandlebarsHelper('subtract', (a, b) => a - b);
+  registerHandlebarsHelper('multiply', (a, b) => a * b);
+  registerHandlebarsHelper('divide', (a, b) => b !== 0 ? Math.floor(a / b) : 0);
+  registerHandlebarsHelper('abs', (a) => Math.abs(a));
+  registerHandlebarsHelper('percent', (current, total) => Math.round((current / (total || 1)) * 100));
+  // Never replace Foundry's localize helper. Replacing it blanks core UI templates.
+  registerHandlebarsHelper('uppercase', (str) => String(str || '').toUpperCase());
+  registerHandlebarsHelper('localize', (key) => game.i18n?.localize?.(String(key)) || String(key));
+  registerHandlebarsHelper('formatModifier', (value) => {
     const num = Number(value) || 0;
     return num >= 0 ? `+${num}` : `${num}`;
   });
-  
-  // Calculate ability modifier from score
-  Handlebars.registerHelper('abilityMod', (score) => {
+  registerHandlebarsHelper('abilityMod', (score) => {
     const s = Number(score) || 10;
     const mod = Math.floor((s - 10) / 2);
     return mod >= 0 ? `+${mod}` : `${mod}`;
   });
-
-  // Sum multiple values (for ability totals)
-  Handlebars.registerHelper('sumAll', function() {
-    const args = Array.prototype.slice.call(arguments, 0, -1); // exclude options
+  registerHandlebarsHelper('sumAll', function() {
+    const args = Array.prototype.slice.call(arguments, 0, -1);
     return args.reduce((sum, val) => sum + (Number(val) || 0), 0);
   });
-  
-  // Join array with separator
-  Handlebars.registerHelper('join', (arr, separator) => {
+  registerHandlebarsHelper('join', (arr, separator) => {
     if (!Array.isArray(arr)) return '';
     return arr.join(separator || ', ');
   });
-  
-  // Repeat helper for loops
-  Handlebars.registerHelper('repeat', function(count, options) {
+  registerHandlebarsHelper('repeat', function(count, options) {
     let result = '';
     for (let i = 0; i < count; i++) {
       result += options.fn({ index: i });
     }
     return result;
   });
-  
-  // Lookup helper for array/object access
-  Handlebars.registerHelper('lookup', (obj, key) => {
+  registerHandlebarsHelper('lookup', (obj, key) => {
     if (!obj) return null;
     return obj[key];
   });

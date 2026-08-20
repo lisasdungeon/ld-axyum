@@ -437,7 +437,7 @@ button.axyum-package-card {
   gap: 0.4rem;
 }
 
-button.prof-card {
+.ld-axyum-window button.prof-card {
   appearance: none;
   -webkit-appearance: none;
   display: inline-flex;
@@ -454,13 +454,13 @@ button.prof-card {
   cursor: pointer;
 }
 
-button.prof-card.selected,
-button.prof-card.granted {
+.ld-axyum-window button.prof-card.selected,
+.ld-axyum-window button.prof-card.granted {
   border-color: var(--axyum-accent);
   background: rgba(125, 211, 252, 0.14);
 }
 
-button.prof-card:disabled {
+.ld-axyum-window button.prof-card:disabled {
   cursor: default;
 }
 

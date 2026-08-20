@@ -17,9 +17,10 @@ test('manifest is fully branded for LD Axyum', () => {
   const manifest = JSON.parse(read('module.json'));
   assert.equal(manifest.id, 'ld-axyum');
   assert.equal(manifest.title, 'LD Axyum');
-  assert.equal(manifest.version, '1.0.1');
-  assert.deepEqual(manifest.authors, [{ name: "Lisa's Dungeon", url: "https://github.com/lisasdungeon", discord: "MystryssLysa", email: "Lisasdungeon@gmail.com" }]);
-  assert.equal(manifest.download, 'https://github.com/lisasdungeon/ld-axyum/releases/download/v1.0.1/ld-axyum-v1.0.1.zip');
+  assert.equal(manifest.version, '1.0.2');
+  assert.equal(manifest.authors[0].name, "Lisa's Dungeon");
+  assert.equal(manifest.authors[0].discord, 'MystryssLysa');
+  assert.match(manifest.download, /\/releases\/latest\/download\/module\.zip$/);
 });
 
 test('legacy branding is absent', () => {

@@ -207,7 +207,7 @@ class SpellManagement {
   /**
    * Update spell slots after rest
    */
-  static updateSpellSlotsOnRest(actor, restType = 'long') {
+  static async updateSpellSlotsOnRest(actor, restType = 'long') {
     try {
       const slotFlags = actor.getFlag('ld-axyum', 'spellSlots') || {};
 
@@ -227,7 +227,8 @@ class SpellManagement {
         }
       }
 
-      return actor.setFlag('ld-axyum', 'spellSlots', slotFlags);
+      await actor.setFlag('ld-axyum', 'spellSlots', slotFlags);
+      return slotFlags;
     } catch (err) {
       console.error('LD Axyum | Failed to update spell slots on rest:', err);
       return null;
@@ -266,7 +267,8 @@ class SpellManagement {
         }
       });
 
-      return actor.setFlag('ld-axyum', 'spellSlots', slots);
+      await actor.setFlag('ld-axyum', 'spellSlots', slots);
+      return slots;
     } catch (err) {
       console.error('LD Axyum | Failed to initialize spell slots:', err);
       return null;

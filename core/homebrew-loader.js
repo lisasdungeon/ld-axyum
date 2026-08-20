@@ -47,19 +47,12 @@ export class HomebrewLoader {
   static extractModuleSource(packCollection) {
     if (!packCollection) return 'Unknown';
 
-    // Try to extract module name from pack collection
-    const parts = packCollection.split('.');
-    if (parts.length > 0) {
-      const moduleName = parts[0];
-      
-      // Format module name nicer
-      return moduleName
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    }
-
-    return packCollection;
+    // Prefer module id segment before the first '.' (Foundry pack collection form)
+    const moduleName = String(packCollection).split('.')[0] || String(packCollection);
+    return moduleName
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 
   /**

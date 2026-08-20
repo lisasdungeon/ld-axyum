@@ -25,18 +25,19 @@ class AxyumAppBase extends HandlebarsApplicationMixin(ApplicationV2) {
   static _cachedModuleVersion = null;
 
   static invalidateContentCache() {
-    AxyumAppBase._cachedOptions = null;
-    AxyumAppBase._cachePromise = null;
-    AxyumAppBase._cachedModuleVersion = null;
+    // Use `this` so subclass (composed AxyumApp) cache slots stay consistent
+    this._cachedOptions = null;
+    this._cachePromise = null;
+    this._cachedModuleVersion = null;
   }
 
   static _ensureCacheFresh() {
     const version = game.modules.get('ld-axyum')?.version || '';
-    if (AxyumAppBase._cachedModuleVersion && AxyumAppBase._cachedModuleVersion !== version) {
-      AxyumAppBase.invalidateContentCache();
+    if (this._cachedModuleVersion && this._cachedModuleVersion !== version) {
+      this.invalidateContentCache();
       game.ldAxyum?.compendiumLoader?.clearCache?.();
     }
-    AxyumAppBase._cachedModuleVersion = version;
+    this._cachedModuleVersion = version;
   }
 
   static DEFAULT_OPTIONS = {
@@ -76,7 +77,7 @@ class AxyumAppBase extends HandlebarsApplicationMixin(ApplicationV2) {
     this.creator = new CharacterCreator(this.availableOptions);
     this.rollTables = new RollTableManager();
     this.currentEquipmentFilter = '';
-    this._contentLoading = !AxyumAppBase._cachedOptions;
+    this._contentLoading = !this.constructor._cachedOptions;
   }
 
   /** Resolve data-action host even when Foundry passes an icon/child or null target. */
@@ -90,14 +91,14 @@ class AxyumAppBase extends HandlebarsApplicationMixin(ApplicationV2) {
   // ===== CONTEXT PREPARATION =====
 
   async _prepareContext(options) {
-    AxyumAppBase._ensureCacheFresh();
-    if (!AxyumAppBase._cachedOptions) {
+    this.constructor._ensureCacheFresh();
+    if (!this.constructor._cachedOptions) {
       this._contentLoading = true;
-      if (!AxyumAppBase._cachePromise) {
-        AxyumAppBase._cachePromise = this._loadAvailableOptions();
+      if (!this.constructor._cachePromise) {
+        this.constructor._cachePromise = this._loadAvailableOptions();
       }
       try {
-        await AxyumAppBase._cachePromise;
+        await this.constructor._cachePromise;
       } catch (err) {
         logger.error('Failed to load data:', err);
       } finally {
@@ -105,9 +106,9 @@ class AxyumAppBase extends HandlebarsApplicationMixin(ApplicationV2) {
       }
     }
 
-    if (AxyumAppBase._cachedOptions) {
-      this.availableOptions = AxyumAppBase._cachedOptions;
-      this.creator.availableOptions = AxyumAppBase._cachedOptions;
+    if (this.constructor._cachedOptions) {
+      this.availableOptions = this.constructor._cachedOptions;
+      this.creator.availableOptions = this.constructor._cachedOptions;
       this._contentLoading = false;
     }
 
@@ -182,7 +183,7 @@ class AxyumAppBase extends HandlebarsApplicationMixin(ApplicationV2) {
       derivedStats,
       asiCount,
       isLoading: !!this._contentLoading,
-      contentLoaded: !!AxyumAppBase._cachedOptions,
+      contentLoaded: !!this.constructor._cachedOptions,
       mode: this.mode,
       currentPage: this.navigation.getCurrentPage(),
       currentPageIndex: this.navigation.getCurrentPageIndex(),

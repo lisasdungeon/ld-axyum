@@ -100,9 +100,8 @@ class CompendiumLoader {
   }
 
   static _extractModuleSource(packCollection) {
-    const parts = packCollection.split('.');
-    if (parts.length > 0) return parts[0].replace(/-/g, ' ').toUpperCase();
-    return 'HOMEBREW';
+    const moduleId = String(packCollection || '').split('.')[0] || 'homebrew';
+    return moduleId.replace(/-/g, ' ').toUpperCase() || 'HOMEBREW';
   }
 
   clearCacheForCategory(category) {
