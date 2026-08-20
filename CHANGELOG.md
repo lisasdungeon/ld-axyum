@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3
+
+- Added a client setting to show or hide the left scene control button.
+
 ## 1.0.2
 
 - Stopped overwriting Foundry's Handlebars `localize` helper (and other helpers that already exist). Replacing `localize` blanks core UI templates.

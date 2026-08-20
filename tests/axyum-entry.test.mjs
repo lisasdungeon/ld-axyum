@@ -204,6 +204,13 @@ test('axyum.mjs registers hooks, helpers, API, and scene controls', async () => 
     assert.equal(noGm.length, 0);
     globalThis.game.user.isGM = true;
 
+    const previousGet = globalThis.game.settings.get;
+    globalThis.game.settings.get = (_m, key) => (key === 'showSceneControlButton' ? false : {});
+    const hidden = [{ name: 'token', tools: [] }];
+    for (const cb of globalThis.Hooks._on.get('getSceneControlButtons') || []) cb(hidden);
+    assert.equal(hidden[0].tools.length, 0);
+    globalThis.game.settings.get = previousGet;
+
     // actor directory inject
     const footer = Object.assign(Object.create(HTMLElement.prototype), {
       children: [],

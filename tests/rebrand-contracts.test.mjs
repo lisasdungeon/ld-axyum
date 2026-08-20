@@ -17,7 +17,8 @@ test('manifest is fully branded for LD Axyum', () => {
   const manifest = JSON.parse(read('module.json'));
   assert.equal(manifest.id, 'ld-axyum');
   assert.equal(manifest.title, 'LD Axyum');
-  assert.equal(manifest.version, '1.0.2');
+  const pkg = JSON.parse(read('package.json'));
+  assert.equal(manifest.version, pkg.version);
   assert.equal(manifest.authors[0].name, "Lisa's Dungeon");
   assert.equal(manifest.authors[0].discord, 'MystryssLysa');
   assert.match(manifest.download, /\/releases\/latest\/download\/module\.zip$/);
@@ -59,6 +60,7 @@ test('loaded CSS blocks remain balanced', () => {
 
 test('all module files meet the 500-line cap', () => {
   for (const file of files) {
+    if (file.endsWith('.zip') || file.endsWith('.png') || file.endsWith('.wav')) continue;
     const lineCount = fs.readFileSync(file, 'utf8').split(/\r?\n/).length - 1;
     assert.ok(lineCount <= 500, `${path.relative(root, file)} has ${lineCount} lines`);
   }

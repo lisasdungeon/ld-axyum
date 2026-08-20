@@ -280,6 +280,16 @@ Hooks.once('init', async () => {
       }
     });
 
+    game.settings.register(MODULE_ID, 'showSceneControlButton', {
+      name: 'Show Scene Control Button',
+      hint: 'Show the LD Axyum button on the left scene control bar.',
+      scope: 'client',
+      config: true,
+      type: Boolean,
+      default: true,
+      onChange: () => ui.controls?.render?.({ force: true })
+    });
+
     // Multipath Object shapes (never bare Array)
     game.settings.register(MODULE_ID, 'contentSources', {
       scope: 'world',
@@ -314,6 +324,7 @@ Hooks.once('init', async () => {
 // ============================================
 Hooks.on('getSceneControlButtons', (controls) => {
   if (!game.user?.isGM) return;
+  try { if (game.settings.get(MODULE_ID, 'showSceneControlButton') === false) return; } catch { /* not registered yet */ }
 
   const toolId = 'ld-axyum-open-hub';
   const tool = {
