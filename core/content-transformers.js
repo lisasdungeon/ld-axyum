@@ -96,7 +96,11 @@ function formatSize(size) {
 
 function extractDarkvision(traits, movement, topLevelSenses) {
   const senses = topLevelSenses || traits?.senses || movement?.senses || {};
-  const dv = senses.darkvision ?? senses.value?.darkvision ?? traits?.darkvision;
+  const own = Object.getOwnPropertyDescriptor(senses, 'darkvision');
+  const dv = senses.ranges?.darkvision
+    ?? senses.value?.darkvision
+    ?? (own && 'value' in own ? own.value : undefined)
+    ?? traits?.darkvision;
   if (dv == null || dv === false) return null;
   const n = Number(dv);
   return Number.isFinite(n) && n > 0 ? `${n} ft darkvision` : 'Darkvision';

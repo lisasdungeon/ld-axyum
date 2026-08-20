@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4
+
+- Race compendium loading no longer reads `senses.darkvision`. DnD5e 5.3 stores that value on `senses.ranges.darkvision`, and the old getter logs a deprecation warning (or throws in strict compatibility mode) for every species document.
+
 ## 1.0.3
 
 - Added a client setting to show or hide the left scene control button.

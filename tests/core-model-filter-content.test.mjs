@@ -163,6 +163,38 @@ test('compendium filter and content transformers cover item shapes', async () =>
     id: 'r2', name: 'Human', system: { traits: { size: 'lg', darkvision: false }, movement: { walk: 30 } }
   }, 'world').darkvision, null);
 
+  const rangedSenses = { ranges: { darkvision: 90 } };
+  Object.defineProperty(rangedSenses, 'darkvision', {
+    get() {
+      throw new Error('senses.darkvision has moved to "senses.ranges.darkvision".');
+    }
+  });
+  assert.equal(transformers.RaceTransformer.transform({
+    id: 'r3', name: 'Drow', system: { traits: { size: 'med' }, movement: { walk: 30 }, senses: rangedSenses }
+  }, 'world').darkvision, '90 ft darkvision');
+  assert.equal(transformers.RaceTransformer.transform({
+    id: 'r4', name: 'Deep', system: { traits: { size: 'med' }, movement: { walk: 30 }, senses: { value: { darkvision: 45 } } }
+  }, 'world').darkvision, '45 ft darkvision');
+
+  const getterOnly = {};
+  Object.defineProperty(getterOnly, 'darkvision', {
+    get() {
+      throw new Error('senses.darkvision has moved to "senses.ranges.darkvision".');
+    }
+  });
+  assert.equal(transformers.RaceTransformer.transform({
+    id: 'r5', name: 'Getter', system: { traits: { size: 'med' }, movement: { walk: 30 }, senses: getterOnly }
+  }, 'world').darkvision, null);
+  assert.equal(transformers.RaceTransformer.transform({
+    id: 'r6', name: 'TraitDv', system: { traits: { size: 'med', darkvision: 15 }, movement: { walk: 30 }, senses: getterOnly }
+  }, 'world').darkvision, '15 ft darkvision');
+  assert.equal(transformers.RaceTransformer.transform({
+    id: 'r7', name: 'MoveSense', system: { traits: { size: 'med' }, movement: { walk: 30, senses: { darkvision: 25 } } }
+  }, 'world').darkvision, '25 ft darkvision');
+  assert.equal(transformers.RaceTransformer.transform({
+    id: 'r8', name: 'EmptyRanges', system: { traits: { size: 'med' }, movement: { walk: 30 }, senses: { ranges: {} } }
+  }, 'world').darkvision, null);
+
   const bg = transformers.BackgroundTransformer.transform({
     id: 'b', name: 'Sage',
     system: {
