@@ -21,7 +21,9 @@ const ignoreNames = new Set([
   ".git", ".github", ".release-temp", ".release-staging", "build-staging",
   "node_modules", "coverage", "coverage-raw", "zips", "tests", "test",
   "package.json", "package-lock.json", "desktop.ini", "module.json.sig",
-  ".gitignore", ".DS_Store", "module.zip"
+  ".gitignore", ".DS_Store", "module.zip",
+  "Must Follow These Rules For Every Build.md", "pf2e roles", "roles for pf2e",
+  "patreon-posts"
 ]);
 
 // Dev tooling filenames that may live under scripts/
