@@ -47,7 +47,7 @@ Hooks.on('axyum.buildActorUpdate', (characterData, updates) => {});
 
 ## Project
 
-- GitHub: https://github.com/lisasdungeon/ld-axyum
+- GitHub: https://github.com/ld-free-unreleased/ld-axyum
 - Discord: MystryssLysa
 - Contact: Lisasdungeon@gmail.com
 
