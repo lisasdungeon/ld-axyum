@@ -1,0 +1,21 @@
+<div class="pf2e-page pf2e-card-grid">
+  {{#each ancestries as |ancestry|}}
+    <div class="pf2e-card {{#if (eq ../characterData.ancestry.id ancestry.id)}}is-selected{{/if}}"
+         data-action="selectAncestry" data-ancestry-id="{{ancestry.id}}">
+      <div class="pf2e-card-head">
+        <span class="pf2e-card-portrait" aria-hidden="true">
+          {{#if ancestry.img}}
+            <img src="{{ancestry.img}}" alt="">
+          {{else}}
+            <i class="fa-solid fa-person"></i>
+          {{/if}}
+        </span>
+        <h3>{{ancestry.name}}</h3>
+      </div>
+      <p>HP {{ancestry.hp}} · Size {{ancestry.size}} · Speed {{ancestry.speed}} ft</p>
+      <p class="pf2e-card-boosts">Boosts: {{join ancestry.boosts ", "}}{{#if ancestry.flaws.length}} · Flaws: {{join ancestry.flaws ", "}}{{/if}}</p>
+    </div>
+  {{else}}
+    <p>No ancestries found. Enable a pf2e compendium with ancestry content.</p>
+  {{/each}}
+</div>

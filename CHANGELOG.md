@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.6 - 2026-08-29
+
+- Added a dedicated Pathfinder 2e character creation wizard (ancestry, heritage, background, class, key ability, ability boosts, skills, feats, spells, equipment) alongside the existing D&D 5e wizard, selectable from the GM Hub.
+- Fixed the GM Hub's system-card, sheet-preview, and use-sheet buttons: they read `event.currentTarget`, which under ApplicationV2's delegated action dispatch is the hub's root element rather than the clicked card, so every card failed with an "undefined is not available yet" warning. They now read the action target Foundry actually passes.
+- Fixed `SystemRegistry.isFoundrySystemAvailable` reporting a system as unavailable even while its world was actively running it. `game.systems` (the full installed-package collection) isn't reliably populated once a world has loaded; the active system id (`game.system.id`) is now checked first.
+- Fixed pf2e cantrips never appearing and 1st-rank spell lists including every rank. pf2e stores cantrips as rank/level-1 items tagged with a `cantrip` trait rather than a literal rank 0; rank is now derived from that trait.
+- Added portrait art to pf2e ancestry, heritage, background, class, feat, spell, and equipment selection cards, sourced from the compendium items' own `img` field.
+- Added a "Ancient Remnants" copper/bronze stylesheet for the pf2e wizard; it previously shipped with no dedicated styling.
+- Added a console warning identifying why the active-system wizard resolution fell back to the D&D 5e wizard, for future debugging.
+
+## 1.0.5 - 2026-08-28
+
+- Rebuilds Foundry v14's cached scene controls on ready and when scene-button visibility changes.
+
 ## 1.0.4
 
 - Race compendium loading no longer reads `senses.darkvision`. DnD5e 5.3 stores that value on `senses.ranges.darkvision`, and the old getter logs a deprecation warning (or throws in strict compatibility mode) for every species document.

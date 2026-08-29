@@ -17,12 +17,33 @@ import CompendiumLoader from './core/compendium-loader.js';
 import { CompendiumSelector } from './ui/modals/compendium-selector.js';
 import { MODULE_ID, forceRender, getOpenApp } from './core/multipath.js';
 import { Dnd5eCharacterSheet } from './systems/dnd5e/sheet/dnd5e-sheet.js';
+import { SystemRegistry } from './gm-hub/system-registry.js';
 
 // ============================================
 // Module Initialization
 // ============================================
 let _axyumInitialized = false;
 let _templatePromise = null;  // Cache the template loading promise
+let _systemRegistry = null;
+
+/** Resolve the wizard class for the active Foundry game system, falling back to AxyumApp (dnd5e). */
+async function getWizardClassForActiveSystem() {
+  const systemId = game.system?.id;
+  try {
+    if (!_systemRegistry) _systemRegistry = new SystemRegistry();
+    const config = systemId ? await _systemRegistry.getSystem(systemId) : null;
+    if (config?.available && config?.wizardClass) return config.wizardClass;
+    console.warn(`LD Axyum | Falling back to AxyumApp (dnd5e) for active system "${systemId}"`, {
+      configFound: Boolean(config),
+      available: config?.available,
+      hasWizardClass: Boolean(config?.wizardClass)
+    });
+    return AxyumApp;
+  } catch (err) {
+    console.warn(`LD Axyum | Failed to resolve wizard for active system "${systemId}", falling back to AxyumApp`, err);
+    return AxyumApp;
+  }
+}
 
 /** Open (or focus) the GM Hub — primary public entry. */
 const openAxyum = async () => {
@@ -75,11 +96,13 @@ async function initializeAxyumIfNeeded() {
       },
       openCreate: async () => {
         if (_templatePromise) await _templatePromise;
-        return forceRender(new AxyumApp({ mode: 'create' }));
+        const WizardClass = await getWizardClassForActiveSystem();
+        return forceRender(new WizardClass({ mode: 'create' }));
       },
       openEdit: async (actor) => {
         if (_templatePromise) await _templatePromise;
-        return forceRender(new AxyumApp({ mode: 'edit', actor }));
+        const WizardClass = await getWizardClassForActiveSystem();
+        return forceRender(new WizardClass({ mode: 'edit', actor }));
       },
       openCompendiumSelector: async () => forceRender(new CompendiumSelector()),
       GmHubApp, AxyumApp, RulesEngine, CharacterModel,
@@ -287,7 +310,7 @@ Hooks.once('init', async () => {
       config: true,
       type: Boolean,
       default: true,
-      onChange: () => ui.controls?.render?.({ force: true })
+      onChange: () => ui.controls?.render?.({ reset: true, force: true })
     });
 
     // Multipath Object shapes (never bare Array)
@@ -411,6 +434,9 @@ Hooks.on('renderActorDirectory', (app, html) => {
 Hooks.once('ready', async () => {
   console.log('LD Axyum | Ready hook - pre-loading everything in background');
   initializeAxyumIfNeeded();
+  setTimeout(() => {
+    if (ui.controls) ui.controls.render({ reset: true, force: true });
+  }, 1000);
 });
 
 // ============================================
@@ -430,4 +456,3 @@ export {
   CompendiumLoader,
   CompendiumSelector
 };
-

@@ -1,0 +1,25 @@
+<div class="pf2e-page">
+  <h2>Equipment</h2>
+  <p>Starting currency: {{characterData.equipment.currency.gp}} gp</p>
+
+  <div class="pf2e-card-grid">
+    {{#each equipment as |item|}}
+      <div class="pf2e-card {{#if (includes ../characterData.equipment.selectedIds item.id)}}is-selected{{/if}}"
+           data-action="toggleEquipment" data-item-id="{{item.id}}">
+        <div class="pf2e-card-head">
+          <span class="pf2e-card-portrait" aria-hidden="true">
+            {{#if item.img}}
+              <img src="{{item.img}}" alt="">
+            {{else}}
+              <i class="fa-solid fa-shield-halved"></i>
+            {{/if}}
+          </span>
+          <h4>{{item.name}}</h4>
+        </div>
+        <p>Bulk {{item.bulk}}</p>
+      </div>
+    {{else}}
+      <p>No equipment found. Enable a pf2e compendium with equipment content.</p>
+    {{/each}}
+  </div>
+</div>

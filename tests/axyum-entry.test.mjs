@@ -13,6 +13,8 @@ test('axyum.mjs registers hooks, helpers, API, and scene controls', async () => 
     };
     globalThis.game.settings.get = () => ({});
     globalThis.game.settings.set = async () => {};
+    const controlRenders = [];
+    globalThis.ui = { controls: { render: (options) => controlRenders.push(options) } };
     globalThis.fetch = async (path) => {
       if (String(path).includes('biography')) throw new Error('network');
       if (String(path).includes('missing')) return { ok: false, text: async () => '' };
@@ -74,6 +76,11 @@ test('axyum.mjs registers hooks, helpers, API, and scene controls', async () => 
     await ready();
     // second init path for API already created
     await ready();
+    await new Promise((resolve) => setTimeout(resolve, 1100));
+    assert.deepEqual(controlRenders, [
+      { reset: true, force: true },
+      { reset: true, force: true }
+    ]);
 
     // openAxyum paths — ready already initialized; ensure API still present
     if (!globalThis.game.ldAxyum?.open) {

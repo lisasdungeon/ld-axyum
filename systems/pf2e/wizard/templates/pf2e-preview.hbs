@@ -1,0 +1,26 @@
+<div class="pf2e-preview">
+  <h4>{{characterData.name}} {{#if characterData.level}}(Level {{characterData.level}}){{/if}}</h4>
+  <p class="pf2e-preview-line">{{characterData.ancestry.name}} {{characterData.heritage.name}} — {{characterData.background.name}} — {{characterData.class.name}}</p>
+
+  <div class="pf2e-preview-grid">
+    <div><strong>HP</strong> {{derivedStats.hp}}</div>
+    <div><strong>Perception</strong> {{formatModifier derivedStats.perception}}</div>
+    <div><strong>Class DC</strong> {{derivedStats.classDC}}</div>
+  </div>
+
+  <div class="pf2e-preview-grid">
+    {{#each derivedStats.abilityModifiers as |mod key|}}
+      <div><strong>{{uppercase key}}</strong> {{formatModifier mod}}</div>
+    {{/each}}
+  </div>
+
+  <div class="pf2e-preview-grid">
+    <div><strong>Fort</strong> {{formatModifier derivedStats.saves.fortitude.bonus}}</div>
+    <div><strong>Ref</strong> {{formatModifier derivedStats.saves.reflex.bonus}}</div>
+    <div><strong>Will</strong> {{formatModifier derivedStats.saves.will.bonus}}</div>
+  </div>
+
+  {{#if isSpellcaster}}
+    <p class="pf2e-preview-line">Cantrips known: {{spellPreview.cantripsKnown}} · Max spell rank: {{spellPreview.maxRank}}</p>
+  {{/if}}
+</div>

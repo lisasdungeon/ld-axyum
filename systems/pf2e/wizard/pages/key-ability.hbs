@@ -1,0 +1,17 @@
+<div class="pf2e-page">
+  {{#if characterData.class.keyAbilityOptions.length}}
+    <h2>Choose Your Key Ability</h2>
+    <p>{{characterData.class.name}} lets you choose which ability governs your class DC and spellcasting (if any).</p>
+    <div class="pf2e-card-grid">
+      {{#each characterData.class.keyAbilityOptions as |ability|}}
+        <div class="pf2e-card {{#if (eq ../characterData.class.keyAbility ability)}}is-selected{{/if}}"
+             data-action="selectKeyAbility" data-ability="{{ability}}">
+          <h3>{{uppercase ability}}</h3>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <h2>Key Ability</h2>
+    <p>{{characterData.class.name}}'s key ability is fixed: <strong>{{uppercase characterData.class.keyAbility}}</strong>.</p>
+  {{/if}}
+</div>

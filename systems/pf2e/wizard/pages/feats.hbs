@@ -1,0 +1,26 @@
+<div class="pf2e-page">
+  <h2>Feats</h2>
+  {{#each featSections as |section|}}
+    <h3>{{uppercase section.category}} Feats ({{section.selectedCount}} / {{section.slotsAvailable}})</h3>
+    <div class="pf2e-card-grid">
+      {{#each section.options as |feat|}}
+        <div class="pf2e-card {{#if (includes (lookup ../../characterData.feats section.category) feat.id)}}is-selected{{/if}}"
+             data-action="toggleFeat" data-category="{{section.category}}" data-feat-id="{{feat.id}}">
+          <div class="pf2e-card-head">
+            <span class="pf2e-card-portrait" aria-hidden="true">
+              {{#if feat.img}}
+                <img src="{{feat.img}}" alt="">
+              {{else}}
+                <i class="fa-solid fa-star"></i>
+              {{/if}}
+            </span>
+            <h4>{{feat.name}}</h4>
+          </div>
+          <p>Level {{feat.level}}</p>
+        </div>
+      {{else}}
+        <p>No {{section.category}} feats available yet.</p>
+      {{/each}}
+    </div>
+  {{/each}}
+</div>

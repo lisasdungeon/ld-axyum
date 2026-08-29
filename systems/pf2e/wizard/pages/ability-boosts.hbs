@@ -1,0 +1,30 @@
+<div class="pf2e-page">
+  <h2>Ability Boosts</h2>
+  <p>Ancestry, background, and class boosts are applied automatically. Assign your 4 free boosts below — each must go to a different ability.</p>
+
+  <div class="pf2e-ability-grid">
+    {{#each derivedStats.abilities as |score key|}}
+      <div class="pf2e-ability-box">
+        <div class="pf2e-ability-key">{{uppercase key}}</div>
+        <div class="pf2e-ability-score">{{score}}</div>
+        <div class="pf2e-ability-mod">{{formatModifier (lookup ../derivedStats.abilityModifiers key)}}</div>
+      </div>
+    {{/each}}
+  </div>
+
+  <h3>Free Boosts</h3>
+  <div class="pf2e-free-boosts">
+    {{#each characterData.abilityBoosts.free as |chosen slot|}}
+      <div class="pf2e-free-boost-slot">
+        <label>Free Boost {{add slot 1}}</label>
+        <div class="pf2e-boost-options">
+          <button type="button" class="axyum-btn {{#unless chosen}}axyum-btn-secondary{{/unless}}" data-action="removeBoost" data-slot="{{slot}}">None</button>
+          {{#each @root.derivedStats.abilities as |score key|}}
+            <button type="button" class="axyum-btn {{#if (eq chosen key)}}axyum-btn-primary{{else}}axyum-btn-secondary{{/if}}"
+                    data-action="assignBoost" data-ability="{{key}}" data-slot="{{slot}}">{{uppercase key}}</button>
+          {{/each}}
+        </div>
+      </div>
+    {{/each}}
+  </div>
+</div>

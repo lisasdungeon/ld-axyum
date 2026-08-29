@@ -2,7 +2,7 @@
   "id": "ld-axyum",
   "title": "LD Axyum",
   "description": "A unified character creation and management system for Foundry VTT. Create characters through a comprehensive wizard, then manage them in an integrated character sheet.",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "compatibility": {
     "minimum": 13,
     "verified": 14
@@ -31,6 +31,7 @@
     "styles/wizard-4.css",
     "styles/wizard-5.css",
     "styles/point-buy.css",
+    "styles/pf2e-wizard.css",
     "styles/compendium-selector.css",
     "styles/scene-control-button.css",
     "gm-hub/gm-hub.css",
@@ -53,6 +54,14 @@
         "compatibility": {
           "minimum": "5.1.0",
           "verified": "5.2.1"
+        }
+      },
+      {
+        "id": "pf2e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "8.0.0",
+          "verified": "8.4.1"
         }
       }
     ],

@@ -1,0 +1,21 @@
+<div class="pf2e-page pf2e-card-grid">
+  {{#each backgrounds as |background|}}
+    <div class="pf2e-card {{#if (eq ../characterData.background.id background.id)}}is-selected{{/if}}"
+         data-action="selectBackground" data-background-id="{{background.id}}">
+      <div class="pf2e-card-head">
+        <span class="pf2e-card-portrait" aria-hidden="true">
+          {{#if background.img}}
+            <img src="{{background.img}}" alt="">
+          {{else}}
+            <i class="fa-solid fa-scroll"></i>
+          {{/if}}
+        </span>
+        <h3>{{background.name}}</h3>
+      </div>
+      <p>Boosts: {{join background.boosts ", "}}</p>
+      {{#if background.trainedSkill}}<p>Trained skill: {{background.trainedSkill}}</p>{{/if}}
+    </div>
+  {{else}}
+    <p>No backgrounds found. Enable a pf2e compendium with background content.</p>
+  {{/each}}
+</div>

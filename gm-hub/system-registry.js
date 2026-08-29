@@ -92,12 +92,14 @@ export class SystemRegistry {
    * @returns {boolean} Whether the system is available
    */
   isFoundrySystemAvailable(systemId) {
-    // game.systems may not be available during early Foundry initialization.
-    // Guard against undefined access and avoid throwing exceptions.
+    // The current world is definitionally running an installed system, so this is
+    // the reliable check in an active session. game.systems (the full installed-package
+    // collection) is populated on the Setup screen but is not consistently available
+    // once a world has loaded, so it's only a secondary fallback.
+    if (game?.system?.id === systemId) return true;
+
     const systems = game?.systems;
     if (!systems || typeof systems.get !== 'function') return false;
-
-    // Check if the system is installed and active
     return !!systems.get(systemId);
   }
 }

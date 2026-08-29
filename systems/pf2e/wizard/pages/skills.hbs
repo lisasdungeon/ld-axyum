@@ -1,0 +1,25 @@
+<div class="pf2e-page">
+  <h2>Skills</h2>
+  <p>Click a rank to set a skill's training. Untrained skills still work — they just don't add your level (unless using Proficiency without Level).</p>
+
+  <table class="pf2e-skill-table">
+    <thead>
+      <tr><th>Skill</th><th>Ability</th><th>Rank</th><th>Bonus</th></tr>
+    </thead>
+    <tbody>
+      {{#each skillsList as |skill|}}
+      <tr>
+        <td>{{skill.label}}</td>
+        <td>{{uppercase skill.ability}}</td>
+        <td>
+          {{#each @root.pf2eRanks as |rank|}}
+            <button type="button" class="axyum-btn {{#if (eq skill.rank rank)}}axyum-btn-primary{{else}}axyum-btn-secondary{{/if}}"
+                    data-action="toggleSkillTraining" data-skill="{{skill.slug}}" data-rank="{{rank}}">{{rank}}</button>
+          {{/each}}
+        </td>
+        <td>{{formatModifier skill.bonus}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>

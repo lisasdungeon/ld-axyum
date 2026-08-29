@@ -1,0 +1,21 @@
+<div class="pf2e-page pf2e-card-grid">
+  {{#each classes as |cls|}}
+    <div class="pf2e-card {{#if (eq ../characterData.class.id cls.id)}}is-selected{{/if}}"
+         data-action="selectClass" data-class-id="{{cls.id}}">
+      <div class="pf2e-card-head">
+        <span class="pf2e-card-portrait" aria-hidden="true">
+          {{#if cls.img}}
+            <img src="{{cls.img}}" alt="">
+          {{else}}
+            <i class="fa-solid fa-hat-wizard"></i>
+          {{/if}}
+        </span>
+        <h3>{{cls.name}}</h3>
+      </div>
+      <p>HP/level {{cls.hpPerLevel}} · Key ability {{uppercase cls.keyAbility}}</p>
+      {{#if cls.spellcasting}}<p>Spellcasting: {{cls.spellcasting}}</p>{{/if}}
+    </div>
+  {{else}}
+    <p>No classes found. Enable a pf2e compendium with class content.</p>
+  {{/each}}
+</div>

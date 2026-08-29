@@ -1,0 +1,45 @@
+<div class="pf2e-page pf2e-summary">
+  <h2>Summary</h2>
+  <h3>{{characterData.name}} — Level {{characterData.level}}</h3>
+  <p>{{characterData.ancestry.name}} {{characterData.heritage.name}} · {{characterData.background.name}} · {{characterData.class.name}}</p>
+
+  <div class="pf2e-summary-grid">
+    <div><strong>HP</strong> {{derivedStats.hp}}</div>
+    <div><strong>Perception</strong> {{formatModifier derivedStats.perception}}</div>
+    <div><strong>Class DC</strong> {{derivedStats.classDC}}</div>
+    <div><strong>Fortitude</strong> {{formatModifier derivedStats.saves.fortitude.bonus}}</div>
+    <div><strong>Reflex</strong> {{formatModifier derivedStats.saves.reflex.bonus}}</div>
+    <div><strong>Will</strong> {{formatModifier derivedStats.saves.will.bonus}}</div>
+  </div>
+
+  <h4>Ability Scores</h4>
+  <div class="pf2e-summary-grid">
+    {{#each derivedStats.abilities as |score key|}}
+      <div><strong>{{uppercase key}}</strong> {{score}} ({{formatModifier (lookup ../derivedStats.abilityModifiers key)}})</div>
+    {{/each}}
+  </div>
+
+  <h4>Trained Skills</h4>
+  <ul>
+    {{#each skillsList as |skill|}}
+      {{#unless (eq skill.rank "untrained")}}
+        <li>{{skill.label}} — {{skill.rank}} ({{formatModifier skill.bonus}})</li>
+      {{/unless}}
+    {{/each}}
+  </ul>
+
+  <h4>Feats</h4>
+  <ul>
+    {{#each characterData.feats.ancestry}}<li>{{this}}</li>{{/each}}
+    {{#each characterData.feats.class}}<li>{{this}}</li>{{/each}}
+    {{#each characterData.feats.skill}}<li>{{this}}</li>{{/each}}
+    {{#each characterData.feats.general}}<li>{{this}}</li>{{/each}}
+  </ul>
+
+  {{#if isSpellcaster}}
+    <h4>Spells</h4>
+    <p>{{characterData.spells.selectedCantrips.length}} cantrips selected</p>
+  {{/if}}
+
+  <p>Selected equipment: {{characterData.equipment.selectedIds.length}} items</p>
+</div>

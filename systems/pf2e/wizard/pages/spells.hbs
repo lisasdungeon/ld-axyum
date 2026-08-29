@@ -1,0 +1,50 @@
+<div class="pf2e-page">
+  {{#if isSpellcaster}}
+    <h2>Spells</h2>
+    <p>Cantrips known: {{spellPreview.cantripsKnown}} · Highest spell rank available: {{spellPreview.maxRank}}</p>
+
+    <h3>Cantrips</h3>
+    <div class="pf2e-card-grid">
+      {{#each spellsByRank.[0] as |spell|}}
+        <div class="pf2e-card {{#if (includes ../characterData.spells.selectedCantrips spell.id)}}is-selected{{/if}}"
+             data-action="toggleSpell" data-spell-id="{{spell.id}}" data-cantrip="true">
+          <div class="pf2e-card-head">
+            <span class="pf2e-card-portrait" aria-hidden="true">
+              {{#if spell.img}}
+                <img src="{{spell.img}}" alt="">
+              {{else}}
+                <i class="fa-solid fa-wand-sparkles"></i>
+              {{/if}}
+            </span>
+            <h4>{{spell.name}}</h4>
+          </div>
+        </div>
+      {{else}}
+        <p>No cantrips found.</p>
+      {{/each}}
+    </div>
+
+    <h3>Spells</h3>
+    <div class="pf2e-card-grid">
+      {{#each spellsByRank.[1] as |spell|}}
+        <div class="pf2e-card {{#if (includes (lookup ../characterData.spells.selectedSpells 1) spell.id)}}is-selected{{/if}}"
+             data-action="toggleSpell" data-spell-id="{{spell.id}}" data-rank="1">
+          <div class="pf2e-card-head">
+            <span class="pf2e-card-portrait" aria-hidden="true">
+              {{#if spell.img}}
+                <img src="{{spell.img}}" alt="">
+              {{else}}
+                <i class="fa-solid fa-wand-sparkles"></i>
+              {{/if}}
+            </span>
+            <h4>{{spell.name}}</h4>
+          </div>
+        </div>
+      {{else}}
+        <p>No 1st-rank spells found.</p>
+      {{/each}}
+    </div>
+  {{else}}
+    <p>{{characterData.class.name}} does not grant spellcasting. This step is skipped automatically.</p>
+  {{/if}}
+</div>

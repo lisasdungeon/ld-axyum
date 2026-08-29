@@ -1,0 +1,19 @@
+<div class="pf2e-page pf2e-card-grid">
+  {{#each heritages as |heritage|}}
+    <div class="pf2e-card {{#if (eq ../characterData.heritage.id heritage.id)}}is-selected{{/if}}"
+         data-action="selectHeritage" data-heritage-id="{{heritage.id}}">
+      <div class="pf2e-card-head">
+        <span class="pf2e-card-portrait" aria-hidden="true">
+          {{#if heritage.img}}
+            <img src="{{heritage.img}}" alt="">
+          {{else}}
+            <i class="fa-solid fa-dna"></i>
+          {{/if}}
+        </span>
+        <h3>{{heritage.name}}</h3>
+      </div>
+    </div>
+  {{else}}
+    <p>No heritages found for this ancestry.</p>
+  {{/each}}
+</div>

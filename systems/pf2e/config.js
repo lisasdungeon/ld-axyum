@@ -1,6 +1,10 @@
 /**
  * Pathfinder 2nd Edition System Configuration
  */
+import { Pf2eWizardApp } from './wizard/pf2e-wizard-app.js';
+import { Pf2eRulesEngine } from './rules/pf2e-rules-engine.js';
+import { Pf2eCharacterModel } from './data/pf2e-character-model.js';
+import { Pf2eActorAdapter } from './adapter/pf2e-actor-adapter.js';
 
 export const pf2eConfig = {
   id: 'pf2e',
@@ -10,12 +14,12 @@ export const pf2eConfig = {
   color: '#C87533',
   underglow: '#8B4513',
   version: '1.0.0',
-  available: false, // TODO: Implement Pathfinder 2e wizard
+  available: true,
 
-  wizardClass: null,
-  rulesEngine: null,
-  characterModel: null,
-  actorAdapter: null,
+  wizardClass: Pf2eWizardApp,
+  rulesEngine: Pf2eRulesEngine,
+  characterModel: Pf2eCharacterModel,
+  actorAdapter: Pf2eActorAdapter,
 
   requiredFoundrySystem: 'pf2e',
   minimumFoundryVersion: '13.0.0',
@@ -26,6 +30,7 @@ export const pf2eConfig = {
     backgrounds: true,
     classes: true,
     proficiency: true,
-    feats: true
+    feats: true,
+    spellcasting: true
   }
 };

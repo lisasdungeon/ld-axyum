@@ -5,16 +5,20 @@
 import { logger } from './logger.js';
 
 const INDEX_FIELDS = {
-  class: ['system.hitDice', 'system.hp', 'system.spellcasting', 'system.saves', 'system.skills', 'system.source', 'system.startingEquipment', 'system.description', 'system.primaryAbility'],
+  class: ['system.hitDice', 'system.hp', 'system.spellcasting', 'system.saves', 'system.skills', 'system.source', 'system.startingEquipment', 'system.description', 'system.primaryAbility', 'system.keyAbility', 'system.classDC'],
   race: ['system.advancement', 'system.traits', 'system.movement', 'system.source', 'system.description'],
   species: ['system.advancement', 'system.traits', 'system.movement', 'system.source', 'system.description'],
-  background: ['system.skills', 'system.languages', 'system.startingEquipment', 'system.advancement', 'system.source', 'system.description'],
-  spell: ['system.level', 'system.school', 'system.components', 'system.properties', 'system.source', 'system.description'],
-  equipment: ['system.type', 'system.rarity', 'system.weight', 'system.price', 'system.source', 'system.description'],
-  weapon: ['system.type', 'system.rarity', 'system.weight', 'system.price', 'system.source', 'system.description'],
+  background: ['system.skills', 'system.languages', 'system.startingEquipment', 'system.advancement', 'system.source', 'system.description', 'system.boosts', 'system.trainedLore'],
+  spell: ['system.level', 'system.school', 'system.components', 'system.properties', 'system.source', 'system.description', 'system.rank', 'system.traits'],
+  equipment: ['system.type', 'system.rarity', 'system.weight', 'system.price', 'system.source', 'system.description', 'system.bulk'],
+  weapon: ['system.type', 'system.rarity', 'system.weight', 'system.price', 'system.source', 'system.description', 'system.category', 'system.group', 'system.traits'],
   tool: ['system.type', 'system.rarity', 'system.weight', 'system.price', 'system.source', 'system.description'],
   consumable: ['system.type', 'system.rarity', 'system.weight', 'system.price', 'system.source', 'system.description'],
-  feat: ['system.requirements', 'system.type', 'system.source', 'system.description', 'system.prerequisites']
+  feat: ['system.requirements', 'system.type', 'system.source', 'system.description', 'system.prerequisites', 'system.category', 'system.traits', 'system.level'],
+  // PF2e-only item types (dnd5e has no equivalent, so these are pure additions)
+  ancestry: ['system.hp', 'system.speed', 'system.size', 'system.boosts', 'system.flaws', 'system.traits', 'system.source', 'system.description'],
+  heritage: ['system.ancestry', 'system.traits', 'system.source', 'system.description'],
+  armor: ['system.category', 'system.dexCap', 'system.rarity', 'system.weight', 'system.price', 'system.source', 'system.description']
 };
 
 /** Higher wins when the same class/race name appears in multiple packs. */

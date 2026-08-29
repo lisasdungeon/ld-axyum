@@ -18,18 +18,10 @@ function bindHubListeners(root, app) {
   root.dataset.ldAxyumListenersBound = 'true';
 
   root.addEventListener('click', (event) => {
-    const actionElement = event.target.closest?.('[data-action]');
-    if (actionElement && root.contains(actionElement)) {
-      const action = actionElement.dataset.action;
-      const handlerName = `on${action.charAt(0).toUpperCase()}${action.slice(1)}`;
-      const handler = app[handlerName];
-      if (typeof handler === 'function') {
-        event.preventDefault();
-        handler.call(app, event);
-      }
-      return;
-    }
-
+    // [data-action] elements (system-card, settings, preview, use-sheet) are already
+    // dispatched by ApplicationV2's own static DEFAULT_OPTIONS.actions delegation —
+    // handling them again here would double-fire every action. Tab buttons carry no
+    // data-action, so they still need this manual fallback.
     const tabButton = event.target.closest?.('.tab-button');
     if (tabButton && root.contains(tabButton)) {
       event.preventDefault();
@@ -104,9 +96,9 @@ class GmHubApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   // ===== EVENT HANDLERS =====
 
-  async onSelectSystem(event) {
-    const target = event.currentTarget;
-    const systemId = target.dataset.systemId;
+  async onSelectSystem(event, target) {
+    const el = target || event.target?.closest?.('[data-action]');
+    const systemId = el?.dataset.systemId;
     console.log('GM Hub | System selected:', systemId);
 
     try {
@@ -151,18 +143,18 @@ class GmHubApp extends HandlebarsApplicationMixin(ApplicationV2) {
     root.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
   }
 
-  async onPreviewSheet(event) {
-    const target = event.currentTarget;
-    const systemId = target.dataset.systemId;
+  async onPreviewSheet(event, target) {
+    const el = target || event.target?.closest?.('[data-action]');
+    const systemId = el?.dataset.systemId;
     console.log('GM Hub | Previewing sheet for:', systemId);
 
     // TODO: Open sheet preview modal
     ui.notifications.info(`Sheet preview for ${systemId} coming soon!`);
   }
 
-  async onUseSheet(event) {
-    const target = event.currentTarget;
-    const systemId = target.dataset.systemId;
+  async onUseSheet(event, target) {
+    const el = target || event.target?.closest?.('[data-action]');
+    const systemId = el?.dataset.systemId;
     console.log('GM Hub | Setting default sheet for:', systemId);
 
     // TODO: Set user's preferred sheet for this system

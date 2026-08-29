@@ -60,7 +60,7 @@ test('loaded CSS blocks remain balanced', () => {
 
 test('all module files meet the 500-line cap', () => {
   for (const file of files) {
-    if (file.endsWith('.zip') || file.endsWith('.png') || file.endsWith('.wav')) continue;
+    if (file.endsWith('.zip') || file.endsWith('.png') || file.endsWith('.wav') || file.endsWith('.jpeg') || file.endsWith('.jpg') || file.endsWith('.webp')) continue;
     const lineCount = fs.readFileSync(file, 'utf8').split(/\r?\n/).length - 1;
     assert.ok(lineCount <= 500, `${path.relative(root, file)} has ${lineCount} lines`);
   }
