@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.7 - 2026-09-09
+
+- Republished the module from its new home: every manifest, repository, package, and documentation link now points at github.com/lisasdungeon/ld-axyum. Installs and update checks through the new manifest no longer depend on the previous release host.
+- Release zips no longer include the auto-generated directory inventory index files.
+
 ## 1.0.6 - 2026-08-29
 
 - Added a dedicated Pathfinder 2e character creation wizard (ancestry, heritage, background, class, key ability, ability boosts, skills, feats, spells, equipment) alongside the existing D&D 5e wizard, selectable from the GM Hub.

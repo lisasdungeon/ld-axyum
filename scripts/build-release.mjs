@@ -22,6 +22,7 @@ const ignoreNames = new Set([
   "node_modules", "coverage", "coverage-raw", "zips", "tests", "test",
   "package.json", "package-lock.json", "desktop.ini", "module.json.sig",
   ".gitignore", ".DS_Store", "module.zip",
+  "_DIR_INDEX.md",
   "Must Follow These Rules For Every Build.md", "patreon-posts"
 ]);
 
