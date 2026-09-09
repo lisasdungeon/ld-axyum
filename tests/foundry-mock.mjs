@@ -14,7 +14,8 @@ export function installFoundryMock(overrides = {}) {
     HTMLElement: globalThis.HTMLElement,
     navigator: globalThis.navigator,
     FileReader: globalThis.FileReader,
-    setTimeout: globalThis.setTimeout
+    setTimeout: globalThis.setTimeout,
+    CONFIG: globalThis.CONFIG
   };
 
   class ApplicationV2 {
@@ -173,6 +174,9 @@ export function installFoundryMock(overrides = {}) {
     },
     ...overrides.foundry
   };
+
+  // Foundry guarantees the CONFIG global; systems read CONFIG.DND5E etc.
+  globalThis.CONFIG = { ...overrides.CONFIG };
 
   class Actor {
     constructor() {
