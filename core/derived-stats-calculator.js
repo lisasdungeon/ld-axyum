@@ -253,14 +253,16 @@ export class DerivedStatsCalculator {
    */
   static checkEncumbrance(currentWeight, strScore) {
     const capacity = this.calculateCarryingCapacity(strScore);
+    // PHB encumbrance variant: encumbered above 5x STR, heavily above 10x STR.
+    // capacity/3 and (2/3)*capacity already equal 5x/10x STR — compare directly.
     const encumberedAt = capacity / 3;
     const heavilyEncumberedAt = (capacity * 2) / 3;
 
     return {
       current: currentWeight,
       max: capacity,
-      encumbered: currentWeight > encumberedAt * 5,
-      heavilyEncumbered: currentWeight > heavilyEncumberedAt * 5
+      encumbered: currentWeight > encumberedAt,
+      heavilyEncumbered: currentWeight > heavilyEncumberedAt
     };
   }
 
