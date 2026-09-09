@@ -13,7 +13,7 @@
   "license": "Proprietary",
   "scripts": {
     "test": "node --test --test-concurrency=1 'tests/**/*.test.mjs'",
-    "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage --test-coverage-include='core/**' --test-coverage-include='axyum.mjs' 'tests/**/*.test.mjs'"
+    "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage --test-coverage-include='core/**' --test-coverage-include='axyum.mjs' --test-coverage-include='systems/**/*.js' --test-coverage-include='gm-hub/**/*.js' --test-coverage-include='ui/**/*.js' --test-coverage-include='scripts/*.js' 'tests/**/*.test.mjs'"
   },
   "repository": {
     "type": "git",
