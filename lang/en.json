@@ -89,7 +89,7 @@
     },
     "Spells": {
       "Cantrips": "Cantrips (Unlimited)",
-      "Level": "Level {{level}} Spells",
+      "Level": "Level {level} Spells",
       "NoSpells": "No spells available for your class",
       "SpellSlots": "Spell Slots",
       "Known": "Known Spells",

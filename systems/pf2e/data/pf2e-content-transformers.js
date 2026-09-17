@@ -12,7 +12,17 @@
 
 function stripHtml(html) {
   if (!html) return '';
-  return String(html).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  return String(html)
+    // Foundry inline enrichers ([[lookup @...]]{label}, [[/r 1d6]], [[/act condition]])
+    // and link refs (@Check, @Damage, @Template...) must not leak into blurbs.
+    // Keep the human-readable {label} when present; drop the enricher itself.
+    .replace(/\[\[[^\]]*\]\]\{([^}]*)\}/g, '$1')
+    .replace(/\[\[[^\]]*\]\]/g, '')
+    .replace(/@[A-Za-z][A-Za-z0-9_.]*\[[^\]]*\]/gi, '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .trim();
 }
 
 /** Normalize a boosts/flaws field into a flat array of ability keys ('free' allowed). */

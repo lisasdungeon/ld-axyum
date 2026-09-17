@@ -6,14 +6,21 @@ import { extractSource, isHomebrewSource } from './content-loader.js';
 
 function stripHtml(value, max = 180) {
   return String(value || '')
+    // Foundry inline enrichers: [[lookup @...]]{label}, [[/r 1d6]], [[/lookup]], [[check]]...
+    // Keep the human-readable {label} when present; drop the enricher itself.
+    .replace(/\[\[[^\]]*\]\]\{([^}]*)\}/g, '$1')
+    .replace(/\[\[[^\]]*\]\]/g, '')
     .replace(/@UUID\[[^\]]*\]\{[^}]*\}/gi, '')
     .replace(/@UUID\[[^\]]*\]/gi, '')
     .replace(/@Compendium\[[^\]]*\]\{[^}]*\}/gi, '')
     .replace(/@Compendium\[[^\]]*\]/gi, '')
     .replace(/@Embed\[[^\]]*\]\{[^}]*\}/gi, '')
+    // Remaining link refs without a uuid wrapper: @Check, @Damage, @Save, @Icon...
+    .replace(/@[A-Za-z][A-Za-z0-9_.]*\[[^\]]*\]/gi, '')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/gi, ' ')
     .replace(/\s+/g, ' ')
+    .replace(/\s+([,.;:!?])/g, '$1')
     .trim()
     .slice(0, max);
 }

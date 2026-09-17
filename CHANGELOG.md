@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.8 - 2026-09-17
+
+- Fixed the spells page section heading rendering as "Level undefined} Spells". The `LD_AXYUM.Spells.Level` string used Handlebars-style `{{level}}` braces, but Foundry's i18n interpolation only matches single-brace `{level}` placeholders — the mangled match got replaced with the literal text "undefined". The string now uses `{level}`, and a regression test blocks `{{double}}` braces in lang strings and verifies every templated localize call has matching placeholders.
+- Fixed feat and spell descriptions showing raw Foundry enricher syntax on wizard cards (dnd5e and pf2e). Compendium blurbs now strip `[[lookup @...]]`/`[[/r ...]]` inline enrichers and `@Check`/`@Damage`/`@UUID`-style link references, keeping any human-readable `{label}` the enricher carried instead of leaking markup like `[[lookup @name.lowercase]]{monster}` into the text.
+
 ## 1.0.7 - 2026-09-09
 
 - Republished the module from its new home: every manifest, repository, package, and documentation link now points at github.com/lisasdungeon/ld-axyum. Installs and update checks through the new manifest no longer depend on the previous release host.
@@ -34,7 +39,7 @@
 - Download URL uses `releases/latest/download/module.zip`.
 - Character wizard cache invalidation uses the live app class so subclass cache slots stay consistent.
 
-## Unreleased
+## 1.0.8 - 2026-09-17
 
 - Gap fix pass: Foundry 13/14 compatibility standardized; sole Lisa's Dungeon authorship retained.
 - Lazy-load / single-entry startup where applicable; optional features attach on ready.
