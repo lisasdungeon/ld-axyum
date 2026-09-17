@@ -8,6 +8,23 @@ export const AxyumActionHandlersChoices = (Base) => class extends Base {
 
   // ===== STARTING EQUIPMENT HANDLERS =====
 
+  _ensureStartingEquipmentSelection() {
+    const initial = this._buildStartingEquipmentView();
+    const first = initial.packages?.[0];
+    if (!first) return [];
+    if (!this.characterData.startingPackageId) {
+      this.characterData.startingPackageId = first.id;
+      this.characterData.startingPackageChoices = {};
+      for (const choice of first.choices || []) {
+        if (choice.options?.[0]) this.characterData.startingPackageChoices[choice.id] = choice.options[0].id;
+      }
+    }
+    const selected = this._buildStartingEquipmentView().selectedItems || [];
+    this.characterData.selectedEquipmentIds = selected.map((item) => item.id).filter(Boolean);
+    this.characterData.selectedEquipmentItems = selected;
+    return selected;
+  }
+
   onToggleEquipment() {
     ui.notifications?.info?.('Use the class starting packages on this page.');
   }
@@ -27,6 +44,7 @@ export const AxyumActionHandlersChoices = (Base) => class extends Base {
     }
     const items = resolveSelectedPackageItems(pkg, this.characterData.startingPackageChoices);
     this.characterData.selectedEquipmentIds = items.map((i) => i.id).filter(Boolean);
+    this.characterData.selectedEquipmentItems = items;
     this.render();
   }
 
@@ -46,6 +64,7 @@ export const AxyumActionHandlersChoices = (Base) => class extends Base {
     const pkg = (view.packages || []).find((p) => p.id === packageId);
     const items = resolveSelectedPackageItems(pkg, this.characterData.startingPackageChoices);
     this.characterData.selectedEquipmentIds = items.map((i) => i.id).filter(Boolean);
+    this.characterData.selectedEquipmentItems = items;
     this.render();
   }
 

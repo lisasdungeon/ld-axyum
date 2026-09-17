@@ -337,6 +337,22 @@ test('character creator builds data, embeds items, and validates multiclass', as
     const actor = await creator.createCharacter(data);
     assert.equal(actor.id, 'actor-1');
 
+    let embedded;
+    await creator.createEmbeddedItems({
+      createEmbeddedDocuments: async (_type, docs) => { embedded = docs; return docs; }
+    }, {
+      class: {},
+      race: {},
+      background: {},
+      selectedEquipmentIds: [],
+      selectedEquipmentItems: [{ id: 'missing', key: 'Compendium.dnd5e.items.Item.sword', count: 2 }],
+      selectedCantrips: [],
+      selectedSpells: [],
+      feats: []
+    });
+    assert.equal(embedded[0].name, 'PackDoc');
+    assert.equal(embedded[0].system.quantity, 2);
+
     await assert.rejects(() => creator.createCharacter({ name: '', class: { id: null }, race: { id: null }, background: { id: null }, abilities: {} }), /Cannot create/);
 
     const multiData = {

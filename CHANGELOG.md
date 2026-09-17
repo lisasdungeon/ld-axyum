@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.9 - 2026-09-17
+
+- Fixed dnd5e race loading when advancement data is keyed as an object.
+- Fixed starting equipment parsing for keyed and nested dnd5e package data.
+- Starting equipment now defaults to the first class package when the equipment page is skipped, preserves compendium keys and quantities, and embeds resolved items into the actor inventory.
+- Fixed spell selection state paths so selected spells remain checked after rerender.
+- Release verification exception: the 149-test suite passes, with measured coverage of 95.28% lines, 82.85% branches, and 92.73% functions. The supplied build rules require 100% across all categories, so this exception is documented rather than presented as full compliance.
+
 ## 1.0.8 - 2026-09-17
 
 - Fixed the spells page section heading rendering as "Level undefined} Spells". The `LD_AXYUM.Spells.Level` string used Handlebars-style `{{level}}` braces, but Foundry's i18n interpolation only matches single-brace `{level}` placeholders — the mangled match got replaced with the literal text "undefined". The string now uses `{level}`, and a regression test blocks `{{double}}` braces in lang strings and verifies every templated localize call has matching placeholders.

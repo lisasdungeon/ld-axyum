@@ -194,6 +194,7 @@ export const CHARACTER_DEFAULTS = {
   
   // Equipment IDs selected during wizard creation
   selectedEquipmentIds: [],
+  selectedEquipmentItems: [],
   startingPackageId: null,
   startingPackageChoices: {},
   chooseASI: false,

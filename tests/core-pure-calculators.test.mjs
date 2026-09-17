@@ -266,11 +266,13 @@ test('static data maps and character defaults export expected keys', async () =>
 test('starting equipment resolves packages and choices', async () => {
   const {
     resolveEquipmentEntry,
+    normalizeStartingEquipment,
     buildStartingPackages,
     resolveSelectedPackageItems
   } = await import('../core/starting-equipment.js');
 
   assert.equal(resolveEquipmentEntry({}).id, '');
+  assert.equal(normalizeStartingEquipment({ first: { type: 'linked', key: 'Item.sword' } }).length, 1);
   const fromCache = resolveEquipmentEntry(
     { key: 'Compendium.phb.phbwepGreataxe00', count: 2, requiresProficiency: true },
     [{ id: 'phbwepGreataxe00', name: 'Greataxe', type: 'weapon', price: 30, rarity: 'common', weight: 7, description: 'big axe', img: 'x.png' }]
@@ -281,7 +283,17 @@ test('starting equipment resolves packages and choices', async () => {
 
   assert.deepEqual(buildStartingPackages(null), { packages: [], mode: 'empty' });
   assert.deepEqual(buildStartingPackages([]), { packages: [], mode: 'empty' });
-
+  const nestedPackages = buildStartingPackages({
+    root: {
+      type: 'OR',
+      choices: [
+        [{ type: 'linked', key: 'Item.sword' }],
+        [{ type: 'linked', key: 'Item.axe' }]
+      ]
+    }
+  });
+  assert.equal(nestedPackages.packages.length, 2);
+  assert.equal(nestedPackages.packages[0].items[0].key, 'Item.sword');
   const dualPackage = buildStartingPackages([
     { type: 'OR', _id: 'or1' },
     { type: 'AND', _id: 'andA', group: 'or1', sort: 1 },
@@ -296,20 +308,17 @@ test('starting equipment resolves packages and choices', async () => {
   assert.equal(dualPackage.mode, 'packages');
   assert.equal(dualPackage.packages.length, 2);
   assert.equal(dualPackage.packages[0].choices.length, 1);
-
   const orLinked = buildStartingPackages([
     { type: 'OR', _id: 'or2' },
     { type: 'linked', _id: 'a', key: 'itemA', group: 'or2' },
     { type: 'linked', _id: 'b', key: 'itemB', group: 'or2' }
   ]);
   assert.equal(orLinked.packages.length, 2);
-
   const singleAnd = buildStartingPackages([
     { type: 'AND', _id: 'and1' },
     { type: 'linked', key: 'phbwepDagger', group: 'and1' }
   ]);
   assert.equal(singleAnd.mode, 'single');
-
   const multiAnd = buildStartingPackages([
     { type: 'AND', _id: 'and1' },
     { type: 'AND', _id: 'and2' },

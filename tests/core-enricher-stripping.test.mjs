@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import test from 'node:test';
+
+const root = path.resolve(import.meta.dirname, '..');
 
 /**
  * Regression tests for Foundry inline-enricher and link-ref stripping.
@@ -7,6 +11,27 @@ import test from 'node:test';
  * ([[lookup @...]]{label}, [[/r 1d6]], @Check[...], @Damage[...]) which must
  * not leak into wizard card blurbs. Human-readable {labels} are kept.
  */
+
+test('spell selection keeps selected level 1 spells checked after rerender', () => {
+  const template = fs.readFileSync(path.join(root, 'ui/pages/spells.hbs'), 'utf8');
+  assert.match(template, /includes \.\.\/\.\.\/characterData\.selectedSpells this\.id/);
+  assert.doesNotMatch(template, /includes \.\.\/\.\.\/\.\.\/characterData\.selectedSpells this\.id/);
+});
+
+test('dnd5e race transformations accept keyed advancement data', async () => {
+  const { RaceTransformer } = await import('../core/content-transformers.js');
+  const race = RaceTransformer.transform({
+    id: 'r1',
+    name: 'High Elf',
+    system: {
+      advancement: {
+        size: { type: 'Size', configuration: { sizes: ['med'] } }
+      },
+      movement: { walk: 30 }
+    }
+  }, 'dnd5e.races');
+  assert.equal(race.sizeLabel, 'Medium');
+});
 
 test('dnd5e feat blurbs strip SRD 5.2 enrichers but keep their labels', async () => {
   const { FeatTransformer } = await import('../core/content-transformers.js');

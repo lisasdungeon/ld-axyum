@@ -3,6 +3,7 @@
  */
 
 import { extractSource, isHomebrewSource } from './content-loader.js';
+import { normalizeStartingEquipment } from './starting-equipment.js';
 
 function stripHtml(value, max = 180) {
   return String(value || '')
@@ -115,7 +116,10 @@ function extractDarkvision(traits, movement, topLevelSenses) {
 
 /** Modern (PHB 2024) species items grant size via a Size advancement, not system.traits.size. */
 function sizeFromAdvancement(advancement) {
-  const sizeAdv = (advancement || []).find((a) => a?.type === 'Size');
+  const entries = Array.isArray(advancement)
+    ? advancement
+    : (advancement && typeof advancement === 'object' ? Object.values(advancement) : []);
+  const sizeAdv = entries.find((a) => a?.type === 'Size');
   return sizeAdv?.configuration?.sizes || [];
 }
 
@@ -146,9 +150,7 @@ export const ClassTransformer = {
       savesLabel: saves.length ? saves.join(', ') : '—',
       primaryAbility,
       skills: doc.system?.skills || null,
-      startingEquipment: Array.isArray(doc.system?.startingEquipment)
-        ? doc.system.startingEquipment
-        : []
+      startingEquipment: normalizeStartingEquipment(doc.system?.startingEquipment)
     };
   }
 };

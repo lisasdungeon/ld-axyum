@@ -213,6 +213,13 @@ test('AxyumApp context builders, lifecycle, and action handlers cover branches',
     assert.ok(app._buildSpellsByLevel('Wizard', 3, true));
     assert.ok(app._buildSpellsByLevel('', 0, false));
     assert.ok(app._buildStartingEquipmentView());
+    app.characterData.class.startingEquipment = {
+      root: { type: 'OR', choices: [[{ type: 'linked', key: 'Item.staff', count: 1 }]] }
+    };
+    app.characterData.startingPackageId = null;
+    app.characterData.selectedEquipmentIds = [];
+    assert.equal(app._ensureStartingEquipmentSelection().length, 1);
+    assert.equal(app.characterData.selectedEquipmentItems[0].key, 'Item.staff');
     assert.ok(app._featSlotsAvailable() >= 0);
     assert.ok(app._buildEquipmentList());
     assert.ok(app._buildFeatsList());

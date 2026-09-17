@@ -12,6 +12,42 @@ function itemIdFromKey(key) {
   return parts[parts.length - 1] || null;
 }
 
+/**
+ * Normalize both Foundry's flat advancement-style entries and the older nested
+ * `{ type: 'OR', choices: [[...], [...]] }` representation into one flat tree.
+ */
+export function normalizeStartingEquipment(startingEquipment) {
+  const roots = Array.isArray(startingEquipment)
+    ? startingEquipment
+    : (startingEquipment && typeof startingEquipment === 'object' ? Object.values(startingEquipment) : []);
+  const out = [];
+  let generatedId = 0;
+  const nextId = (prefix) => `${prefix}-${generatedId++}`;
+
+  const visit = (entry, parentGroup = null, sort = 0) => {
+    if (!entry || typeof entry !== 'object') return;
+    const type = entry.type || 'linked';
+    const id = entry._id || nextId(type.toLowerCase());
+    const node = { ...entry, type, _id: id, group: entry.group ?? parentGroup, sort: entry.sort ?? sort };
+    out.push(node);
+
+    if (type === 'OR' && Array.isArray(entry.choices)) {
+      entry.choices.forEach((branch, index) => {
+        const branchId = nextId('and');
+        out.push({ type: 'AND', _id: branchId, group: id, sort: index });
+        const entries = Array.isArray(branch) ? branch : [branch];
+        entries.forEach((child, childIndex) => visit(child, branchId, childIndex));
+      });
+    } else {
+      const children = entry.items || entry.entries;
+      if (Array.isArray(children)) children.forEach((child, index) => visit(child, id, index));
+    }
+  };
+
+  roots.filter((entry) => entry && typeof entry === 'object').forEach((entry, index) => visit(entry, null, index));
+  return out;
+}
+
 function prettyItemName(key) {
   const id = itemIdFromKey(key) || '';
   // phbwepGreataxe00 → Greataxe, phbagExplorersPa → Explorers Pack
@@ -24,8 +60,8 @@ function prettyItemName(key) {
 export function resolveEquipmentEntry(entry, equipmentIndex = []) {
   const key = entry?.key || '';
   const id = itemIdFromKey(key);
-  const fromCache = equipmentIndex.find((e) => e.id === id)
-    || equipmentIndex.find((e) => key && String(e.packName) && key.includes(e.id));
+  const fromCache = equipmentIndex.find((e) => e?.id === id)
+    || equipmentIndex.find((e) => key && String(e?.packName) && e?.id && key.includes(e.id));
 
   const name = fromCache?.name || prettyItemName(key);
   const count = entry?.count > 0 ? entry.count : 1;
@@ -97,7 +133,7 @@ function buildPackageFromAnd(andNode, entries, equipmentIndex, label) {
  * @returns {{ packages: Array, mode: 'packages'|'single'|'empty' }}
  */
 export function buildStartingPackages(startingEquipment, equipmentIndex = []) {
-  const entries = Array.isArray(startingEquipment) ? startingEquipment : [];
+  const entries = normalizeStartingEquipment(startingEquipment);
   if (!entries.length) return { packages: [], mode: 'empty' };
 
   const topOr = entries.filter((e) => e.type === 'OR' && !e.group);
@@ -109,7 +145,7 @@ export function buildStartingPackages(startingEquipment, equipmentIndex = []) {
       .filter((e) => e.type === 'AND' && e.group === orRoot._id)
       .sort((a, b) => (a.sort || 0) - (b.sort || 0));
 
-    if (andChildren.length >= 2) {
+    if (andChildren.length >= 1) {
       const packages = andChildren.map((andNode, i) =>
         buildPackageFromAnd(andNode, entries, equipmentIndex, `Package ${String.fromCharCode(65 + i)}`)
       );

@@ -89,12 +89,12 @@
           {{#if this.length}}
             <div class="axyum-spells-grid">
               {{#each this}}
-                <label class="axyum-spell-card {{#if (includes ../../../characterData.selectedSpells this.id)}}is-selected{{/if}}">
+                <label class="axyum-spell-card {{#if (includes ../../characterData.selectedSpells this.id)}}is-selected{{/if}}">
                   <input type="checkbox"
                          name="spells"
                          value="{{this.id}}"
                          data-level="{{@../index}}"
-                         {{#if (includes ../../../characterData.selectedSpells this.id)}}checked{{/if}}>
+                         {{#if (includes ../../characterData.selectedSpells this.id)}}checked{{/if}}>
                   <span class="spell-check" aria-hidden="true"></span>
                   <span class="spell-card-content">
                     <span class="spell-name">{{this.name}}</span>

@@ -231,7 +231,7 @@ export class CharacterCreator {
       return null;
     };
 
-    const prepareItemData = async (sourceItem) => {
+    const prepareItemData = async (sourceItem, quantity = 1) => {
       if (!sourceItem) return null;
 
       try {
@@ -240,14 +240,28 @@ export class CharacterCreator {
           doc = game.items.get(sourceItem.id);
         } else if (sourceItem.packName) {
           const pack = game.packs.get(sourceItem.packName);
-          if (pack) {
-            doc = await pack.getDocument(sourceItem.id);
+          if (pack) doc = await pack.getDocument(sourceItem.id);
+        }
+
+        // Starting-equipment entries retain the original compendium UUID even
+        // when the equipment index is unavailable or uses a different id.
+        if (!doc && sourceItem.key) {
+          doc = await globalThis.fromUuid?.(sourceItem.key);
+          if (!doc && String(sourceItem.key).startsWith('Compendium.')) {
+            const parts = String(sourceItem.key).split('.');
+            const packName = parts.slice(1, -2).join('.');
+            const itemId = parts.at(-1);
+            const pack = game.packs?.get?.(packName);
+            if (pack && itemId) doc = await pack.getDocument(itemId);
           }
         }
 
         if (doc) {
           const data = doc.toObject();
           delete data._id;
+          if (quantity > 1) {
+            data.system = { ...(data.system || {}), quantity };
+          }
           return data;
         }
       } catch (err) {
@@ -314,12 +328,14 @@ export class CharacterCreator {
       }
     }
 
-    if (characterData.selectedEquipmentIds?.length) {
-      for (const id of characterData.selectedEquipmentIds) {
-        const source = findItemSource(id, 'equipment');
-        const itemData = await prepareItemData(source);
-        if (itemData) itemsToCreate.push(itemData);
-      }
+    const selectedEquipment = Array.isArray(characterData.selectedEquipmentItems)
+      && characterData.selectedEquipmentItems.length
+      ? characterData.selectedEquipmentItems
+      : (characterData.selectedEquipmentIds || []).map((id) => ({ id }));
+    for (const selected of selectedEquipment) {
+      const source = findItemSource(selected.id, 'equipment') || selected;
+      const itemData = await prepareItemData(source, selected.count || 1);
+      if (itemData) itemsToCreate.push(itemData);
     }
 
     const allSpells = [

@@ -90,8 +90,11 @@ export class CharacterModel {
     normalized.race = { ...defaults.race, ...(data?.race || {}) };
     normalized.background = { ...defaults.background, ...(data?.background || {}) };
     normalized.abilities = { ...defaults.abilities, ...(data?.abilities || {}) };
-    normalized.selectedEquipmentIds = Array.isArray(data?.selectedEquipmentIds) 
-      ? data.selectedEquipmentIds 
+    normalized.selectedEquipmentIds = Array.isArray(data?.selectedEquipmentIds)
+      ? data.selectedEquipmentIds
+      : [];
+    normalized.selectedEquipmentItems = Array.isArray(data?.selectedEquipmentItems)
+      ? data.selectedEquipmentItems
       : [];
     normalized.selectedCantrips = Array.isArray(data?.selectedCantrips)
       ? data.selectedCantrips

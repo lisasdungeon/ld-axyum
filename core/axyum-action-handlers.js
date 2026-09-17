@@ -52,6 +52,7 @@ export const AxyumActionHandlers = (Base) => class extends Base {
     this.characterData.startingPackageId = null;
     this.characterData.startingPackageChoices = {};
     this.characterData.selectedEquipmentIds = [];
+    this.characterData.selectedEquipmentItems = [];
     this.characterData.selectedCantrips = [];
     this.characterData.selectedSpells = [];
     this.characterData.skillProficiencies = [];
@@ -387,6 +388,7 @@ export const AxyumActionHandlers = (Base) => class extends Base {
       }
 
       this._updateDerivedStats();
+      this._ensureStartingEquipmentSelection?.();
 
       const actor = await this.creator.createCharacter(this.characterData);
       ui.notifications.info(`Character "${actor.name}" created successfully!`);
