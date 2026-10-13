@@ -51,6 +51,16 @@ export class SystemRegistry {
   }
 
   /**
+   * Dynamically import a system config module (overridable in tests).
+   * @param {string} systemId
+   * @returns {Promise<object>}
+   * @private
+   */
+  async _importSystemConfig(systemId) {
+    return import(`../systems/${systemId}/config.js`);
+  }
+
+  /**
    * Register built-in systems
    * @private
    */
@@ -59,8 +69,7 @@ export class SystemRegistry {
 
     for (const systemId of systemIds) {
       try {
-        // Dynamically import system config
-        const configModule = await import(`../systems/${systemId}/config.js`);
+        const configModule = await this._importSystemConfig(systemId);
         const config = configModule[`${systemId}Config`] || Object.values(configModule).find(value => value?.id === systemId);
 
         if (config) {

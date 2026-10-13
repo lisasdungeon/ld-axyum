@@ -1,10 +1,10 @@
 /**
  * GM Hub - Main orchestration interface for LD Axyum
- * Allows GMs to select game systems and launch appropriate wizards
+ * Allows GMs to select game systems and launch appropriate wizards.
+ * Wizard classes load on system-select (trigger-based), not at import time.
  */
 
 import { SystemRegistry } from './system-registry.js';
-import { AxyumApp } from '../core/axyum-app.js';
 import { forceRender } from '../core/multipath.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -108,7 +108,14 @@ class GmHubApp extends HandlebarsApplicationMixin(ApplicationV2) {
         return;
       }
 
-      const WizardClass = system.wizardClass || AxyumApp;
+      let WizardClass = system.wizardClass || null;
+      if (!WizardClass && typeof system.loadWizardClass === 'function') {
+        WizardClass = await system.loadWizardClass();
+      }
+      if (!WizardClass) {
+        const { AxyumApp } = await import('../core/axyum-app.js');
+        WizardClass = AxyumApp;
+      }
       const wizard = new WizardClass({ mode: 'create' });
       await forceRender(wizard);
     } catch (err) {
@@ -124,23 +131,23 @@ class GmHubApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   onSwitchTab(event) {
     const target = event.currentTarget;
-    const tabName = target.dataset.tab;
+    const tabName = target?.dataset?.tab;
     console.log('GM Hub | Switching to tab:', tabName);
 
     const root = getRootElement(this.element);
-    if (!root) return;
+    if (!root || typeof root.querySelectorAll !== 'function') return;
 
     // Update tab buttons
     root.querySelectorAll('.tab-button').forEach(btn => {
       btn.classList.remove('active');
     });
-    target.classList.add('active');
+    target?.classList?.add?.('active');
 
     // Update tab content
     root.querySelectorAll('.tab-content').forEach(content => {
       content.classList.remove('active');
     });
-    root.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
+    root.querySelector?.(`[data-tab="${tabName}"]`)?.classList?.add?.('active');
   }
 
   async onPreviewSheet(event, target) {

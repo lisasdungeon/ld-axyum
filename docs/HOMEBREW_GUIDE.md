@@ -3,13 +3,13 @@
 Comprehensive guide for using custom homebrew content (classes, races, spells, feats, equipment) in character creation.
 ---
 ## Table of Contents
-1. [Overview](#overview)
-2. [Supported Content Types](#supported-content-types)
-3. [Creating Homebrew Content](#creating-homebrew-content)
-4. [Content Validation](#content-validation)
-5. [Integration with Character Creation](#integration-with-character-creation)
-6. [Advanced Configuration](#advanced-configuration)
-7. [Troubleshooting](#troubleshooting)
+1. Overview
+2. Supported Content Types
+3. Creating Homebrew Content
+4. Content Validation
+5. Integration with Character Creation
+6. Advanced Configuration
+7. Troubleshooting
 ---
 ## Overview
 LD Axyum integrates seamlessly with Foundry VTT's homebrew content system. When you enable homebrew modules, custom content from those modules is automatically detected, validated, and merged with official D&D 5e Player's Handbook content.
@@ -183,7 +183,7 @@ LD Axyum looks for Foundry compendium packs (`.db` files) within your module. Pa
 ### Step 3: Add Items to Your Packs
 Use the Foundry VTT UI or JSON to add items to your compendium packs. Each item must have:
 - A unique name
-- Required fields for its content type (see [Supported Content Types](#supported-content-types))
+- Required fields for its content type (see Supported Content Types)
 - Proper JSON structure
 ---
 ## Content Validation

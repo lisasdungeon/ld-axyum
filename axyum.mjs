@@ -1,51 +1,126 @@
 /**
  * LD Axyum - Next Generation Multi-System Character Manager
- * Main module entry point (multipath v13/v14)
+ * Thin bootstrap: settings on init, heavy modules load only on user triggers.
  */
 
-import { GmHubApp } from './gm-hub/gm-hub-app.js';
-import { AxyumApp } from './core/axyum-app.js';
-import { RulesEngine } from './core/rules-engine.js';
-import { CharacterModel } from './core/character-model.js';
-import { CharacterExporter } from './core/character-exporter.js';
-import { CharacterImporter } from './core/character-importer.js';
-import { ExportImportUI } from './core/export-import-ui.js';
-import { SpellManagement } from './core/spell-management.js';
-import { AdvantageDisadvantageTracker } from './core/advantage-disadvantage-tracker.js';
-import { ProficiencyBonusAutomation } from './core/proficiency-bonus-automation.js';
-import CompendiumLoader from './core/compendium-loader.js';
-import { CompendiumSelector } from './ui/modals/compendium-selector.js';
 import { MODULE_ID, forceRender, getOpenApp } from './core/multipath.js';
-import { Dnd5eCharacterSheet } from './systems/dnd5e/sheet/dnd5e-sheet.js';
-import { SystemRegistry } from './gm-hub/system-registry.js';
+import { registerHandlebarsHelpers } from './core/handlebars-helpers.js';
 
-// ============================================
-// Module Initialization
-// ============================================
+export { registerHandlebarsHelpers };
+
 let _axyumInitialized = false;
-let _templatePromise = null;  // Cache the template loading promise
+let _templatePromise = null;
 let _systemRegistry = null;
+let _coreModules = null;
+let _coreModulesPromise = null;
 
-/** Resolve the wizard class for the active Foundry game system, falling back to AxyumApp (dnd5e). */
-async function getWizardClassForActiveSystem() {
-  const systemId = game.system?.id;
+/** Import map for heavy modules. Overridable in tests via __setCoreImporter. */
+let _coreImporter = async () => Promise.all([
+  import('./gm-hub/gm-hub-app.js'),
+  import('./core/axyum-app.js'),
+  import('./core/rules-engine.js'),
+  import('./core/character-model.js'),
+  import('./core/character-exporter.js'),
+  import('./core/character-importer.js'),
+  import('./core/export-import-ui.js'),
+  import('./core/spell-management.js'),
+  import('./core/advantage-disadvantage-tracker.js'),
+  import('./core/proficiency-bonus-automation.js'),
+  import('./core/compendium-loader.js'),
+  import('./ui/modals/compendium-selector.js'),
+  import('./gm-hub/system-registry.js')
+]);
+
+/** Test-only seam to force import failures / alternate loaders. */
+export function __setCoreImporter(fn) {
+  _coreImporter = fn;
+  _coreModules = null;
+  _coreModulesPromise = null;
+}
+
+/** Dynamic-import heavy feature modules once; cache forever. */
+async function loadCoreModules() {
+  if (_coreModules) return _coreModules;
+  if (_coreModulesPromise) return _coreModulesPromise;
+
+  _coreModulesPromise = (async () => {
+    const [
+      gmHubMod,
+      axyumAppMod,
+      rulesMod,
+      modelMod,
+      exporterMod,
+      importerMod,
+      exportImportMod,
+      spellMod,
+      advMod,
+      profMod,
+      loaderMod,
+      selectorMod,
+      registryMod
+    ] = await _coreImporter();
+
+    _coreModules = {
+      GmHubApp: gmHubMod.GmHubApp,
+      AxyumApp: axyumAppMod.AxyumApp,
+      RulesEngine: rulesMod.RulesEngine,
+      CharacterModel: modelMod.CharacterModel,
+      CharacterExporter: exporterMod.CharacterExporter,
+      CharacterImporter: importerMod.CharacterImporter,
+      ExportImportUI: exportImportMod.ExportImportUI,
+      SpellManagement: spellMod.SpellManagement,
+      AdvantageDisadvantageTracker: advMod.AdvantageDisadvantageTracker,
+      ProficiencyBonusAutomation: profMod.ProficiencyBonusAutomation,
+      CompendiumLoader: loaderMod.default,
+      CompendiumSelector: selectorMod.CompendiumSelector,
+      SystemRegistry: registryMod.SystemRegistry
+    };
+    return _coreModules;
+  })();
+
   try {
-    if (!_systemRegistry) _systemRegistry = new SystemRegistry();
-    const config = systemId ? await _systemRegistry.getSystem(systemId) : null;
-    if (config?.available && config?.wizardClass) return config.wizardClass;
-    console.warn(`LD Axyum | Falling back to AxyumApp (dnd5e) for active system "${systemId}"`, {
-      configFound: Boolean(config),
-      available: config?.available,
-      hasWizardClass: Boolean(config?.wizardClass)
-    });
-    return AxyumApp;
+    return await _coreModulesPromise;
   } catch (err) {
-    console.warn(`LD Axyum | Failed to resolve wizard for active system "${systemId}", falling back to AxyumApp`, err);
-    return AxyumApp;
+    _coreModulesPromise = null;
+    throw err;
   }
 }
 
-/** Open (or focus) the GM Hub — primary public entry. */
+/** Public accessor for macros / tests after modules have been loaded. */
+export async function getAxyumModules() {
+  return loadCoreModules();
+}
+
+async function resolveWizardClass(config, fallback) {
+  if (!config?.available) return null;
+  if (typeof config.loadWizardClass === 'function') {
+    const loaded = await config.loadWizardClass();
+    if (loaded) return loaded;
+  }
+  if (config.wizardClass) return config.wizardClass;
+  return null;
+}
+
+async function getWizardClassForActiveSystem() {
+  const mods = await loadCoreModules();
+  const systemId = game.system?.id;
+  try {
+    if (!_systemRegistry) _systemRegistry = new mods.SystemRegistry();
+    const config = systemId ? await _systemRegistry.getSystem(systemId) : null;
+    const WizardClass = await resolveWizardClass(config, mods.AxyumApp);
+    if (WizardClass) return WizardClass;
+    console.warn(`LD Axyum | Falling back to AxyumApp (dnd5e) for active system "${systemId}"`, {
+      configFound: Boolean(config),
+      available: config?.available,
+      hasWizardLoader: Boolean(config?.loadWizardClass || config?.wizardClass)
+    });
+    return mods.AxyumApp;
+  } catch (err) {
+    console.warn(`LD Axyum | Failed to resolve wizard for active system "${systemId}", falling back to AxyumApp`, err);
+    return mods.AxyumApp;
+  }
+}
+
 const openAxyum = async () => {
   console.log('LD Axyum | openAxyum called');
   try {
@@ -53,9 +128,10 @@ const openAxyum = async () => {
     if (game.ldAxyum?.open) {
       return await game.ldAxyum.open();
     }
+    const mods = await loadCoreModules();
     const existing = getOpenApp('gm-hub-app');
     if (existing) return forceRender(existing);
-    const app = new GmHubApp();
+    const app = new mods.GmHubApp();
     return forceRender(app);
   } catch (e) {
     console.error('LD Axyum | Failed to open:', e);
@@ -65,28 +141,29 @@ const openAxyum = async () => {
 
 globalThis.openLDAxyum = openAxyum;
 
-// ============================================
-// LAZY LOADING INITIALIZATION
-// ============================================
+/**
+ * Trigger-based initialization. Runs only when a user action needs Axyum
+ * (hub open, create character, sheet tools). Never from ready preload.
+ */
 async function initializeAxyumIfNeeded() {
   if (_axyumInitialized) return _templatePromise;
   try {
     _axyumInitialized = true;
-    
-    // Register helpers immediately (synchronous, fast)
+
     registerHandlebarsHelpers();
-    
-    // Start template loading - store promise for reuse
+
+    const { preloadHandlebarsTemplates } = await import('./core/template-loader.js');
     _templatePromise = preloadHandlebarsTemplates();
-    
-    // Public API (no legacy automation required)
+
+    const mods = await loadCoreModules();
+
     game.ldAxyum = {
       open: async () => {
         try {
           if (_templatePromise) await _templatePromise;
           const existing = getOpenApp('gm-hub-app');
           if (existing) return forceRender(existing);
-          const app = new GmHubApp();
+          const app = new mods.GmHubApp();
           return forceRender(app);
         } catch (err) {
           console.error('LD Axyum | Error in open():', err);
@@ -104,19 +181,30 @@ async function initializeAxyumIfNeeded() {
         const WizardClass = await getWizardClassForActiveSystem();
         return forceRender(new WizardClass({ mode: 'edit', actor }));
       },
-      openCompendiumSelector: async () => forceRender(new CompendiumSelector()),
-      GmHubApp, AxyumApp, RulesEngine, CharacterModel,
-      CharacterExporter, CharacterImporter, ExportImportUI, SpellManagement,
-      AdvantageDisadvantageTracker, ProficiencyBonusAutomation,
-      CompendiumLoader, CompendiumSelector
+      openCompendiumSelector: async () => {
+        await loadCoreModules();
+        return forceRender(new mods.CompendiumSelector());
+      },
+      GmHubApp: mods.GmHubApp,
+      AxyumApp: mods.AxyumApp,
+      RulesEngine: mods.RulesEngine,
+      CharacterModel: mods.CharacterModel,
+      CharacterExporter: mods.CharacterExporter,
+      CharacterImporter: mods.CharacterImporter,
+      ExportImportUI: mods.ExportImportUI,
+      SpellManagement: mods.SpellManagement,
+      AdvantageDisadvantageTracker: mods.AdvantageDisadvantageTracker,
+      ProficiencyBonusAutomation: mods.ProficiencyBonusAutomation,
+      CompendiumLoader: mods.CompendiumLoader,
+      CompendiumSelector: mods.CompendiumSelector
     };
-    
-    window.CharacterExporter = CharacterExporter;
-    window.CharacterImporter = CharacterImporter;
-    window.ExportImportUI = ExportImportUI;
-    window.SpellManagement = SpellManagement;
-    
-    const loader = new CompendiumLoader();
+
+    window.CharacterExporter = mods.CharacterExporter;
+    window.CharacterImporter = mods.CharacterImporter;
+    window.ExportImportUI = mods.ExportImportUI;
+    window.SpellManagement = mods.SpellManagement;
+
+    const loader = new mods.CompendiumLoader();
     game.ldAxyum.compendiumLoader = loader;
 
     console.log('LD Axyum | Starting background compendium load...');
@@ -135,123 +223,6 @@ async function initializeAxyumIfNeeded() {
     console.error('LD Axyum | Initialization failed', err);
     throw err;
   }
-}
-
-function hasHandlebarsHelper(name) {
-  if (Handlebars.helpers?.[name]) return true;
-  if (typeof Handlebars.helpers?.get === 'function' && Handlebars.helpers.get(name)) return true;
-  return false;
-}
-
-function registerHandlebarsHelper(name, fn) {
-  if (hasHandlebarsHelper(name)) return;
-  Handlebars.registerHelper(name, fn);
-}
-
-export function registerHandlebarsHelpers() {
-  registerHandlebarsHelper('eq', (a, b) => a === b);
-  registerHandlebarsHelper('ne', (a, b) => a !== b);
-  registerHandlebarsHelper('gt', (a, b) => a > b);
-  registerHandlebarsHelper('gte', (a, b) => a >= b);
-  registerHandlebarsHelper('lt', (a, b) => a < b);
-  registerHandlebarsHelper('lte', (a, b) => a <= b);
-  registerHandlebarsHelper('add', (a, b) => a + b);
-  registerHandlebarsHelper('sum', (a, b) => a + b);
-  registerHandlebarsHelper('includes', (arr, val) => Array.isArray(arr) && arr.includes(val));
-  registerHandlebarsHelper('subtract', (a, b) => a - b);
-  registerHandlebarsHelper('multiply', (a, b) => a * b);
-  registerHandlebarsHelper('divide', (a, b) => b !== 0 ? Math.floor(a / b) : 0);
-  registerHandlebarsHelper('abs', (a) => Math.abs(a));
-  registerHandlebarsHelper('percent', (current, total) => Math.round((current / (total || 1)) * 100));
-  // Never replace Foundry's localize helper. Replacing it blanks core UI templates.
-  registerHandlebarsHelper('uppercase', (str) => String(str || '').toUpperCase());
-  registerHandlebarsHelper('localize', (key) => game.i18n?.localize?.(String(key)) || String(key));
-  registerHandlebarsHelper('formatModifier', (value) => {
-    const num = Number(value) || 0;
-    return num >= 0 ? `+${num}` : `${num}`;
-  });
-  registerHandlebarsHelper('abilityMod', (score) => {
-    const s = Number(score) || 10;
-    const mod = Math.floor((s - 10) / 2);
-    return mod >= 0 ? `+${mod}` : `${mod}`;
-  });
-  registerHandlebarsHelper('sumAll', function() {
-    const args = Array.prototype.slice.call(arguments, 0, -1);
-    return args.reduce((sum, val) => sum + (Number(val) || 0), 0);
-  });
-  registerHandlebarsHelper('join', (arr, separator) => {
-    if (!Array.isArray(arr)) return '';
-    return arr.join(separator || ', ');
-  });
-  registerHandlebarsHelper('repeat', function(count, options) {
-    let result = '';
-    for (let i = 0; i < count; i++) {
-      result += options.fn({ index: i });
-    }
-    return result;
-  });
-  registerHandlebarsHelper('lookup', (obj, key) => {
-    if (!obj) return null;
-    return obj[key];
-  });
-}
-
-async function preloadHandlebarsTemplates() {
-  const templatePaths = [
-    // Main app template
-    'modules/ld-axyum/ui/axyum-app.hbs',
-    
-    // Wizard pages
-    'modules/ld-axyum/ui/pages/welcome.hbs',
-    'modules/ld-axyum/ui/pages/role.hbs',
-    'modules/ld-axyum/ui/pages/class.hbs',
-    'modules/ld-axyum/ui/pages/multiclass.hbs',
-    'modules/ld-axyum/ui/pages/race.hbs',
-    'modules/ld-axyum/ui/pages/background.hbs',
-    'modules/ld-axyum/ui/pages/abilities.hbs',
-    'modules/ld-axyum/ui/pages/skills.hbs',
-    'modules/ld-axyum/ui/pages/proficiencies.hbs',
-    'modules/ld-axyum/ui/pages/equipment.hbs',
-    'modules/ld-axyum/ui/pages/spells.hbs',
-    'modules/ld-axyum/ui/pages/details.hbs',
-    'modules/ld-axyum/ui/pages/biography.hbs',
-    'modules/ld-axyum/ui/pages/summary.hbs',
-    'modules/ld-axyum/ui/pages/feat-selection.hbs',
-    
-    // Sheet templates
-    'modules/ld-axyum/ui/sheet/character-sheet.hbs',
-    'modules/ld-axyum/ui/sheet/axyum-character-preview-simple.hbs',
-    
-    // Modal templates
-    'modules/ld-axyum/ui/modals/export-modal.hbs',
-    'modules/ld-axyum/ui/modals/import-modal.hbs',
-    'modules/ld-axyum/ui/modals/compendium-selector.hbs'
-  ];
-
-  // Fetch all templates in parallel and register as partials
-  const fetchPromises = templatePaths.map(async (path) => {
-    try {
-      const response = await fetch(path);
-      if (!response.ok) return null;
-      const text = await response.text();
-      return { path, text };
-    } catch (err) {
-      console.warn(`LD Axyum | Failed to load template: ${path}`);
-      return null;
-    }
-  });
-
-  const results = await Promise.all(fetchPromises);
-  
-  // Register all templates as partials
-  for (const result of results) {
-    if (!result) continue;
-    const { path, text } = result;
-    const partialName = path.replace(/\.hbs$/, '');
-    Handlebars.registerPartial(partialName, text);
-  }
-  
-  console.log('LD Axyum | Templates loaded and partials registered');
 }
 
 // ============================================
@@ -313,7 +284,6 @@ Hooks.once('init', async () => {
       onChange: () => ui.controls?.render?.({ reset: true, force: true })
     });
 
-    // Multipath Object shapes (never bare Array)
     game.settings.register(MODULE_ID, 'contentSources', {
       scope: 'world',
       config: false,
@@ -325,11 +295,10 @@ Hooks.once('init', async () => {
     console.warn('LD Axyum | Settings registration error', e);
   }
 
-  // Register the Axyum character sheet as an available option for dnd5e characters.
-  // makeDefault is false — only characters created by the wizard (flagged with
-  // core.sheetClass) open with it automatically; others keep their existing sheet.
+  // Sheet class is loaded only when the active system needs it (trigger: init + dnd5e).
   if (game.system?.id === 'dnd5e') {
     try {
+      const { Dnd5eCharacterSheet } = await import('./systems/dnd5e/sheet/dnd5e-sheet.js');
       const DocumentSheetConfig = foundry.applications.apps.DocumentSheetConfig;
       DocumentSheetConfig.registerSheet(Actor, MODULE_ID, Dnd5eCharacterSheet, {
         types: ['character'],
@@ -429,30 +398,12 @@ Hooks.on('renderActorDirectory', (app, html) => {
 });
 
 // ============================================
-// Hook: ready - Initialize Core Components
+// Hook: ready - light only (controls refresh)
+// Heavy init is trigger-based via openAxyum / sidebar.
 // ============================================
 Hooks.once('ready', async () => {
-  console.log('LD Axyum | Ready hook - pre-loading everything in background');
-  initializeAxyumIfNeeded();
+  console.log('LD Axyum | Ready hook - controls refresh only');
   setTimeout(() => {
     if (ui.controls) ui.controls.render({ reset: true, force: true });
   }, 1000);
 });
-
-// ============================================
-// Exports
-// ============================================
-
-export { 
-  AxyumApp, 
-  RulesEngine, 
-  CharacterModel, 
-  CharacterExporter, 
-  CharacterImporter, 
-  ExportImportUI,
-  SpellManagement,
-  AdvantageDisadvantageTracker,
-  ProficiencyBonusAutomation,
-  CompendiumLoader,
-  CompendiumSelector
-};

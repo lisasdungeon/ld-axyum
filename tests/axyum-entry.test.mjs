@@ -23,9 +23,14 @@ test('axyum.mjs registers hooks, helpers, API, and scene controls', async () => 
 
     // dynamic import after globals exist
     const mod = await import('../axyum.mjs');
-    assert.ok(mod.AxyumApp);
-    assert.ok(mod.CompendiumLoader);
+    assert.equal(typeof mod.getAxyumModules, 'function');
+    assert.equal(typeof mod.registerHandlebarsHelpers, 'function');
     assert.ok(globalThis.openLDAxyum);
+
+    // Heavy modules stay unloaded until a user trigger
+    const loaded = await mod.getAxyumModules();
+    assert.ok(loaded.AxyumApp);
+    assert.ok(loaded.CompendiumLoader);
 
     // fire init
     const init = globalThis.Hooks._once.get('init');
@@ -71,10 +76,9 @@ test('axyum.mjs registers hooks, helpers, API, and scene controls', async () => 
     await init();
     globalThis.game.system.id = 'dnd5e';
 
-    // ready hook
+    // ready hook is light-only (controls refresh). Heavy init is trigger-based.
     const ready = globalThis.Hooks._once.get('ready');
     await ready();
-    // second init path for API already created
     await ready();
     await new Promise((resolve) => setTimeout(resolve, 1100));
     assert.deepEqual(controlRenders, [
@@ -82,12 +86,8 @@ test('axyum.mjs registers hooks, helpers, API, and scene controls', async () => 
       { reset: true, force: true }
     ]);
 
-    // openAxyum paths — ready already initialized; ensure API still present
-    if (!globalThis.game.ldAxyum?.open) {
-      // if a prior step wiped API, reconstruct minimal surface is not possible
-      // without private flags; openLDAxyum should have initialized during ready
-      await globalThis.openLDAxyum();
-    }
+    // openAxyum is the trigger that loads core modules and builds the public API
+    await globalThis.openLDAxyum();
     assert.ok(globalThis.game.ldAxyum?.open);
     await globalThis.openLDAxyum();
 
@@ -102,6 +102,49 @@ test('axyum.mjs registers hooks, helpers, API, and scene controls', async () => 
     await globalThis.game.ldAxyum.openCreate();
     await globalThis.game.ldAxyum.openEdit({ id: 'a1' });
     await globalThis.game.ldAxyum.openCompendiumSelector();
+
+    // Wizard resolve fallback when active system has no loader / wizardClass
+    {
+      const mods = await mod.getAxyumModules();
+      const registry = new mods.SystemRegistry();
+      await registry.initialize();
+      const prevGet = mods.SystemRegistry.prototype.getSystem;
+      // Force fallback warn path (available but empty wizard surface)
+      mods.SystemRegistry.prototype.getSystem = async () => ({
+        id: 'empty',
+        available: true,
+        wizardClass: null
+      });
+      // Re-bind registry used inside module by poking game system and calling openCreate
+      // which resolves wizard class again
+      const prevSys = globalThis.game.system.id;
+      globalThis.game.system.id = 'empty';
+      // Reset cached registry by re-opening create; internal cache may still hold old registry.
+      // Cover catch path by throwing from getSystem.
+      mods.SystemRegistry.prototype.getSystem = async () => { throw new Error('registry boom'); };
+      await globalThis.game.ldAxyum.openCreate();
+      // Cover warn fallback: available config, loadWizardClass returns null, no wizardClass
+      mods.SystemRegistry.prototype.getSystem = async () => ({
+        id: 'empty',
+        available: true,
+        wizardClass: null,
+        async loadWizardClass() { return null; }
+      });
+      await globalThis.game.ldAxyum.openCreate();
+      // Cover static wizardClass path (no loadWizardClass)
+      class StubWizard {
+        constructor() { this.mode = 'create'; }
+        async render() { return this; }
+      }
+      mods.SystemRegistry.prototype.getSystem = async () => ({
+        id: 'stub',
+        available: true,
+        wizardClass: StubWizard
+      });
+      await globalThis.game.ldAxyum.openCreate();
+      mods.SystemRegistry.prototype.getSystem = prevGet;
+      globalThis.game.system.id = prevSys;
+    }
 
     // open() error path
     const realOpen = globalThis.game.ldAxyum.open;
@@ -273,10 +316,33 @@ test('axyum.mjs registers hooks, helpers, API, and scene controls', async () => 
     // cannot easily re-enter private flag; cover open when already init
     await globalThis.openLDAxyum();
 
-    // export surface
-    assert.ok(mod.RulesEngine);
-    assert.ok(mod.CharacterModel);
-    assert.ok(mod.ExportImportUI);
+    // export surface via lazy loader
+    const exports = await mod.getAxyumModules();
+    assert.ok(exports.RulesEngine);
+    assert.ok(exports.CharacterModel);
+    assert.ok(exports.ExportImportUI);
+
+    // Force core importer failure + recovery
+    mod.__setCoreImporter(async () => { throw new Error('import fail'); });
+    await assert.rejects(() => mod.getAxyumModules(), /import fail/);
+    // Restore real importer by reloading modules through default path
+    mod.__setCoreImporter(async () => Promise.all([
+      import('../gm-hub/gm-hub-app.js'),
+      import('../core/axyum-app.js'),
+      import('../core/rules-engine.js'),
+      import('../core/character-model.js'),
+      import('../core/character-exporter.js'),
+      import('../core/character-importer.js'),
+      import('../core/export-import-ui.js'),
+      import('../core/spell-management.js'),
+      import('../core/advantage-disadvantage-tracker.js'),
+      import('../core/proficiency-bonus-automation.js'),
+      import('../core/compendium-loader.js'),
+      import('../ui/modals/compendium-selector.js'),
+      import('../gm-hub/system-registry.js')
+    ]));
+    const recovered = await mod.getAxyumModules();
+    assert.ok(recovered.AxyumApp);
   } finally {
     restoreFoundryMock(previous);
   }

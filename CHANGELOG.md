@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Rule remediation pass against `Must Follow These Rules For Every Build.md` and the Dev Bible.
+- Converted `axyum.mjs` to a thin bootstrap: heavy modules load only on user triggers (hub open, create/edit, sheet register, sidebar). Ready no longer preloads the full stack.
+- System configs (`dnd5e`, `pf2e`) no longer statically import wizard/rules classes; they expose `loadWizardClass` (and related) loaders.
+- GM Hub launches wizards through those loaders, with a dynamic fallback import only when needed.
+- Removed `<em>` markup and `font-style: italic` usages; empty/hint text uses `.axyum-unset`.
+- Removed markdown hashtag TOC anchors from `docs/HOMEBREW_GUIDE.md`.
+- Split Handlebars helpers and template preload into `core/handlebars-helpers.js` and `core/template-loader.js` (500 LOC cap).
+- Expanded automated coverage: 175 tests, **100.00% lines**, 85.21% branches, 98.46% functions. Branch and function coverage are still below the 100/100/100 rule; remaining gaps are documented here and are not claimed as complete.
+
 ## 1.0.9 - 2026-09-17
 
 - Fixed dnd5e race loading when advancement data is keyed as an object.

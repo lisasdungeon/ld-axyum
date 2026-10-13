@@ -78,7 +78,6 @@
 
 .placeholder {
   color: rgba(255, 255, 255, 0.2);
-  font-style: italic;
 }
 
 /* ========================================
@@ -138,7 +137,6 @@
 
 .preview-char-subtitle .placeholder {
   color: rgba(255, 255, 255, 0.3);
-  font-style: italic;
 }
 
 .preview-char-bg {

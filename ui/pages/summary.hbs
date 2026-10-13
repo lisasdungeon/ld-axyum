@@ -17,9 +17,9 @@
   <div class="summary-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem;">
     <div class="axyum-summary-card">
       <h3>Basic Information</h3>
-      <p><strong>Class:</strong> {{#if characterData.class.name}}{{characterData.class.name}} (Level {{characterData.class.level}}){{else}}<em>Not selected</em>{{/if}}</p>
-      <p><strong>Race:</strong> {{#if characterData.race.name}}{{characterData.race.name}}{{else}}<em>Not selected — go back to Race</em>{{/if}}</p>
-      <p><strong>Background:</strong> {{#if characterData.background.name}}{{characterData.background.name}}{{else}}<em>Not selected — go back to Background</em>{{/if}}</p>
+      <p><strong>Class:</strong> {{#if characterData.class.name}}{{characterData.class.name}} (Level {{characterData.class.level}}){{else}}<span class="axyum-unset">Not selected</span>{{/if}}</p>
+      <p><strong>Race:</strong> {{#if characterData.race.name}}{{characterData.race.name}}{{else}}<span class="axyum-unset">Not selected — go back to Race</span>{{/if}}</p>
+      <p><strong>Background:</strong> {{#if characterData.background.name}}{{characterData.background.name}}{{else}}<span class="axyum-unset">Not selected — go back to Background</span>{{/if}}</p>
       <p><strong>Alignment:</strong> {{characterData.details.alignment}}</p>
       <p><strong>Languages:</strong> {{selectedLanguageCount}} / {{totalLanguageSlots}}</p>
     </div>
@@ -49,10 +49,10 @@
     <!-- Biography Preview -->
     <div class="axyum-summary-card">
       <h3>Biography Preview</h3>
-      <p><strong>Traits:</strong> {{#if characterData.details.traits}}{{characterData.details.traits}}{{else}}<em>Not set</em>{{/if}}</p>
-      <p><strong>Ideals:</strong> {{#if characterData.details.ideals}}{{characterData.details.ideals}}{{else}}<em>Not set</em>{{/if}}</p>
-      <p><strong>Bonds:</strong> {{#if characterData.details.bonds}}{{characterData.details.bonds}}{{else}}<em>Not set</em>{{/if}}</p>
-      <p><strong>Flaws:</strong> {{#if characterData.details.flaws}}{{characterData.details.flaws}}{{else}}<em>Not set</em>{{/if}}</p>
+      <p><strong>Traits:</strong> {{#if characterData.details.traits}}{{characterData.details.traits}}{{else}}<span class="axyum-unset">Not set</span>{{/if}}</p>
+      <p><strong>Ideals:</strong> {{#if characterData.details.ideals}}{{characterData.details.ideals}}{{else}}<span class="axyum-unset">Not set</span>{{/if}}</p>
+      <p><strong>Bonds:</strong> {{#if characterData.details.bonds}}{{characterData.details.bonds}}{{else}}<span class="axyum-unset">Not set</span>{{/if}}</p>
+      <p><strong>Flaws:</strong> {{#if characterData.details.flaws}}{{characterData.details.flaws}}{{else}}<span class="axyum-unset">Not set</span>{{/if}}</p>
     </div>
   </div>
 

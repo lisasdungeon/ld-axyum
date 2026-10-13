@@ -11,3 +11,6 @@ Must Follow These Rules For Every Build.md
 
 # Patreon release write-ups (local only, never shipped or pushed)
 patreon-posts/
+
+# Local Freebuff tooling metadata
+.freebuff/

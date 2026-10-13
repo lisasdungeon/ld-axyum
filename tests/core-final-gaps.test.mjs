@@ -98,6 +98,29 @@ test('final residual branches for app mixins, creator, and axyum entry', async (
     app.characterData.startingPackageChoices = {};
     const view = app._buildStartingEquipmentView();
     assert.ok(view);
+    // Default first-package choice options when no package has been selected yet
+    const realBuildView = app._buildStartingEquipmentView.bind(app);
+    app._buildStartingEquipmentView = () => ({
+      packages: [{
+        id: 'pkg-choice',
+        label: 'Package With Choice',
+        items: [{ id: 'base', name: 'Base' }],
+        choices: [
+          { id: 'ch1', options: [{ id: 'optA', name: 'Option A' }, { id: 'optB', name: 'Option B' }] },
+          { id: 'ch2', options: [] }
+        ]
+      }],
+      mode: 'packages',
+      selectedItems: [{ id: 'base', name: 'Base' }, { id: 'optA', name: 'Option A' }]
+    });
+    app.characterData.startingPackageId = null;
+    app.characterData.startingPackageChoices = {};
+    const ensured = app._ensureStartingEquipmentSelection();
+    assert.equal(app.characterData.startingPackageId, 'pkg-choice');
+    assert.equal(app.characterData.startingPackageChoices.ch1, 'optA');
+    assert.equal(app.characterData.startingPackageChoices.ch2, undefined);
+    assert.equal(ensured.length, 2);
+    app._buildStartingEquipmentView = realBuildView;
 
     // equipment filter branches
     app.currentEquipmentFilter = 'weapon';
@@ -355,7 +378,8 @@ test('final residual branches for app mixins, creator, and axyum entry', async (
     });
 
     const axyum = await import('../axyum.mjs');
-    assert.ok(axyum.AxyumApp);
+    const modules = await axyum.getAxyumModules();
+    assert.ok(modules.AxyumApp);
     // force openAxyum fallback when open missing but initialized
     if (globalThis.game.ldAxyum) {
       const prev = globalThis.game.ldAxyum.open;

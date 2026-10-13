@@ -1,9 +1,8 @@
 /**
  * D&D 5e System Configuration
- * Defines the structure and metadata for D&D 5e support
+ * Defines the structure and metadata for D&D 5e support.
+ * Wizard class loads on demand (lazy / trigger-based).
  */
-
-import { AxyumApp } from '../../core/axyum-app.js';
 
 export const dnd5eConfig = {
   id: 'dnd5e',
@@ -15,14 +14,16 @@ export const dnd5eConfig = {
   version: '1.0.0',
   available: true,
 
-  // System components
-  wizardClass: AxyumApp,
+  wizardClass: null,
 
-  // System requirements
+  async loadWizardClass() {
+    const { AxyumApp } = await import('../../core/axyum-app.js');
+    return AxyumApp;
+  },
+
   requiredFoundrySystem: 'dnd5e',
   minimumFoundryVersion: '13.0.0',
 
-  // Feature flags
   features: {
     classes: true,
     races: true,
