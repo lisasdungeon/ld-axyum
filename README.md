@@ -53,7 +53,7 @@ Hooks.on('axyum.buildActorUpdate', (characterData, updates) => {});
 
 ## License
 
-LD Proprietary License. See [LICENSE-LD-PROPRIETARY.md](LICENSE-LD-PROPRIETARY.md).
+MIT. See [LICENSE](LICENSE).
 
 ## Changelog
 
